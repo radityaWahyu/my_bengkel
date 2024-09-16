@@ -1,0 +1,1 @@
+import{c as a}from"./utils--eAPk3wG.js";import{d as o,o as t,c as r,k as c,n as l,u as m}from"./app-CB_Q1yd6.js";const u=o({__name:"AlertTitle",props:{class:{}},setup(e){const s=e;return(n,i)=>(t(),r("h5",{class:l(m(a)("mb-1 font-medium leading-none tracking-tight",s.class))},[c(n.$slots,"default")],2))}});export{u as _};
