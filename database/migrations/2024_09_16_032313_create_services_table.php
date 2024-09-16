@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Payment;
+use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -12,7 +15,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('service_code', 50);
+            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
+            $table->enum('status', ['waiting', 'process', 'pending', 'finish'])->default('waiting');
+            $table->bigInteger('total')->default(0);
+            $table->foreignIdFor(Vehicle::class)->constrained()->restrictOnDelete();
+            $table->foreignIdFor(Payment::class)->nullable()->constrained()->nullOnDelete();
+            $table->text('descrtiption');
+            $table->text('notes')->nullable();
+            $table->date('finished_date')->nullable();
+            $table->date('return_date')->nullable();
             $table->timestamps();
         });
     }

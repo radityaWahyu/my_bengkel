@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Models\Payment;
-use App\Models\Customer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -14,13 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('jurnals', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('sale_code', 50);
+            $table->string('jurnal_code')->index()->unique();
+            $table->integer('income')->default(0);
+            $table->integer('expense')->default(0);
+            $table->string('description');
+            $table->date('transaction_date');
+            $table->uuid('transactable_id');
+            $table->string('transactable_type');
             $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
-            $table->bigInteger('total')->default(0);
-            $table->foreignIdFor(Customer::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Payment::class)->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('jurnals');
     }
 };
