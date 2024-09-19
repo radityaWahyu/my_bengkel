@@ -85,6 +85,7 @@ class CategoryController extends Controller
     {
         try {
             if (!$request->ajax()) return false;
+
             return response()->json([
                 'messages' => 'Kategori ditemukan',
                 'data' => new CategoryResource($category)
@@ -120,6 +121,16 @@ class CategoryController extends Controller
             return redirect()->back()->with('success', 'Data Kategori berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
+    public function deleteAll(Request $request)
+    {
+        try {
+            Category::destroy($request->ids);
+            return to_route('backoffice.category.index')->with('success', 'Data Kategori berhasil dihapus.');
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception);
         }
     }
 }

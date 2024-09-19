@@ -122,4 +122,14 @@ class RackController extends Controller
             return redirect()->back()->with('error', $exception->errorInfo);
         }
     }
+
+    public function deleteAll(Request $request)
+    {
+        try {
+            Rack::destroy($request->ids);
+            return to_route('backoffice.rack.index')->with('success', 'Data Rack berhasil dihapus.');
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception);
+        }
+    }
 }

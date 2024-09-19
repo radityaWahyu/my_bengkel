@@ -16,6 +16,7 @@ import {
   ArrowDownUp,
   Search,
   X,
+  Trash2,
 } from "lucide-vue-next";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
@@ -27,6 +28,7 @@ import DataTable from "@/Components/App/DataTable.vue";
 import RackForm from "@/Components/Rack/RackForm.vue";
 import RackButtonAction from "@/Components/Rack/RackButtonAction.vue";
 import { useHttpService } from "@/Services/useHttpServices";
+import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 
 const props = defineProps<{
   racks: { data: IRack[]; meta: IPaginationMeta };
@@ -45,6 +47,7 @@ const formState = reactive({
 
 const httpService = useHttpService();
 const rack = ref<IRack>();
+const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
 const perPage = ref(props.racks.meta.per_page);
 const isLoading = ref<boolean>(false);
@@ -196,6 +199,30 @@ const onUpdated = async (id: string) => {
   }
 };
 
+const deleteAll = () => {
+  router.post(
+    route("backoffice.rack.delete-all"),
+    {
+      ids: selectedId.value,
+    },
+    {
+      onStart: () => {
+        openDeleteConfirm.value = false;
+        isLoading.value = true;
+      },
+      onFinish: () => {
+        isLoading.value = false;
+        selectedId.value = [];
+        rackTable.value?.resetTable();
+      },
+    }
+  );
+};
+const cancelDeleteAll = () => {
+  selectedId.value = [];
+  rackTable.value?.resetTable();
+};
+
 watchDebounced(
   search,
   () => {
@@ -214,7 +241,54 @@ watchDebounced(
       </div>
 
       <div class="px-4">
+        <div class="flex items-center gap-1" v-if="selectedId.length > 0">
+          <Button
+            class="-tracking-wider space-x-2"
+            type="button"
+            variant="outline"
+            :disabled="isLoading"
+            @click="cancelDeleteAll"
+          >
+            <span>Batalkan</span>
+          </Button>
+          <Button
+            class="-tracking-wider space-x-2"
+            type="button"
+            variant="destructive"
+            :disabled="isLoading"
+            @click="openDeleteConfirm = true"
+          >
+            <svg
+              class="size-4 animate-spin"
+              viewBox="0 0 100 100"
+              v-if="isLoading"
+            >
+              <circle
+                fill="none"
+                stroke-width="12"
+                class="stroke-white"
+                cx="50"
+                cy="50"
+                r="40"
+              />
+              <circle
+                fill="none"
+                stroke-width="12"
+                class="stroke-blue-500"
+                stroke-dasharray="250"
+                stroke-dashoffset="210"
+                cx="50"
+                cy="50"
+                r="40"
+              />
+            </svg>
+            <Trash2 class="size-4" v-else />
+            <span v-if="isLoading">Menghapus data</span>
+            <span v-else>Hapus data</span>
+          </Button>
+        </div>
         <Button
+          v-else
           class="-tracking-wider space-x-2"
           type="button"
           @click="addRack"
@@ -269,5 +343,21 @@ watchDebounced(
       :rack="rack"
       :edit="formState.edit"
     />
+    <ConfirmDialog
+      v-model="openDeleteConfirm"
+      cancel-text="Batalkan"
+      ok-text="Hapus data"
+      @cancel="openDeleteConfirm = false"
+      @ok="deleteAll"
+    >
+      <template #title>
+        <div>Konfirmasi Hapus Data</div>
+      </template>
+      <template #description>
+        <div>
+          Apakah anda ingin menghapus {{ selectedId.length }} data ini ?
+        </div>
+      </template>
+    </ConfirmDialog>
   </div>
 </template>

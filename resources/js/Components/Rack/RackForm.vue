@@ -141,7 +141,7 @@ const onClose = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="nama kategori..."
+                  placeholder="nama rak..."
                   v-bind="componentField"
                   v-model="rackForm.name"
                   :class="{
