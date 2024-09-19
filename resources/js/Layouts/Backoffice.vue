@@ -19,7 +19,7 @@ watch(
       alert.show = !!value.success;
       alert.type = "success";
       alert.message = value.success;
-      setTimeout(() => (alert.show = false), 3000);
+      setTimeout(() => (alert.show = false), 2000);
     } else if (!!value.error) {
       alert.show = !!value.error;
       alert.type = "error";

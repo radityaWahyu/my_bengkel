@@ -31,10 +31,10 @@ Route::prefix('backoffice')->group(function () {
 
     Route::prefix('rak')->controller(RackController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.rack.index');
-        Route::get('/{category}', 'edit')->name('backoffice.rack.edit');
+        Route::get('/{rack}', 'edit')->name('backoffice.rack.edit');
         Route::post('/', 'store')->name('backoffice.rack.store');
         Route::post('/delete_all', 'deleteAll')->name('backoffice.rack.delete-all');
-        Route::delete('/{category}', 'destroy')->name('backoffice.rack.delete');
-        Route::put('/{category}', 'update')->name('backoffice.rack.update');
+        Route::delete('/{rack}', 'destroy')->name('backoffice.rack.delete');
+        Route::put('/{rack}', 'update')->name('backoffice.rack.update');
     });
 });

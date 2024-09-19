@@ -7,6 +7,7 @@ export default {
 </script>
 <script setup lang="ts">
 import { ref, h, reactive } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
 import {
   Plus,
@@ -14,6 +15,7 @@ import {
   ArrowUpDown,
   ArrowDownUp,
   Search,
+  X,
 } from "lucide-vue-next";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
@@ -193,6 +195,14 @@ const onUpdated = async (id: string) => {
     formState.open = true;
   }
 };
+
+watchDebounced(
+  search,
+  () => {
+    getCategories(props.categories.meta.current_page);
+  },
+  { debounce: 500, maxWait: 1000 }
+);
 </script>
 <template>
   <Head title="Data Kategori" />
@@ -231,17 +241,23 @@ const onUpdated = async (id: string) => {
         @change-page="getCategories"
       >
         <template #filter>
-          <div class="relative w-full items-center">
+          <div class="relative w-1/2 items-center">
             <Input
-              id="search"
+              v-model="search"
               type="text"
               placeholder="Cari data..."
-              class="pl-10 w-1/2 bg-white"
+              class="pl-10 w-full bg-white"
             />
             <span
-              class="absolute start-0 inset-y-0 flex items-center justify-center px-2"
+              class="absolute inset-y-0 flex items-center justify-center px-2"
             >
               <Search class="size-4 text-muted-foreground" />
+            </span>
+            <span
+              class="absolute right-0 inset-y-0 flex items-center justify-center px-2"
+              v-if="search !== null && search.length > 0"
+            >
+              <X class="size-4 text-muted-foreground" @click="search = ''" />
             </span></div
         ></template>
       </DataTable>
