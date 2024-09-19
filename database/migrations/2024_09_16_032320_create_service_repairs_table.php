@@ -16,9 +16,12 @@ return new class extends Migration
     {
         Schema::create('service_repairs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Repair::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Service::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Employee::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('repair_id');
+            $table->foreignUuid('service_id');
+            $table->foreignUuid('employee_id')->nullable();
+            $table->foreign('repair_id')->on('repairs')->references('id')->onDelete('restrict');
+            $table->foreign('service_id')->on('services')->references('id')->onDelete('cascade');
+            $table->foreign('employee_id')->on('employees')->references('id')->onDelete('set null');
             $table->integer('qty');
             $table->bigInteger('price');
             $table->bigInteger('total');

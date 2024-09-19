@@ -65,6 +65,25 @@
   }
 }
 
+@layer components {
+  .scrollbar::-webkit-scrollbar {
+    width: 9px;
+    height: 11px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-600;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

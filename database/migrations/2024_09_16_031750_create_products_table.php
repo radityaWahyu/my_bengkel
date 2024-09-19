@@ -20,9 +20,12 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->bigInteger('sale_price')->default(0);
             $table->bigInteger('buy_price')->default(0);
-            $table->foreignIdFor(Category::class)->nullable()->constrained()->nullOnDelete();
-            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
-            $table->foreignIdFor(Rack::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('category_id')->nullable();
+            $table->foreignUuid('user_id')->nullable();
+            $table->foreignUuid('rack_id')->nullable();
+            $table->foreign('category_id')->on('categories')->references('id')->onDelete('set null');
+            $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
+            $table->foreign('rack_id')->on('racks')->references('id')->onDelete('set null');
             $table->timestamps();
         });
     }

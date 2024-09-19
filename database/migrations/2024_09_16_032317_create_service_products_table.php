@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('service_products', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Product::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Service::class)->constrained()->cascadeOnDelete();
+            $table->foreignUuid('product_id');
+            $table->foreignUuid('service_id');
+            $table->foreign('product_id')->on('products')->references('id')->onDelete('restrict');
+            $table->foreign('service_id')->on('services')->references('id')->onDelete('cascade');
             $table->integer('qty');
             $table->bigInteger('price');
             $table->bigInteger('total');

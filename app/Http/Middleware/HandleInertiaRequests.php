@@ -47,30 +47,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $settingData = [];
-        $settings = Setting::query()->get();
-        foreach ($settings as $setting) {
-            $name = Str::replace(' ', '_', Str::lower($setting->name));
-            $settingData += [$name => $setting->data];
-        }
-
-        // $isAdmin = get_class($request->user()->userable) == 'App\Models\Employee';
-        // $isCustomer = get_class($request->user()->userable) == 'App\Models\Customer';
-
-
         return array_merge(
             parent::share($request),
             [
                 'auth' => [
-                    'admin' => Auth::guard('web')->check() ? new LoginResource($request->user()) : null,
-                    'user' => Auth::guard('customer')->check() ? new CustomerLoginResource(($request->user('customer'))) : null,
+                    'user' => null,
                 ],
                 'csrf_token' => csrf_token(),
                 'flash' => [
                     'error' => fn() => $request->session()->get('error'),
                     'success' => fn() => $request->session()->get('success'),
                 ],
-                'settings' => fn() => $settingData
             ]
         );
     }

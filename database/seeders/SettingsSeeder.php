@@ -15,24 +15,28 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
             [
-                'name' => 'Instagram',
-                'data' => 'http://instagram.com/smkn1purwsoari',
+                'name' => 'nama bengkel',
+                'data' => 'Bengkel TKR SMKN 1 Purwosari',
             ],
             [
-                'name' => 'Facebook',
-                'data' => 'http://facebook.com/smkn1purwsoari',
+                'name' => 'logo bengkel',
+                'data' => '',
             ],
             [
-                'name' => 'Youtube',
-                'data' => 'http://youtube.com/smkn1purwsoari',
+                'name' => 'alamat bengkel',
+                'data' => 'Gedung TKR SMKN 1 Purwoari Jl. Raya Purwosari No 1 Kabupaten Pasuruan',
             ],
             [
-                'name' => 'Alamat',
-                'data' => 'SMKN 1 Purwosari Jl. Raya Purwosari no 1',
+                'name' => 'nama kontak',
+                'data' => 'Andri Purwantono',
             ],
             [
-                'name' => 'Google Map',
-                'data' => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15812.83393701064!2d112.7483609!3d-7.7677029!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7d3c5631acbf5%3A0xa71d9f205034b481!2sSMK%20Negeri%201%20Purwosari!5e0!3m2!1sen!2sid!4v1724132742958!5m2!1sen!2sid" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+                'name' => 'telepon kontak',
+                'data' => '234234234',
+            ],
+            [
+                'name' => 'Whatsapp kontak',
+                'data' => '0920394203',
             ],
 
         ];

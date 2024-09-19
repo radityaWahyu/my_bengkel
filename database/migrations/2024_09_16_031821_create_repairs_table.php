@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('repairs', function (Blueprint $table) {
-            $table->uuid('id')->primar();
+            $table->uuid('id')->primary();
             $table->string('name', 100);
             $table->bigInteger('price')->default(0);
             $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();

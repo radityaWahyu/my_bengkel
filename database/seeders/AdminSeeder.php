@@ -13,6 +13,7 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
+        print("Mulai membuat user administrator \n");
         $employee = Employee::create([
             'name' => 'Administrator',
             'gender' => 'l',
@@ -25,12 +26,14 @@ class AdminSeeder extends Seeder
             'username' => 'administrator',
             'password' => '12345678',
             'is_enabled' => true,
-            'is_verified' => true,
         ]);
+
 
         Role::create(['name' => 'administrator']);
         Role::create(['name' => 'operator']);
+        Role::create(['name' => 'mekanik']);
         //$permissions = Permission::where('name', 'manage-jurusan')->first();
         $user->assignRole('administrator');
+        print("Pembuatan user administrator selesai \n");
     }
 }

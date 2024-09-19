@@ -21,7 +21,8 @@ return new class extends Migration
             $table->date('transaction_date');
             $table->uuid('transactable_id');
             $table->string('transactable_type');
-            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('user_id')->nullable();
+            $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
             $table->timestamps();
         });
     }

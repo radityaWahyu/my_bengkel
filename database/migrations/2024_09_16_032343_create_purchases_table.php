@@ -17,10 +17,13 @@ return new class extends Migration
         Schema::create('purchases', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('purchase_code', 50);
-            $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignUuid('user_id')->nullable();
+            $table->foreignUuid('supplier_id');
+            $table->foreignUuid('payment_id')->nullable();
+            $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
+            $table->foreign('supplier_id')->on('suppliers')->references('id')->onDelete('cascade');
+            $table->foreign('payment_id')->on('payments')->references('id')->onDelete('set null');
             $table->bigInteger('total')->default(0);
-            $table->foreignIdFor(Supplier::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Payment::class)->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }

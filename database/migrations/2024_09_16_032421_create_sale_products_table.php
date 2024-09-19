@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('sale_products', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Product::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Sale::class)->constrained()->cascadeOnDelete();
+            $table->foreignUuid('product_id');
+            $table->foreignUuid('sale_id');
+            $table->foreign('product_id')->on('products')->references('id')->onDelete('restrict');
+            $table->foreign('sale_id')->on('sales')->references('id')->onDelete('cascade');
             $table->integer('qty');
             $table->bigInteger('price');
             $table->bigInteger('total');

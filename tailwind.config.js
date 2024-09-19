@@ -7,11 +7,11 @@ module.exports = {
   prefix: "",
   
   content: [
-    './pages/**/*.{ts,tsx,vue}',
-    './components/**/*.{ts,tsx,vue}',
-    './app/**/*.{ts,tsx,vue}',
-    './src/**/*.{ts,tsx,vue}',
-	],
+    "./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php",
+    "./storage/framework/views/*.php",
+    "./resources/views/**/*.blade.php",
+    "./resources/js/**/*.{ts,tsx,vue}",
+  ],
   
   theme: {
     container: {

@@ -49,20 +49,4 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
-
-    public function product()
-    {
-        return $this->hasMany(Product::class);
-    }
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
-    }
-
-    public function scopeIsAdministrator()
-    {
-        return $this->where('username', 'administrator')->exists();
-    }
 }

@@ -14,7 +14,9 @@ return new class extends Migration
     {
         Schema::create('stock_corrections', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
+            $table->foreignUuid('product_id');
+            $table->foreign('product_id')->on('products')->references('id')->onDelete('cascade');
+            // $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->integer('old_stock');
             $table->integer('new_stock');
             $table->timestamps();

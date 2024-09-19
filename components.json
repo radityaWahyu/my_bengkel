@@ -6,10 +6,10 @@
   "tailwind": {
     "config": "tailwind.config.js",
     "css": "resources/css/app.css",
-    "baseColor": "neutral",
+    "baseColor": "stone",
     "cssVariables": true
   },
-  "framework": "vite",
+  "framework": "laravel",
   "aliases": {
     "components": "@/shadcn",
     "utils": "@/shadcn/utils"

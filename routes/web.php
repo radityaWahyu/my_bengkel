@@ -2,7 +2,9 @@
 
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\RackController;
+use App\Http\Controllers\CategoryController;
+
 
 
 /*
@@ -16,4 +18,23 @@ use App\Http\Controllers\FrontendController;
 |
 */
 
-// ---------------------route for frontend-------------------------------------
+// ---------------------route for backoffice-------------------------------------
+Route::prefix('backoffice')->group(function () {
+    Route::prefix('kategori')->controller(CategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.category.index');
+        Route::get('/{category}', 'edit')->name('backoffice.category.edit');
+        Route::post('/', 'store')->name('backoffice.category.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.category.delete-all');
+        Route::delete('/{category}', 'destroy')->name('backoffice.category.delete');
+        Route::put('/{category}', 'update')->name('backoffice.category.update');
+    });
+
+    Route::prefix('rak')->controller(RackController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.rack.index');
+        Route::get('/{category}', 'edit')->name('backoffice.rack.edit');
+        Route::post('/', 'store')->name('backoffice.rack.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.rack.delete-all');
+        Route::delete('/{category}', 'destroy')->name('backoffice.rack.delete');
+        Route::put('/{category}', 'update')->name('backoffice.rack.update');
+    });
+});
