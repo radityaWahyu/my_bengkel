@@ -1,6 +1,6 @@
 <template>
   <div
-    class="text-muted-foreground text-sm py-2 px-4 bg-gray-100 text-gray-800"
+    class="text-muted-foreground text-sm py-3 px-4 mx-2 bg-sky-100/70 text-gray-800"
   >
     <slot />
   </div>

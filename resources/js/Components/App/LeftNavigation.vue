@@ -11,6 +11,7 @@ import {
   FileText,
   Settings,
   HandCoins,
+  ClipboardPenLine,
 } from "lucide-vue-next";
 import {
   Collapsible,
@@ -67,8 +68,9 @@ onMounted(() => {
 <template>
   <div class="hidden border-r bg-white md:block">
     <div class="flex h-full max-h-screen flex-col">
+      <div class=""></div>
       <div
-        class="flex h-14 items-center border-b px-4 inset-0 bg-white bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+        class="flex h-14 items-center border-b px-4 inset-0 w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"
       >
         <a href="/" class="flex items-center gap-2 font-semibold text-primary">
           <Bolt class="size-6" />
@@ -86,7 +88,9 @@ onMounted(() => {
               class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
-              <div class="flex items-center gap-3 text-muted-foreground">
+              <div
+                class="flex items-center gap-3 text-muted-foreground hover:text-primary"
+              >
                 <Layers3 class="h-5 w-5" />
                 Master Data
               </div>
@@ -112,6 +116,7 @@ onMounted(() => {
                 </SubMenuNavigation>
                 <SubMenuNavigation
                   :active="page.url.startsWith('backoffice/merk', 1)"
+                  :to="route('backoffice.brand.index')"
                 >
                   Data Merk
                 </SubMenuNavigation>
@@ -143,7 +148,9 @@ onMounted(() => {
               class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
-              <div class="flex items-center gap-3 text-muted-foreground">
+              <div
+                class="flex items-center gap-3 text-muted-foreground hover:text-primary"
+              >
                 <ClipboardPaste class="h-5 w-5" />
                 Transaksi
               </div>
@@ -166,7 +173,9 @@ onMounted(() => {
               class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
               @click="laporanOpen != laporanOpen"
             >
-              <div class="flex items-center gap-3 text-muted-foreground">
+              <div
+                class="flex items-center gap-3 text-muted-foreground hover:text-primary"
+              >
                 <FileText class="h-5 w-5" />
                 Laporan
               </div>
@@ -188,6 +197,10 @@ onMounted(() => {
             </CollapsibleContent>
           </Collapsible>
           <MenuNavigation>
+            <ClipboardPenLine class="size-5" />
+            Stok Opname
+          </MenuNavigation>
+          <MenuNavigation>
             <HandCoins class="h-5 w-5" />
             Jurnal
           </MenuNavigation>
@@ -196,7 +209,9 @@ onMounted(() => {
               class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
               @click="pengaturanOpen != pengaturanOpen"
             >
-              <div class="flex items-center gap-3 text-muted-foreground">
+              <div
+                class="flex items-center gap-3 text-muted-foreground hover:text-primary"
+              >
                 <Settings class="h-5 w-5" />
                 Pengaturan
               </div>

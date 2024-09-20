@@ -222,13 +222,13 @@ defineExpose({
       </div>
       <div class="flex items-center gap-2">
         <div
-          class="grid grid-cols-2 gap-2 items-center w-44"
+          class="grid grid-cols-2 gap-2 items-center"
           v-if="pagination.total > 0"
         >
           <Label class="text-right text-xs">Page</Label>
           <select
             v-model="pageFilter"
-            class="bg-white border border-gray-200 text-gray-900 text-xs rounded focus:ring-blue-500 focus:border-blue-500 p-1.5 shadow-sm"
+            class="bg-white text-center border border-gray-200 text-gray-900 text-xs rounded focus:ring-blue-500 focus:border-blue-500 p-1.5 shadow-sm w-14"
             @change="onChange"
           >
             <option

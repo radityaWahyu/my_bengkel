@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 
 
@@ -36,5 +37,14 @@ Route::prefix('backoffice')->group(function () {
         Route::post('/delete_all', 'deleteAll')->name('backoffice.rack.delete-all');
         Route::delete('/{rack}', 'destroy')->name('backoffice.rack.delete');
         Route::put('/{rack}', 'update')->name('backoffice.rack.update');
+    });
+
+    Route::prefix('merk')->controller(BrandController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.brand.index');
+        Route::get('/{brand}', 'edit')->name('backoffice.brand.edit');
+        Route::post('/', 'store')->name('backoffice.brand.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.brand.delete-all');
+        Route::delete('/{brand}', 'destroy')->name('backoffice.brand.delete');
+        Route::put('/{brand}', 'update')->name('backoffice.brand.update');
     });
 });

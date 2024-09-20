@@ -21,14 +21,14 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 import { usePage, useForm as useInertiaForm } from "@inertiajs/vue3";
-import type { ICategory } from "@/types/response";
+import type { IBrand } from "@/types/response";
 import FormAlertiInfo from "../App/FormAlertiInfo.vue";
 
 const formOpen = defineModel<boolean>();
 
 const props = defineProps<{
   title: string;
-  category: ICategory | undefined;
+  brand: IBrand | undefined;
   edit: boolean;
 }>();
 
@@ -44,8 +44,8 @@ const userSchema = () => {
   return toTypedSchema(
     zod.object({
       name: zod
-        .string({ message: "Nama Kategori harus diisi" })
-        .min(1, { message: "Nama Kategori harus diisi." }),
+        .string({ message: "Nama Merk harus diisi" })
+        .min(1, { message: "Nama Merk harus diisi." }),
     })
   );
 };
@@ -55,18 +55,18 @@ const form = useForm({
   validationSchema,
 });
 
-const categoryForm = useInertiaForm({
+const brandForm = useInertiaForm({
   _token: page.props.csrf_token,
   name: "",
 });
 
 watch(
-  () => props.category,
+  () => props.brand,
   (values) => {
     if (values && props.edit) {
       id.value = values.id;
       form.setFieldValue("name", values.name);
-      categoryForm.name = values.name;
+      brandForm.name = values.name;
     }
   },
   { immediate: true }
@@ -74,10 +74,10 @@ watch(
 
 const onSubmit = form.handleSubmit(() => {
   if (props.edit) {
-    categoryForm.put(route("backoffice.category.update", id.value), {
+    brandForm.put(route("backoffice.brand.update", id.value), {
       onSuccess: () => {
         emits("saved", true);
-        categoryForm.name = "";
+        brandForm.name = "";
         formOpen.value = false;
       },
       onError: (error) => {
@@ -88,10 +88,10 @@ const onSubmit = form.handleSubmit(() => {
       },
     });
   } else {
-    categoryForm.post(route("backoffice.category.store"), {
+    brandForm.post(route("backoffice.brand.store"), {
       onSuccess: () => {
         emits("saved", true);
-        categoryForm.name = "";
+        brandForm.name = "";
         formOpen.value = false;
       },
       onError: (error) => {
@@ -118,7 +118,7 @@ const onClose = () => {
         <SheetTitle>{{ title }}</SheetTitle>
         <SheetDescription>
           <FormAlertiInfo>
-            Form ini dipergunakan untuk menambah atau mengubah data kategori.
+            Form ini dipergunakan untuk menambah atau mengubah data Merk.
             Silahkan isi data sesuai form dibawah.
           </FormAlertiInfo>
         </SheetDescription>
@@ -129,27 +129,27 @@ const onClose = () => {
             <FormItem>
               <FormLabel
                 :class="{
-                  'text-red-500': categoryForm.errors.name,
+                  'text-red-500': brandForm.errors.name,
                 }"
                 >Nama Kategori</FormLabel
               >
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="nama kategori..."
+                  placeholder="nama merk..."
                   v-bind="componentField"
-                  v-model="categoryForm.name"
+                  v-model="brandForm.name"
                   :class="{
-                    'border border-red-500': categoryForm.errors.name,
+                    'border border-red-500': brandForm.errors.name,
                   }"
-                  :disabled="categoryForm.processing"
+                  :disabled="brandForm.processing"
                 />
               </FormControl>
               <div
                 class="text-xs text-red-500 font-medium"
-                v-if="categoryForm.errors.name"
+                v-if="brandForm.errors.name"
               >
-                {{ categoryForm.errors.name }}
+                {{ brandForm.errors.name }}
               </div>
               <FormMessage v-else />
             </FormItem>
@@ -161,16 +161,16 @@ const onClose = () => {
           type="button"
           variant="ghost"
           @click="onClose"
-          :disabled="categoryForm.processing"
+          :disabled="brandForm.processing"
         >
-          Batal</Button
-        >
+          Batal
+        </Button>
         <Button
           type="button"
-          :disabled="categoryForm.processing"
+          :disabled="brandForm.processing"
           @click="onSubmit"
         >
-          <span v-if="categoryForm.processing"> Menyimpan data... </span>
+          <span v-if="brandForm.processing"> Menyimpan data... </span>
           <span v-else> Simpan data </span>
         </Button>
       </SheetFooter>

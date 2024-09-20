@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { watch, ref } from "vue";
-import { Info } from "lucide-vue-next";
-import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import {
@@ -24,6 +22,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 import { usePage, useForm as useInertiaForm } from "@inertiajs/vue3";
 import type { IRack } from "@/types/response";
+import FormAlertiInfo from "../App/FormAlertiInfo.vue";
 
 const formOpen = defineModel<boolean>();
 
@@ -118,14 +117,10 @@ const onClose = () => {
       <SheetHeader>
         <SheetTitle>{{ title }}</SheetTitle>
         <SheetDescription>
-          <Alert class="bg-blue-50">
-            <Info class="h-4 w-4" />
-            <AlertTitle>Keterangan</AlertTitle>
-            <AlertDescription class="text-sm">
-              Form ini dipergunakan untuk menambah atau mengubah data rak.
-              Silahkan isi data sesuai form dibawah.
-            </AlertDescription>
-          </Alert>
+          <FormAlertiInfo>
+            Form ini dipergunakan untuk menambah atau mengubah data rak.
+            Silahkan isi data sesuai form dibawah.
+          </FormAlertiInfo>
         </SheetDescription>
       </SheetHeader>
       <div class="grid gap-4 py-4">
