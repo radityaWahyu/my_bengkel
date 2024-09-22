@@ -4,7 +4,7 @@ import { BadgeInfo } from "lucide-vue-next";
 
 <template>
   <div
-    class="grid grid-cols-[15%_85%] bg-sky-100/70 text-gray-800 border-l-2 border-sky-200"
+    class="grid grid-cols-[11%_89%] bg-sky-100/70 text-gray-800 border-l-2 border-sky-200"
   >
     <div class="h-full flex items-center justify-center">
       <BadgeInfo class="size-8 text-sky-600" />

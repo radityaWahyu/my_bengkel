@@ -28,8 +28,8 @@ const formOpen = defineModel<boolean>();
 
 const props = defineProps<{
   title: string;
-  rack: IRack | undefined;
-  edit: boolean;
+  rack?: IRack | undefined;
+  edit?: boolean;
 }>();
 
 const emits = defineEmits<{
@@ -131,7 +131,7 @@ const onClose = () => {
                 :class="{
                   'text-red-500': rackForm.errors.name,
                 }"
-                >Nama Kategori</FormLabel
+                >Nama Rak</FormLabel
               >
               <FormControl>
                 <Input

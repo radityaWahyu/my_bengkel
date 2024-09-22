@@ -28,8 +28,8 @@ const formOpen = defineModel<boolean>();
 
 const props = defineProps<{
   title: string;
-  category: ICategory | undefined;
-  edit: boolean;
+  category?: ICategory | undefined;
+  edit?: boolean;
 }>();
 
 const emits = defineEmits<{

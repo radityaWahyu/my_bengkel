@@ -4,9 +4,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
-
-
+use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,5 +46,25 @@ Route::prefix('backoffice')->group(function () {
         Route::post('/delete_all', 'deleteAll')->name('backoffice.brand.delete-all');
         Route::delete('/{brand}', 'destroy')->name('backoffice.brand.delete');
         Route::put('/{brand}', 'update')->name('backoffice.brand.update');
+    });
+
+    Route::prefix('barang')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.product.index');
+        Route::get('/create', 'create')->name('backoffice.product.create');
+        Route::get('/{product}', 'edit')->name('backoffice.product.edit');
+        Route::post('/', 'store')->name('backoffice.product.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.product.delete-all');
+        Route::delete('/{product}', 'destroy')->name('backoffice.product.delete');
+        Route::put('/{product}', 'update')->name('backoffice.product.update');
+    });
+
+    Route::prefix('pegawai')->controller(EmployeeController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.employee.index');
+        Route::get('/create', 'create')->name('backoffice.employee.create');
+        Route::get('/{employee}', 'edit')->name('backoffice.employee.edit');
+        Route::post('/', 'store')->name('backoffice.employee.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.employee.delete-all');
+        Route::delete('/{employee}', 'destroy')->name('backoffice.employee.delete');
+        Route::put('/{employee}', 'update')->name('backoffice.employee.update');
     });
 });

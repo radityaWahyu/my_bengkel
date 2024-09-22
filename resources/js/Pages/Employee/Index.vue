@@ -6,12 +6,12 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { ref, h, reactive } from "vue";
+import { ref, h } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
 import {
   Plus,
-  Bookmark,
+  UserRound,
   ArrowUpDown,
   ArrowDownUp,
   Search,
@@ -22,16 +22,17 @@ import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Checkbox } from "@/shadcn/ui/checkbox";
 import type { ColumnDef } from "@tanstack/vue-table";
-import type { IPaginationMeta, IBrand } from "@/types/response";
+import type { IPaginationMeta, IEmployee } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
-import BrandForm from "@/Components/Brand/BrandForm.vue";
-import BrandButtonAction from "@/Components/Brand/BrandButtonAction.vue";
-import { useHttpService } from "@/Services/useHttpServices";
+import EmployeeButtonAction from "@/Components/Employee/EmployeeButtonAction.vue";
+import { usePrice } from "@/Plugin/useNumber";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
+import LinkButton from "@/Components/App/LinkButton.vue";
+import EmployeeNameBox from "@/Components/Employee/EmployeeNameBox.vue";
 
 const props = defineProps<{
-  brands: { data: IBrand[]; meta: IPaginationMeta };
+  employees: { data: IEmployee[]; meta: IPaginationMeta };
   params: {
     sortName: string;
     sortType: string;
@@ -39,24 +40,17 @@ const props = defineProps<{
   };
 }>();
 
-const formState = reactive({
-  open: false,
-  title: "Tambah Merk",
-  edit: false,
-});
-
-const httpService = useHttpService();
-const brand = ref<IBrand>();
+const price = usePrice();
 const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
-const perPage = ref(props.brands.meta.per_page);
+const perPage = ref(props.employees.meta.per_page);
 const isLoading = ref<boolean>(false);
 const selectedId = ref<string[]>([]);
-const brandTable = ref<InstanceType<typeof DataTable> | null>(null);
-const columns: ColumnDef<IBrand>[] = [
+const employeeTable = ref<InstanceType<typeof DataTable> | null>(null);
+const columns: ColumnDef<IEmployee>[] = [
   {
     id: "select",
-    size: 20,
+    size: 50,
     header: ({ table }) =>
       h(
         "div",
@@ -94,9 +88,7 @@ const columns: ColumnDef<IBrand>[] = [
             if (value) {
               selectedId.value.push(row.original.id);
             } else {
-              selectedId.value = selectedId.value.filter(
-                (id) => id !== row.original.id
-              );
+              selectedId.value = selectedId.value.filter((id) => id !== row.original.id);
             }
 
             row.toggleSelected(!!value);
@@ -110,7 +102,7 @@ const columns: ColumnDef<IBrand>[] = [
   {
     accessorKey: "name",
     enableResizing: false,
-    size: 100,
+    size: 300,
     header: ({ column }) => {
       return h(
         Button,
@@ -124,7 +116,7 @@ const columns: ColumnDef<IBrand>[] = [
               props.params.sortType = "asc";
             }
 
-            getBrands(props.brands.meta.current_page);
+            getEmployees(props.employees.meta.current_page);
           },
           class: "w-full flex justify-between text-left px-0",
         },
@@ -133,33 +125,102 @@ const columns: ColumnDef<IBrand>[] = [
             props.params?.sortType == "desc" && props.params?.sortName == "name"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Nama Merk",
+            "Nama Pegawai",
           ]),
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("name")),
+    cell: ({ row }) => h(EmployeeNameBox, { name: row.original.name }),
+  },
+  {
+    accessorKey: "gender",
+    enableResizing: false,
+    size: 200,
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: "ghost",
+          onClick: () => {
+            props.params.sortName = "gender";
+            if (props.params.sortType == "asc") {
+              props.params.sortType = "desc";
+            } else {
+              props.params.sortType = "asc";
+            }
+
+            getEmployees(props.employees.meta.current_page);
+          },
+          class: "w-full flex justify-between text-left px-0",
+        },
+        () => [
+          h("div", { class: "gap-2 flex items-center font-semibold" }, [
+            props.params?.sortType == "desc" && props.params?.sortName == "gender"
+              ? h(ArrowUpDown, { class: "h-4 w-4" })
+              : h(ArrowDownUp, { class: "h-4 w-4" }),
+            "Jenis Kelamin",
+          ]),
+        ]
+      );
+    },
+    cell: ({ row }) => {
+      return h(
+        "div",
+        { class: "capitalize" },
+        row.original.gender === "l" ? "Laki - laki" : "Perempuan"
+      );
+    },
+  },
+  {
+    accessorKey: "phone",
+    enableResizing: false,
+    size: 150,
+    header: ({ column }) => {
+      return h(
+        "div",
+        { class: "gap-2 flex items-center text-left font-semibold" },
+        "No Telepon"
+      );
+    },
+    cell: ({ row }) => h("div", {}, row.original.phone),
+  },
+  {
+    accessorKey: "whatsapp",
+    enableResizing: false,
+    size: 150,
+    header: ({ column }) => {
+      return h(
+        "div",
+        { class: "gap-2 flex items-center text-left font-semibold" },
+        "No Whatsapp"
+      );
+    },
+    cell: ({ row }) => h("div", {}, row.original.whatsapp),
   },
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const id: string = row.original.id as string;
-      return h(BrandButtonAction, {
+    size: 150,
+    cell: ({ row }) =>
+      h(EmployeeButtonAction, {
         id: row.original.id,
-        onDeleted: () => getBrands(props.brands.meta.current_page),
-        onUpdated,
-      });
-    },
+        onDeleted: () => getEmployees(props.employees.meta.current_page),
+        onUpdated: () =>
+          router.get(
+            route("backoffice.employee.edit", row.original.id),
+            {},
+            { replace: true }
+          ),
+      }),
   },
 ];
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getBrands(props.brands.meta.current_page);
+  getEmployees(props.employees.meta.current_page);
 };
 // function get category data from database
-const getBrands = (page: number) => {
+const getEmployees = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
 
   if (props.params.sortName !== null && props.params.sortType !== null) {
@@ -170,8 +231,8 @@ const getBrands = (page: number) => {
   }
   if (search.value !== null) Object.assign(url.value, { search });
 
-  router.get(route("backoffice.brand.index"), url.value, {
-    only: ["brands", "params"],
+  router.get(route("backoffice.employee.index"), url.value, {
+    only: ["employees", "params"],
     preserveState: true,
     preserveScroll: true,
     onError: (error) => console.log(error),
@@ -179,29 +240,15 @@ const getBrands = (page: number) => {
     onFinish: () => (isLoading.value = false),
   });
 };
-const addBrand = () => {
-  formState.open = true;
-  formState.edit = false;
-  formState.title = "Tambah Merk";
-};
+
 const onSaved = (value: boolean) => {
   // alert(value);
-  getBrands(props.brands.meta.current_page);
-};
-const onUpdated = async (id: string) => {
-  const response = await httpService.get(route("backoffice.brand.edit", id));
-
-  if (response) {
-    brand.value = response.data;
-    formState.title = "Edit Merk";
-    formState.edit = true;
-    formState.open = true;
-  }
+  getEmployees(props.employees.meta.current_page);
 };
 
 const deleteAll = () => {
   router.post(
-    route("backoffice.brand.delete-all"),
+    route("backoffice.employee.delete-all"),
     {
       ids: selectedId.value,
     },
@@ -213,31 +260,31 @@ const deleteAll = () => {
       onFinish: () => {
         isLoading.value = false;
         selectedId.value = [];
-        brandTable.value?.resetTable();
+        employeeTable.value?.resetTable();
       },
     }
   );
 };
 const cancelDeleteAll = () => {
   selectedId.value = [];
-  brandTable.value?.resetTable();
+  employeeTable.value?.resetTable();
 };
 
 watchDebounced(
   search,
   () => {
-    getBrands(props.brands.meta.current_page);
+    getEmployees(props.employees.meta.current_page);
   },
   { debounce: 500, maxWait: 1000 }
 );
 </script>
 <template>
-  <Head title="Data Merk" />
+  <Head title="Data Barang" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <Bookmark class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Data Merk</h1>
+        <UserRound class="size-10" />
+        <h1 class="text-lg font-semibold tracking-wider">Data Pegawai</h1>
       </div>
 
       <div class="px-4">
@@ -258,11 +305,7 @@ watchDebounced(
             :disabled="isLoading"
             @click="openDeleteConfirm = true"
           >
-            <svg
-              class="size-4 animate-spin"
-              viewBox="0 0 100 100"
-              v-if="isLoading"
-            >
+            <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="isLoading">
               <circle
                 fill="none"
                 stroke-width="12"
@@ -287,44 +330,40 @@ watchDebounced(
             <span v-else>Hapus data</span>
           </Button>
         </div>
-        <Button
+        <LinkButton
+          :to="route('backoffice.employee.create')"
           v-else
           class="-tracking-wider space-x-2"
-          type="button"
-          @click="addBrand"
         >
           <Plus class="w-4 h-4" />
-          <span>Tambah Merk</span>
-        </Button>
+          <span>Tambah Pegawai</span>
+        </LinkButton>
       </div>
     </div>
     <HeaderInformation>
-      Data rak dipergunakan untuk memanjemen penempatan barang berdasarkan rak
-      yang akan dijual pada pelanggan. Silahkan menambahkan data baru dengan
-      mengklik tombol
-      <strong>Tambah Rak</strong>
+      Data Pegawai dipergunakan untuk memanjemen pegawai yang berkerja menggunakan sistem
+      ini. Silahkan menambahkan data baru dengan mengklik tombol
+      <strong>Tambah Barang</strong>
     </HeaderInformation>
     <div>
       <DataTable
-        ref="brandTable"
+        ref="employeeTable"
         :columns="columns"
-        :data="brands.data"
-        :pagination="brands.meta"
-        :loading="isLoading || httpService.processing.value"
+        :data="employees.data"
+        :pagination="employees.meta"
+        :loading="isLoading"
         @change-limit="changeLimit"
-        @change-page="getBrands"
+        @change-page="getEmployees"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">
             <Input
               v-model="search"
               type="text"
-              placeholder="Cari data..."
+              placeholder="Cari Pegawai..."
               class="pl-10 w-full bg-white"
             />
-            <span
-              class="absolute inset-y-0 flex items-center justify-center px-2"
-            >
+            <span class="absolute inset-y-0 flex items-center justify-center px-2">
               <Search class="size-4 text-muted-foreground" />
             </span>
             <span
@@ -336,13 +375,6 @@ watchDebounced(
         ></template>
       </DataTable>
     </div>
-    <BrandForm
-      v-model="formState.open"
-      :title="formState.title"
-      @saved="onSaved"
-      :brand="brand"
-      :edit="formState.edit"
-    />
     <ConfirmDialog
       v-model="openDeleteConfirm"
       cancel-text="Batalkan"
@@ -354,9 +386,7 @@ watchDebounced(
         <div>Konfirmasi Hapus Data</div>
       </template>
       <template #description>
-        <div>
-          Apakah anda ingin menghapus {{ selectedId.length }} data ini ?
-        </div>
+        <div>Apakah anda ingin menghapus {{ selectedId.length }} data ini ?</div>
       </template>
     </ConfirmDialog>
   </div>

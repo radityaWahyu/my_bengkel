@@ -79,21 +79,28 @@ import { Button } from "@/shadcn/ui/button";
       </SheetContent>
     </Sheet>
     <div class="w-full flex-1"></div>
-    <DropdownMenu>
-      <DropdownMenuTrigger as-child>
-        <Button variant="secondary" size="icon" class="rounded-full">
-          <CircleUser class="h-5 w-5" />
-          <span class="sr-only">Toggle user menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Settings</DropdownMenuItem>
-        <DropdownMenuItem>Support</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Logout</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div class="flex items-center gap-3 bg-sky-50 px-2 py-1 rounded">
+      <div class="text-right text-sky-900">
+        <p class="text-sm capitalize font-medium">Raditya Wahyu Sasono</p>
+        <p class="text-xs capitalize">radityaw | Administrator</p>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button
+            variant="secondary"
+            size="icon"
+            class="rounded-full bg-sky-200 text-sky-600"
+          >
+            <CircleUser class="h-5 w-5" />
+            <span class="sr-only">Toggle user menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>Edit Profil</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   </header>
 </template>

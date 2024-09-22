@@ -11,5 +11,25 @@ export interface IPaginationMeta {
 }
 
 export interface ICategory extends IBaseResponse { };
-export interface IRack extends ICategory { }
-export interface IBrand extends ICategory { }
+export interface IRack extends IBaseResponse { }
+export interface IBrand extends IBaseResponse { }
+export interface IProduct extends IBaseResponse {
+    stock: number;
+    buy_price: number;
+    sale_price: number;
+    category: string;
+    rack: string;
+}
+export interface IProductForm extends IBaseResponse {
+    stock: number;
+    buy_price: number;
+    sale_price: number;
+    category_id: string;
+    rack_id: string;
+}
+export interface IEmployee extends IBaseResponse {
+    gender: string;
+    address: string;
+    phone: string;
+    whatsapp: string;
+}

@@ -38,7 +38,7 @@ const masterDataMenu = ref([
 
 const transaksiMenu = ref(["service", "penjualan", "pembelian"]);
 
-const laporanMenu = ref(["barang", "service", "penjualan", "pembelian"]);
+const laporanMenu = ref(["barangs", "service", "penjualan", "pembelian"]);
 
 const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
 
@@ -48,6 +48,8 @@ onMounted(() => {
   const currentUrl = ref();
 
   if (fullUrl.length === 3) {
+    currentUrl.value = fullUrl[2].split("?");
+  } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 5) {
     currentUrl.value = fullUrl[4].split("?");
@@ -62,6 +64,9 @@ onMounted(() => {
   }
   if (pengaturanMenu.value.includes(currentUrl.value[0])) {
     pengaturanOpen.value = true;
+  }
+  if (laporanMenu.value.includes(currentUrl.value[0])) {
+    laporanOpen.value = true;
   }
 });
 </script>
@@ -85,7 +90,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="masterDataOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
               <div
@@ -122,17 +127,17 @@ onMounted(() => {
                 </SubMenuNavigation>
                 <SubMenuNavigation
                   :active="page.url.startsWith('backoffice/barang', 1)"
+                  :to="route('backoffice.product.index')"
                 >
                   Data Barang
                 </SubMenuNavigation>
                 <SubMenuNavigation
                   :active="page.url.startsWith('backoffice/pegawai', 1)"
+                  :to="route('backoffice.employee.index')"
                 >
                   Data Pegawai
                 </SubMenuNavigation>
-                <SubMenuNavigation
-                  :active="page.url.startsWith('backoffice/pemasok', 1)"
-                >
+                <SubMenuNavigation :active="page.url.startsWith('backoffice/pemasok', 1)">
                   Data Pemasok
                 </SubMenuNavigation>
                 <SubMenuNavigation
@@ -145,7 +150,7 @@ onMounted(() => {
           </Collapsible>
           <Collapsible v-model:open="transaksiOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
               <div
@@ -170,7 +175,7 @@ onMounted(() => {
           </Collapsible>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="laporanOpen != laporanOpen"
             >
               <div
@@ -188,9 +193,7 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation>
-                  Laporan Transaksi Service
-                </SubMenuNavigation>
+                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>
@@ -206,7 +209,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="pengaturanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="pengaturanOpen != pengaturanOpen"
             >
               <div

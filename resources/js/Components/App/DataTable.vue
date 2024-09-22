@@ -97,7 +97,7 @@ defineExpose({
 </script>
 
 <template>
-  <div>
+  <div class="">
     <div class="px-4 py-2 flex items-center justify-between gap-3">
       <div class="grow w-full">
         <slot name="filter" />
@@ -119,8 +119,8 @@ defineExpose({
         </select>
       </div>
     </div>
-    <div class="border bg-white overflow-y-auto">
-      <Table class="table-fixed">
+    <div class="border bg-white max-w-full">
+      <Table class="table-fixed scrollbar">
         <TableHeader class="bg-gray-100 shadow">
           <TableRow
             v-for="headerGroup in table.getHeaderGroups()"

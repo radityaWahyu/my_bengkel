@@ -232,7 +232,7 @@ watchDebounced(
 );
 </script>
 <template>
-  <Head title="Data Kategori" />
+  <Head title="Data Rak" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
