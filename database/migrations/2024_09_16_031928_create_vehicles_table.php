@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('vehicles', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('plate_number', 20);
-            $table->string('machine_frmae', 50);
+            $table->string('machine_frame', 50);
             $table->string('engine_volume', 10);
             $table->enum('engine_type', ['petrol', 'diesel']);
             $table->enum('type', ['car', 'motorcycle']);

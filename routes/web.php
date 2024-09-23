@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SupplierController;
 
@@ -77,5 +79,25 @@ Route::prefix('backoffice')->group(function () {
         Route::post('/delete_all', 'deleteAll')->name('backoffice.supplier.delete-all');
         Route::delete('/{supplier}', 'destroy')->name('backoffice.supplier.delete');
         Route::put('/{supplier}', 'update')->name('backoffice.supplier.update');
+    });
+
+    Route::prefix('pelanggan')->controller(CustomerController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.customer.index');
+        Route::get('/create', 'create')->name('backoffice.customer.create');
+        Route::get('/{customer}', 'edit')->name('backoffice.customer.edit');
+        Route::post('/', 'store')->name('backoffice.customer.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.customer.delete-all');
+        Route::delete('/{customer}', 'destroy')->name('backoffice.customer.delete');
+        Route::put('/{customer}', 'update')->name('backoffice.customer.update');
+
+        Route::prefix('kendaraan')->controller(VehicleController::class)->group(function () {
+            Route::get('/', 'index')->name('backoffice.vehicle.index');
+            Route::get('/create', 'create')->name('backoffice.vehicle.create');
+            Route::get('/{vehicle}', 'edit')->name('backoffice.vehicle.edit');
+            Route::post('/', 'store')->name('backoffice.vehicle.store');
+            Route::post('/delete_all', 'deleteAll')->name('backoffice.vehicle.delete-all');
+            Route::delete('/{vehicle}', 'destroy')->name('backoffice.vehicle.delete');
+            Route::put('/{vehicle}', 'update')->name('backoffice.vehicle.update');
+        });
     });
 });

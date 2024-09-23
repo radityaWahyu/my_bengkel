@@ -44,7 +44,7 @@ const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
 
 onMounted(() => {
   const fullUrl = page.url.split("/");
-  // console.log(fullUrl.length);
+  console.log(fullUrl.length);
   const currentUrl = ref();
 
   if (fullUrl.length === 3) {
@@ -52,7 +52,7 @@ onMounted(() => {
   } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 5) {
-    currentUrl.value = fullUrl[4].split("?");
+    currentUrl.value = fullUrl[2].split("?");
   }
 
   console.log(currentUrl.value[0]);
@@ -145,6 +145,7 @@ onMounted(() => {
                 </SubMenuNavigation>
                 <SubMenuNavigation
                   :active="page.url.startsWith('backoffice/pelanggan', 1)"
+                  :to="route('backoffice.customer.index')"
                 >
                   Data Pelanggan
                 </SubMenuNavigation>

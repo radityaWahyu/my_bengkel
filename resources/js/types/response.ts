@@ -39,3 +39,28 @@ export interface ISupplier extends IBaseResponse {
     phone: string;
     whatsapp: string;
 }
+
+export interface ICustomer extends IEmployee {
+    vehicle: number;
+}
+export interface IVehicle {
+    plate_number: string;
+    machine_frame: string;
+    engine_volume: string;
+    engine_type: string;
+    type: string;
+    production_year: number;
+    brand: string;
+    customer: string;
+}
+export interface IVehicleEdit {
+    id: string;
+    plate_number: string;
+    machine_frame: string;
+    engine_volume: string;
+    engine_type: string;
+    type: string;
+    production_year: number;
+    brand_id: string;
+    customer_id: string;
+}
