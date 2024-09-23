@@ -77,7 +77,7 @@ onMounted(() => {
       <div
         class="flex h-14 items-center border-b px-4 inset-0 w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"
       >
-        <a href="/" class="flex items-center gap-2 font-semibold text-primary">
+        <a href="/" class="flex items-center gap-2 font-medium text-primary">
           <Bolt class="size-6" />
           <span class="font-bold text-lg">BENGKELKU</span>
         </a>
@@ -90,7 +90,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="masterDataOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
               <div
@@ -137,7 +137,10 @@ onMounted(() => {
                 >
                   Data Pegawai
                 </SubMenuNavigation>
-                <SubMenuNavigation :active="page.url.startsWith('backoffice/pemasok', 1)">
+                <SubMenuNavigation
+                  :active="page.url.startsWith('backoffice/pemasok', 1)"
+                  :to="route('backoffice.supplier.index')"
+                >
                   Data Pemasok
                 </SubMenuNavigation>
                 <SubMenuNavigation
@@ -150,7 +153,7 @@ onMounted(() => {
           </Collapsible>
           <Collapsible v-model:open="transaksiOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
               <div
@@ -175,7 +178,7 @@ onMounted(() => {
           </Collapsible>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="laporanOpen != laporanOpen"
             >
               <div
@@ -209,7 +212,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="pengaturanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-semibold px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="pengaturanOpen != pengaturanOpen"
             >
               <div

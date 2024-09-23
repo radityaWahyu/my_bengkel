@@ -279,7 +279,7 @@ watchDebounced(
 );
 </script>
 <template>
-  <Head title="Data Barang" />
+  <Head title="Data Pegawai" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
@@ -343,7 +343,7 @@ watchDebounced(
     <HeaderInformation>
       Data Pegawai dipergunakan untuk memanjemen pegawai yang berkerja menggunakan sistem
       ini. Silahkan menambahkan data baru dengan mengklik tombol
-      <strong>Tambah Barang</strong>
+      <strong>Tambah Pegawai</strong>
     </HeaderInformation>
     <div>
       <DataTable

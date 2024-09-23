@@ -32,17 +32,13 @@ watch(
 
 <template>
   <div
-    class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] font-sans antialiased"
+    class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] antialiased"
   >
     <LeftNavigation />
     <div class="h-screen flex flex-col overflow-y-auto scrollbar">
       <TopNavigation />
       <main class="min-h-full bg-[#F5FAFE]">
-        <TopAlert
-          v-model="alert.show"
-          :messages="alert.message"
-          :type="alert.type"
-        />
+        <TopAlert v-model="alert.show" :messages="alert.message" :type="alert.type" />
         <slot />
       </main>
     </div>

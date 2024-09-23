@@ -11,7 +11,7 @@ import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
 import {
   Plus,
-  Package,
+  Contact,
   ArrowUpDown,
   ArrowDownUp,
   Search,
@@ -22,17 +22,16 @@ import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Checkbox } from "@/shadcn/ui/checkbox";
 import type { ColumnDef } from "@tanstack/vue-table";
-import type { IPaginationMeta, IProduct } from "@/types/response";
+import type { IPaginationMeta, ISupplier } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
-import ProductButtonAction from "@/Components/Product/ProductButtonAction.vue";
-import { useHttpService } from "@/Services/useHttpServices";
-import { usePrice } from "@/Plugin/useNumber";
+import SupplierButtonAction from "@/Components/Supplier/SupplierButtonAction.vue";
+import SupplierNameBox from "@/Components/Supplier/SupplierNameBox.vue";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 import LinkButton from "@/Components/App/LinkButton.vue";
 
 const props = defineProps<{
-  products: { data: IProduct[]; meta: IPaginationMeta };
+  suppliers: { data: ISupplier[]; meta: IPaginationMeta };
   params: {
     sortName: string;
     sortType: string;
@@ -40,15 +39,13 @@ const props = defineProps<{
   };
 }>();
 
-const httpService = useHttpService();
-const price = usePrice();
 const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
-const perPage = ref(props.products.meta.per_page);
+const perPage = ref(props.suppliers.meta.per_page);
 const isLoading = ref<boolean>(false);
 const selectedId = ref<string[]>([]);
-const productTable = ref<InstanceType<typeof DataTable> | null>(null);
-const columns: ColumnDef<IProduct>[] = [
+const supplierTable = ref<InstanceType<typeof DataTable> | null>(null);
+const columns: ColumnDef<ISupplier>[] = [
   {
     id: "select",
     size: 50,
@@ -117,7 +114,7 @@ const columns: ColumnDef<IProduct>[] = [
               props.params.sortType = "asc";
             }
 
-            getProducts(props.products.meta.current_page);
+            getSuppliers(props.suppliers.meta.current_page);
           },
           class: "w-full flex justify-between text-left px-0",
         },
@@ -126,15 +123,15 @@ const columns: ColumnDef<IProduct>[] = [
             props.params?.sortType == "desc" && props.params?.sortName == "name"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Nama Barang",
+            "Nama Pemasok",
           ]),
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize font-semibold" }, row.original.name),
+    cell: ({ row }) => h(SupplierNameBox, { name: row.original.name }),
   },
   {
-    accessorKey: "category",
+    accessorKey: "contact_name",
     enableResizing: false,
     size: 200,
     header: ({ column }) => {
@@ -143,182 +140,68 @@ const columns: ColumnDef<IProduct>[] = [
         {
           variant: "ghost",
           onClick: () => {
-            props.params.sortName = "category";
+            props.params.sortName = "contact_name";
             if (props.params.sortType == "asc") {
               props.params.sortType = "desc";
             } else {
               props.params.sortType = "asc";
             }
 
-            getProducts(props.products.meta.current_page);
+            getSuppliers(props.suppliers.meta.current_page);
           },
           class: "w-full flex justify-between text-left px-0",
         },
         () => [
           h("div", { class: "gap-2 flex items-center font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "category"
+            props.params?.sortType == "desc" && props.params?.sortName == "contact_name"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Kategori",
+            "Nama Kontak",
           ]),
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.original.category),
+    cell: ({ row }) => {
+      return h("div", { class: "capitalize" }, row.original.contact_name);
+    },
   },
   {
-    accessorKey: "rack",
+    accessorKey: "phone",
     enableResizing: false,
     size: 150,
     header: ({ column }) => {
       return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "rack";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getProducts(props.products.meta.current_page);
-          },
-          class: "w-full flex justify-between text-left px-0",
-        },
-        () => [
-          h("div", { class: "gap-2 flex items-center text-left font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "rack"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Rak",
-          ]),
-        ]
+        "div",
+        { class: "gap-2 flex items-center text-left font-semibold" },
+        "No Telepon"
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.original.rack),
+    cell: ({ row }) => h("div", {}, row.original.phone),
   },
   {
-    accessorKey: "stock",
+    accessorKey: "whatsapp",
     enableResizing: false,
-    size: 100,
+    size: 150,
     header: ({ column }) => {
       return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "stock";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getProducts(props.products.meta.current_page);
-          },
-          class: "w-full flex items-center text-center px-0",
-        },
-        () => [
-          h("div", { class: "gap-2 flex text-center font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "stock"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Stok",
-          ]),
-        ]
+        "div",
+        { class: "gap-2 flex items-center text-left font-semibold" },
+        "No Whatsapp"
       );
     },
-    cell: ({ row }) => h("div", { class: "text-center" }, row.original.stock),
-  },
-  {
-    accessorKey: "buy_price",
-    enableResizing: false,
-    size: 200,
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "buy_price";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getProducts(props.products.meta.current_page);
-          },
-          class: "w-full px-0",
-        },
-        h(
-          "div",
-          {
-            class: "gap-2 w-full flex items-center justify-end font-semibold text-right",
-          },
-          [
-            props.params?.sortType == "desc" && props.params?.sortName == "buy_price"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Harga Beli",
-          ]
-        )
-      );
-    },
-    cell: ({ row }) =>
-      h("div", { class: "text-right" }, price.convertToRupiah(row.original.buy_price)),
-  },
-  {
-    accessorKey: "sale_price",
-    enableResizing: false,
-    size: 200,
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "sale_price";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getProducts(props.products.meta.current_page);
-          },
-          class: "w-full px-0",
-        },
-        h(
-          "div",
-          {
-            class: "gap-2 w-full flex items-center justify-end font-semibold text-right",
-          },
-          [
-            props.params?.sortType == "desc" && props.params?.sortName == "sale_price"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Harga Jual",
-          ]
-        )
-      );
-    },
-    cell: ({ row }) =>
-      h("div", { class: "text-right" }, price.convertToRupiah(row.original.sale_price)),
+    cell: ({ row }) => h("div", {}, row.original.whatsapp),
   },
   {
     id: "actions",
     enableHiding: false,
     size: 150,
     cell: ({ row }) =>
-      h(ProductButtonAction, {
+      h(SupplierButtonAction, {
         id: row.original.id,
-        onDeleted: () => getProducts(props.products.meta.current_page),
+        onDeleted: () => getSuppliers(props.suppliers.meta.current_page),
         onUpdated: () =>
           router.get(
-            route("backoffice.product.edit", row.original.id),
+            route("backoffice.supplier.edit", row.original.id),
             {},
             { replace: true }
           ),
@@ -328,10 +211,10 @@ const columns: ColumnDef<IProduct>[] = [
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getProducts(props.products.meta.current_page);
+  getSuppliers(props.suppliers.meta.current_page);
 };
 // function get category data from database
-const getProducts = (page: number) => {
+const getSuppliers = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
 
   if (props.params.sortName !== null && props.params.sortType !== null) {
@@ -342,8 +225,8 @@ const getProducts = (page: number) => {
   }
   if (search.value !== null) Object.assign(url.value, { search });
 
-  router.get(route("backoffice.product.index"), url.value, {
-    only: ["products", "params"],
+  router.get(route("backoffice.supplier.index"), url.value, {
+    only: ["suppliers", "params"],
     preserveState: true,
     preserveScroll: true,
     onError: (error) => console.log(error),
@@ -354,12 +237,12 @@ const getProducts = (page: number) => {
 
 const onSaved = (value: boolean) => {
   // alert(value);
-  getProducts(props.products.meta.current_page);
+  getSuppliers(props.suppliers.meta.current_page);
 };
 
 const deleteAll = () => {
   router.post(
-    route("backoffice.product.delete-all"),
+    route("backoffice.supplier.delete-all"),
     {
       ids: selectedId.value,
     },
@@ -371,31 +254,31 @@ const deleteAll = () => {
       onFinish: () => {
         isLoading.value = false;
         selectedId.value = [];
-        productTable.value?.resetTable();
+        supplierTable.value?.resetTable();
       },
     }
   );
 };
 const cancelDeleteAll = () => {
   selectedId.value = [];
-  productTable.value?.resetTable();
+  supplierTable.value?.resetTable();
 };
 
 watchDebounced(
   search,
   () => {
-    getProducts(props.products.meta.current_page);
+    getSuppliers(props.suppliers.meta.current_page);
   },
   { debounce: 500, maxWait: 1000 }
 );
 </script>
 <template>
-  <Head title="Data Barang" />
+  <Head title="Data Pemasok" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <Package class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Data Barang</h1>
+        <Contact class="size-10" />
+        <h1 class="text-lg font-semibold tracking-wider">Data Pemasok</h1>
       </div>
 
       <div class="px-4">
@@ -442,36 +325,36 @@ watchDebounced(
           </Button>
         </div>
         <LinkButton
-          :to="route('backoffice.product.create')"
+          :to="route('backoffice.supplier.create')"
           v-else
           class="-tracking-wider space-x-2"
         >
           <Plus class="w-4 h-4" />
-          <span>Tambah Barang</span>
+          <span>Tambah Pemasok</span>
         </LinkButton>
       </div>
     </div>
     <HeaderInformation>
-      Data barang dipergunakan untuk memanjemen barang yang akan dijual pada pelanggan.
-      Silahkan menambahkan data baru dengan mengklik tombol
-      <strong>Tambah Barang</strong>
+      Data Pemasok dipergunakan untuk memanjemen pemasok yang menyuplai sparepart pada
+      sistem ini. Silahkan menambahkan data baru dengan mengklik tombol
+      <strong>Tambah Pemasok</strong>
     </HeaderInformation>
     <div>
       <DataTable
-        ref="productTable"
+        ref="supplierTable"
         :columns="columns"
-        :data="products.data"
-        :pagination="products.meta"
+        :data="suppliers.data"
+        :pagination="suppliers.meta"
         :loading="isLoading"
         @change-limit="changeLimit"
-        @change-page="getProducts"
+        @change-page="getSuppliers"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">
             <Input
               v-model="search"
               type="text"
-              placeholder="Cari data..."
+              placeholder="Cari Pemasok..."
               class="pl-10 w-full bg-white"
             />
             <span class="absolute inset-y-0 flex items-center justify-center px-2">

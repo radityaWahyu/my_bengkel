@@ -7,6 +7,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\SupplierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,5 +67,15 @@ Route::prefix('backoffice')->group(function () {
         Route::post('/delete_all', 'deleteAll')->name('backoffice.employee.delete-all');
         Route::delete('/{employee}', 'destroy')->name('backoffice.employee.delete');
         Route::put('/{employee}', 'update')->name('backoffice.employee.update');
+    });
+
+    Route::prefix('pemasok')->controller(SupplierController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.supplier.index');
+        Route::get('/create', 'create')->name('backoffice.supplier.create');
+        Route::get('/{supplier}', 'edit')->name('backoffice.supplier.edit');
+        Route::post('/', 'store')->name('backoffice.supplier.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.supplier.delete-all');
+        Route::delete('/{supplier}', 'destroy')->name('backoffice.supplier.delete');
+        Route::put('/{supplier}', 'update')->name('backoffice.supplier.update');
     });
 });

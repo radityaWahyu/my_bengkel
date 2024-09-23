@@ -33,3 +33,9 @@ export interface IEmployee extends IBaseResponse {
     phone: string;
     whatsapp: string;
 }
+export interface ISupplier extends IBaseResponse {
+    contact_name: string;
+    address: string;
+    phone: string;
+    whatsapp: string;
+}
