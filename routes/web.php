@@ -84,6 +84,7 @@ Route::prefix('backoffice')->group(function () {
     Route::prefix('pelanggan')->controller(CustomerController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.customer.index');
         Route::get('/create', 'create')->name('backoffice.customer.create');
+        Route::get('/detail/{customer}', 'show')->name('backoffice.customer.show');
         Route::get('/{customer}', 'edit')->name('backoffice.customer.edit');
         Route::post('/', 'store')->name('backoffice.customer.store');
         Route::post('/delete_all', 'deleteAll')->name('backoffice.customer.delete-all');

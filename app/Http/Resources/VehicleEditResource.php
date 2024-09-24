@@ -18,6 +18,7 @@ class VehicleEditResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'plate_number' => $this->plate_number,
             'machine_frame' => $this->machine_frame,
             'engine_volume' => $this->engine_volume,

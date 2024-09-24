@@ -7,11 +7,21 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { Head, usePage, useForm as useInertiaForm, Link } from "@inertiajs/vue3";
-import { ClipboardPen, ClipboardPenLine } from "lucide-vue-next";
-import { Card, CardContent, CardDescription, CardHeader } from "@/shadcn/ui/card";
-import { Separator } from "@/shadcn/ui/separator";
+import { ref, reactive, watch } from "vue";
+import { router } from "@inertiajs/vue3";
+import {
+  Head,
+  usePage,
+  useForm as useInertiaForm,
+  Link,
+} from "@inertiajs/vue3";
+import { ClipboardPen, ClipboardPenLine, Plus } from "lucide-vue-next";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/shadcn/ui/card";
 import { Label } from "@/shadcn/ui/label";
 import {
   Select,
@@ -32,12 +42,14 @@ import { Input } from "@/shadcn/ui/input";
 import { Button } from "@/shadcn/ui/button";
 import { Textarea } from "@/shadcn/ui/textarea";
 import { useForm } from "vee-validate";
+import { Users, CarFront } from "lucide-vue-next";
 import { toTypedSchema } from "@vee-validate/zod";
 import type { ICustomer, IVehicleEdit, IBrand } from "@/types/response";
 import * as zod from "zod";
 import validator from "validator";
 import FormAlertInfo from "@/Components/App/FormAlertiInfo.vue";
 import FormRequiredLabel from "@/Components/App/FormRequiredLabel.vue";
+import BrandForm from "@/Components/Brand/BrandForm.vue";
 
 const props = defineProps<{
   customers: { data: ICustomer[] };
@@ -51,6 +63,9 @@ const page = usePage();
 const userSchema = () => {
   return toTypedSchema(
     zod.object({
+      name: zod
+        .string({ message: "Nama Kendaraan harus diisi" })
+        .min(1, { message: "Nama Kendaraan harus diisi." }),
       plate_number: zod
         .string({ message: "No Plat harus diisi" })
         .min(1, { message: "No Plat harus diisi." }),
@@ -86,6 +101,7 @@ const form = useForm({
 
 const vehicleForm = useInertiaForm({
   _token: page.props.csrf_token,
+  name: "",
   plate_number: "",
   machine_frame: "",
   engine_volume: "",
@@ -95,6 +111,11 @@ const vehicleForm = useInertiaForm({
   production_year: 0,
   customer_id: "",
   redirect: "",
+});
+const brandFormState = reactive({
+  open: false,
+  title: "Tambah Merk",
+  loading: false,
 });
 
 watch(
@@ -130,6 +151,14 @@ const onSubmit = form.handleSubmit(() => {
     });
   }
 });
+
+const onBrandSaved = () => {
+  router.reload({
+    only: ["brands"],
+    onStart: () => (brandFormState.loading = true),
+    onFinish: () => (brandFormState.loading = true),
+  });
+};
 </script>
 <template>
   <Head title="Form Pelanggan" />
@@ -138,7 +167,9 @@ const onSubmit = form.handleSubmit(() => {
       <div class="flex items-center px-4 gap-4 text-primary">
         <ClipboardPenLine class="size-8" v-if="vehicle" />
         <ClipboardPen class="size-8" v-else />
-        <h1 class="font-medium tracking-wider" v-if="vehicle">Edit Kendaraan</h1>
+        <h1 class="font-medium tracking-wider" v-if="vehicle">
+          Edit Kendaraan
+        </h1>
         <h1 class="font-medium tracking-wider" v-else>Tambah Kendaraan</h1>
       </div>
 
@@ -164,21 +195,32 @@ const onSubmit = form.handleSubmit(() => {
       <CardHeader>
         <CardDescription>
           <FormAlertInfo v-if="!vehicle">
-            Form Tambah Kendaraan dipergunakan untuk menambah data kendaraan yang dimiliki
-            pelanggan. Silahkan mengisi data sesuai dengan format yang diberikan oleh form
-            ini tombol
+            Form Tambah Kendaraan dipergunakan untuk menambah data kendaraan
+            yang dimiliki pelanggan. Silahkan mengisi data sesuai dengan format
+            yang diberikan oleh form ini tombol
           </FormAlertInfo>
           <FormAlertInfo v-else>
-            Form Edit Kendaraan dipergunakan untuk mengubah data kendaraan yang dimiliki
-            pelanggan. Silahkan mengisi data sesuai dengan format yang diberikan oleh form
-            ini tombol
+            Form Edit Kendaraan dipergunakan untuk mengubah data kendaraan yang
+            dimiliki pelanggan. Silahkan mengisi data sesuai dengan format yang
+            diberikan oleh form ini tombol
           </FormAlertInfo>
         </CardDescription>
       </CardHeader>
       <CardContent class="h-auto pb-10 relative">
         <form @submit.prevent="onSubmit" class="space-y-6">
-          <Separator label="Data Pelanggan" />
-          <div>
+          <div class="">
+            <div
+              class="flex items-center gap-4 mb-5 border-b border-dashed border-b-gray-200 p-2"
+            >
+              <Users class="size-8 text-blue-400" />
+              <div>
+                <h4 class="font-medium">Data Pelanggan</h4>
+                <p class="text-sm text-gray-300">
+                  Pastikan data pelanggan sudah benar dan sesuai dengan kartu
+                  identitas pelanggan.
+                </p>
+              </div>
+            </div>
             <FormField v-slot="{ componentField }" name="customer_id">
               <FormItem>
                 <FormLabel
@@ -223,10 +265,50 @@ const onSubmit = form.handleSubmit(() => {
             </FormField>
             <div class="mt-4">
               <Label>Alamat</Label>
-              <Textarea :default-value="customer?.address" rows="4" />
+              <Textarea :default-value="customer?.address" rows="4" disabled />
             </div>
           </div>
-          <Separator label="Data Kendaraan" />
+          <div
+            class="flex items-center gap-4 mb-5 border-b border-dashed border-b-gray-200 p-2"
+          >
+            <CarFront class="size-8 text-blue-400" />
+            <div>
+              <h4 class="font-medium">Form Kendaraan</h4>
+              <p class="text-sm text-gray-300">
+                Pastikan isian data kendaraan telah terinput dengan benar sesuai
+                dengan STNK Pelanggan.
+              </p>
+            </div>
+          </div>
+          <FormField v-slot="{ componentField }" name="name">
+            <FormItem>
+              <FormLabel
+                :class="{
+                  'text-red-500': vehicleForm.errors.name,
+                }"
+              >
+                <FormRequiredLabel>Nama Kendaraan</FormRequiredLabel>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  v-bind="componentField"
+                  v-model="vehicleForm.name"
+                  :class="{
+                    'border border-red-500': vehicleForm.errors.name,
+                  }"
+                  :disabled="vehicleForm.processing"
+                />
+              </FormControl>
+              <div
+                class="text-xs text-red-500 font-medium"
+                v-if="vehicleForm.errors.plate_number"
+              >
+                {{ vehicleForm.errors.plate_number }}
+              </div>
+              <FormMessage v-else />
+            </FormItem>
+          </FormField>
           <div class="grid grid-cols-2 item-center gap-2">
             <div>
               <FormField v-slot="{ componentField }" name="plate_number">
@@ -244,7 +326,8 @@ const onSubmit = form.handleSubmit(() => {
                       v-bind="componentField"
                       v-model="vehicleForm.plate_number"
                       :class="{
-                        'border border-red-500': vehicleForm.errors.plate_number,
+                        'border border-red-500':
+                          vehicleForm.errors.plate_number,
                       }"
                       :disabled="vehicleForm.processing"
                     />
@@ -275,7 +358,8 @@ const onSubmit = form.handleSubmit(() => {
                       v-bind="componentField"
                       v-model="vehicleForm.machine_frame"
                       :class="{
-                        'border border-red-500': vehicleForm.errors.machine_frame,
+                        'border border-red-500':
+                          vehicleForm.errors.machine_frame,
                       }"
                       :disabled="vehicleForm.processing"
                     />
@@ -308,7 +392,8 @@ const onSubmit = form.handleSubmit(() => {
                       v-bind="componentField"
                       v-model="vehicleForm.engine_volume"
                       :class="{
-                        'border border-red-500': vehicleForm.errors.engine_volume,
+                        'border border-red-500':
+                          vehicleForm.errors.engine_volume,
                       }"
                       :disabled="vehicleForm.processing"
                     />
@@ -333,7 +418,10 @@ const onSubmit = form.handleSubmit(() => {
                   >
                     <FormRequiredLabel>Jenis Mesin</FormRequiredLabel>
                   </FormLabel>
-                  <Select v-bind="componentField" v-model="vehicleForm.engine_type">
+                  <Select
+                    v-bind="componentField"
+                    v-model="vehicleForm.engine_type"
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Jenis Mesin" />
@@ -417,7 +505,8 @@ const onSubmit = form.handleSubmit(() => {
                       v-bind="componentField"
                       v-model="vehicleForm.production_year"
                       :class="{
-                        'border border-red-500': vehicleForm.errors.production_year,
+                        'border border-red-500':
+                          vehicleForm.errors.production_year,
                       }"
                       :disabled="vehicleForm.processing"
                     />
@@ -433,46 +522,107 @@ const onSubmit = form.handleSubmit(() => {
               </FormField>
             </div>
             <div>
-              <FormField v-slot="{ componentField }" name="brand_id">
-                <FormItem>
-                  <FormLabel
-                    :class="{
-                      'text-red-500': vehicleForm.errors.brand_id,
-                    }"
-                  >
-                    <FormRequiredLabel>Merk Kendaraan</FormRequiredLabel>
-                  </FormLabel>
-                  <Select v-bind="componentField" v-model="vehicleForm.brand_id">
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih Merk" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem
-                          :value="brand.id"
-                          v-for="(brand, index) in brands.data"
-                          :key="index"
-                        >
-                          {{ brand.name }}
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <div
-                    class="text-xs text-red-500 font-medium"
-                    v-if="vehicleForm.errors.brand_id"
-                  >
-                    {{ vehicleForm.errors.brand_id }}
-                  </div>
-                  <FormMessage v-else />
-                </FormItem>
-              </FormField>
+              <div class="flex items-end gap-1">
+                <div class="grow w-full">
+                  <FormField v-slot="{ componentField }" name="brand_id">
+                    <FormItem>
+                      <FormLabel
+                        :class="{
+                          'text-red-500': vehicleForm.errors.brand_id,
+                        }"
+                      >
+                        <FormRequiredLabel>Merk Kendaraan</FormRequiredLabel>
+                      </FormLabel>
+                      <Select
+                        v-bind="componentField"
+                        v-model="vehicleForm.brand_id"
+                        v-if="brands.data.length > 0"
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Merk" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem
+                              :value="brand.id"
+                              v-for="(brand, index) in brands.data"
+                              :key="index"
+                            >
+                              {{ brand.name }}
+                            </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <div
+                        v-else
+                        class="bg-sky-100 flex items-center gap-2 px-2 py-2 text-sky-600 h-9 rounded"
+                      >
+                        <div>
+                          <BadgeInfo
+                            class="size-5"
+                            v-if="!brandFormState.loading"
+                          />
+                          <svg
+                            class="size-4 animate-spin"
+                            viewBox="0 0 100 100"
+                            v-else
+                          >
+                            <circle
+                              fill="none"
+                              stroke-width="12"
+                              class="stroke-current opacity-40"
+                              cx="50"
+                              cy="50"
+                              r="40"
+                            />
+                            <circle
+                              fill="none"
+                              stroke-width="12"
+                              class="stroke-blue-500"
+                              stroke-dasharray="250"
+                              stroke-dashoffset="210"
+                              cx="50"
+                              cy="50"
+                              r="40"
+                            />
+                          </svg>
+                        </div>
+                        <p class="text-xs" v-if="!brandFormState.loading">
+                          Data Merk kosong
+                        </p>
+                        <p class="text-xs" v-else>Ambil data Merk...</p>
+                      </div>
+                      <div
+                        class="text-xs text-red-500 font-medium"
+                        v-if="vehicleForm.errors.brand_id"
+                      >
+                        {{ vehicleForm.errors.brand_id }}
+                      </div>
+                      <FormMessage v-else />
+                    </FormItem>
+                  </FormField>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  class="mb-[2px]"
+                  @click="brandFormState.open = true"
+                >
+                  <Plus class="size-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </form>
       </CardContent>
     </Card>
+    <BrandForm
+      v-model="brandFormState.open"
+      :title="brandFormState.title"
+      @saved="onBrandSaved"
+    />
   </div>
 </template>

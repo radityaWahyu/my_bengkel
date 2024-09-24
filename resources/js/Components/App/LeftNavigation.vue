@@ -12,6 +12,7 @@ import {
   Settings,
   HandCoins,
   ClipboardPenLine,
+  History,
 } from "lucide-vue-next";
 import {
   Collapsible,
@@ -177,6 +178,10 @@ onMounted(() => {
               </div>
             </CollapsibleContent>
           </Collapsible>
+          <MenuNavigation>
+            <History class="h-5 w-5" />
+            History Service
+          </MenuNavigation>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger
               class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
@@ -197,7 +202,9 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
+                <SubMenuNavigation>
+                  Laporan Transaksi Service
+                </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>

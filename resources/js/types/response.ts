@@ -41,9 +41,25 @@ export interface ISupplier extends IBaseResponse {
 }
 
 export interface ICustomer extends IEmployee {
-    vehicle: number;
+    vehicle_count: number;
 }
+
+export interface ICustomerDetail extends ICustomer {
+    vehicles: {
+        id: string;
+        name: string;
+        plate_number: string;
+        machine_frame: string;
+        engine_volume: string;
+        engine_type: string;
+        type: string;
+        production_year: number;
+        brand: string;
+    }[]
+}
+
 export interface IVehicle {
+    name: string;
     plate_number: string;
     machine_frame: string;
     engine_volume: string;
@@ -55,6 +71,7 @@ export interface IVehicle {
 }
 export interface IVehicleEdit {
     id: string;
+    name: string;
     plate_number: string;
     machine_frame: string;
     engine_volume: string;

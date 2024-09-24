@@ -28,8 +28,8 @@ const formOpen = defineModel<boolean>();
 
 const props = defineProps<{
   title: string;
-  brand: IBrand | undefined;
-  edit: boolean;
+  brand?: IBrand | undefined;
+  edit?: boolean;
 }>();
 
 const emits = defineEmits<{

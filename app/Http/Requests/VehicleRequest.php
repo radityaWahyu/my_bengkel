@@ -23,6 +23,7 @@ class VehicleRequest extends FormRequest
     {
         if (request()->isMethod('post')) {
             return [
+                'name' => ['required'],
                 'plate_number' => ['required', 'unique:vehicles,plate_number'],
                 'machine_frame' => ['required'],
                 'engine_volume' => ['required'],
@@ -34,6 +35,7 @@ class VehicleRequest extends FormRequest
             ];
         } elseif (request()->isMethod('put')) {
             return [
+                'name' => ['required'],
                 'plate_number' => ['required'],
                 'machine_frame' => ['required'],
                 'engine_volume' => ['required'],
@@ -59,6 +61,7 @@ class VehicleRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'name' => 'Nama merk kendaraan',
             'plate_number' => 'No Plat',
             'machine_frame' => 'No Rangka',
             'engine_volume' => 'CC Mesin',

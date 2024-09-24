@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Http\Requests\CustomerRequest;
+use App\Http\Resources\CustomerDetailResource;
 use App\Http\Resources\CustomerResource;
 
 class CustomerController extends Controller
@@ -58,6 +59,13 @@ class CustomerController extends Controller
         return inertia('Customer/CustomerForm');
     }
 
+    public function show(Customer $customer)
+    {
+        return inertia('Customer/CustomerDetail', [
+            'customer' => fn() => new CustomerDetailResource($customer),
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -78,7 +86,7 @@ class CustomerController extends Controller
     public function edit(Customer $customer)
     {
         return inertia('Customer/CustomerForm', [
-            'employee' => fn() => new CustomerResource($customer)
+            'customer' => fn() => new CustomerResource($customer)
         ]);
     }
 

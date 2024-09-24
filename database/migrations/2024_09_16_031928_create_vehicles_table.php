@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Brand;
-use App\Models\Customer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,8 +21,8 @@ return new class extends Migration
             $table->year('production_year');
             $table->foreignUuid('brand_id')->nullable();
             $table->foreignUuid('customer_id');
-            $table->foreign('brand_id')->on('brands')->references('id')->onDelete('set null');
-            $table->foreign('customer_id')->on('customers')->references('id')->onDelete('restrict');
+            $table->foreign('brand_id')->on('brands')->references('id')->nullOnDelete();
+            $table->foreign('customer_id')->on('customers')->references('id')->cascadeOnDelete()->noActionOnUpdate();
             // $table->foreignIdFor(Brand::class)->nullable()->constrained()->nullOnDelete();
             // $table->foreignIdFor(Customer::class)->constrained()->restrictOnDelete();
             $table->timestamps();
