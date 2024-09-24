@@ -56,6 +56,7 @@ const props = defineProps<{
   customer?: ICustomer;
   vehicle?: IVehicleEdit;
   brands: { data: IBrand[] };
+  redirect: string;
 }>();
 
 const page = usePage();
@@ -104,13 +105,13 @@ const vehicleForm = useInertiaForm({
   name: "",
   plate_number: "",
   machine_frame: "",
-  engine_volume: "",
+  engine_volume: 0,
   engine_type: "",
   type: "",
   brand_id: "",
   production_year: 0,
   customer_id: "",
-  redirect: "",
+  redirect: props.redirect,
 });
 const brandFormState = reactive({
   open: false,
@@ -124,17 +125,26 @@ watch(
     if (prop.customer) {
       vehicleForm.customer_id = prop.customer.id;
       form.setFieldValue("customer_id", prop.customer.id);
-      vehicleForm.redirect = "customer";
     }
 
-    if (prop.vehicle) {
+    if (!!prop.vehicle) {
       vehicleForm.plate_number = prop.vehicle.plate_number;
+      vehicleForm.name = prop.vehicle.name;
       vehicleForm.machine_frame = prop.vehicle.machine_frame;
       vehicleForm.engine_volume = prop.vehicle.engine_volume;
       vehicleForm.engine_type = prop.vehicle.engine_type;
       vehicleForm.type = prop.vehicle.type;
       vehicleForm.brand_id = prop.vehicle.brand_id;
       vehicleForm.production_year = prop.vehicle.production_year;
+
+      form.setFieldValue("name", prop.vehicle.name);
+      form.setFieldValue("plate_number", prop.vehicle.plate_number);
+      form.setFieldValue("machine_frame", prop.vehicle.machine_frame);
+      form.setFieldValue("engine_volume", prop.vehicle.engine_volume);
+      form.setFieldValue("engine_type", prop.vehicle.engine_type);
+      form.setFieldValue("type", prop.vehicle.type);
+      form.setFieldValue("brand_id", prop.vehicle.brand_id);
+      form.setFieldValue("production_year", prop.vehicle.production_year);
     }
   },
   { immediate: true }
@@ -176,7 +186,7 @@ const onBrandSaved = () => {
       <div class="space-x-2">
         <Link
           v-if="vehicle"
-          :href="route('backoffice.customer.index')"
+          :href="route('backoffice.customer.show', customer?.id)"
           as="button"
           type="button"
           :disabled="vehicleForm.processing"

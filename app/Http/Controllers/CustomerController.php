@@ -75,7 +75,7 @@ class CustomerController extends Controller
             //dd($request->validated());
             $employee = Customer::create($request->validated());
 
-            return to_route('backoffice.vehicle.create', ['customer' => $employee->id])->with('success', 'Data Pelanggan berhasil disimpan');
+            return to_route('backoffice.vehicle.create', ['customer' => $employee->id, 'redirect' => 'customer'])->with('success', 'Data Pelanggan berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

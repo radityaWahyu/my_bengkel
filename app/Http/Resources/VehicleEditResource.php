@@ -21,10 +21,10 @@ class VehicleEditResource extends JsonResource
             'name' => $this->name,
             'plate_number' => $this->plate_number,
             'machine_frame' => $this->machine_frame,
-            'engine_volume' => $this->engine_volume,
+            'engine_volume' => (int)$this->engine_volume,
             'engine_type' => $this->engine_type,
             'type' => $this->type,
-            'production_year' => $this->production_year,
+            'production_year' => (int)$this->production_year,
             'brand_id' => $this->brand_id,
             'customer_id' => $this->customer_id,
         ];

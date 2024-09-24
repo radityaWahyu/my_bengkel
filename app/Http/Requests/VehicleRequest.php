@@ -41,7 +41,7 @@ class VehicleRequest extends FormRequest
                 'engine_volume' => ['required'],
                 'engine_type' => ['required'],
                 'type' => ['required'],
-                'production_year' => ['required', 'numeric', 'max:4'],
+                'production_year' => ['required', 'numeric'],
                 'brand_id' => ['required'],
                 'customer_id' => ['required'],
             ];

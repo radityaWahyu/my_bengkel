@@ -7,7 +7,7 @@ export default {
 </script>
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm, Link, Head } from "@inertiajs/vue3";
+import { useForm, Link, Head, router } from "@inertiajs/vue3";
 import type { ICustomerDetail } from "@/types/response";
 import { Button } from "@/shadcn/ui/button";
 import { CarFront } from "lucide-vue-next";
@@ -37,6 +37,13 @@ const props = defineProps<{
 
 const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
+const onUpdate = (id: string) => {
+  router.get(
+    route("backoffice.vehicle.edit", id),
+    { redirect: "customer-detail" },
+    { replace: true }
+  );
+};
 const onDelete = (id: string) => {
   openConfirmDialog.value = false;
   deleteForm.delete(route("backoffice.vehicle.delete", id), {
@@ -101,8 +108,8 @@ const onDelete = (id: string) => {
             </div>
           </div>
           <div class="space-y-1">
-            <p class="rounded bg-muted px-[0.3rem] py-[0.2rem] text-xs">
-              Aalamat
+            <p class="rounded bg-muted px-[0.3rem] py-[0.3rem] text-xs">
+              Alamat
             </p>
             <h4 class="capitalize font-medium text-sm">
               {{ customer.address }}
@@ -115,12 +122,21 @@ const onDelete = (id: string) => {
       <CardHeader>
         <CardTitle class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CarFront class="size-5" />
+            <CarFront class="size-7" />
             <span>Detail Kendaraan</span>
           </div>
-          <Button size="sm" class="flex items-center gap-2">
-            <PlusSquare class="size-4" />
-            <span>Tambah Kendaraan</span>
+          <Button size="sm" as-child>
+            <Link
+              :href="route('backoffice.vehicle.create')"
+              replace
+              class="flex items-center gap-2"
+              as="button"
+              method="get"
+              :data="{ customer: customer.id, redirect: 'customer-detail' }"
+            >
+              <PlusSquare class="size-4" />
+              <span>Tambah Kendaraan</span>
+            </Link>
           </Button>
         </CardTitle>
         <CardDescription>
@@ -141,9 +157,9 @@ const onDelete = (id: string) => {
                 <TableHead class="w-[100px]"> No Plat </TableHead>
                 <TableHead class="w-[300px]"> Nama Kendaraan </TableHead>
                 <TableHead class="w-[150px]">Merk Kendaraan</TableHead>
-                <TableHead class="text-center w-[150px]"
-                  >Tahun Pembuatan</TableHead
-                >
+                <TableHead class="text-center w-[150px]">
+                  Tahun Pembuatan
+                </TableHead>
                 <TableHead class="text-center w-[100px]">CC Mesin</TableHead>
                 <TableHead class="w-[100px]"> Tipe Mesin </TableHead>
                 <TableHead class="w-[150px]"> Jenis Kendaraan </TableHead>
@@ -178,7 +194,12 @@ const onDelete = (id: string) => {
                 </TableCell>
                 <TableCell>
                   <div class="space-x-2 w-full text-center">
-                    <Button type="button" variant="outline" size="icon">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      @click="onUpdate(vehicle.id)"
+                    >
                       <svg
                         class="size-4 animate-spin"
                         viewBox="0 0 100 100"

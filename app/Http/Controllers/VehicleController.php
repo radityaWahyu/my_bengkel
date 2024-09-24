@@ -11,6 +11,7 @@ use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\BrandResource;
 use App\Http\Resources\VehicleResource;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\VehicleEditResource;
 
 class VehicleController extends Controller
 {
@@ -67,12 +68,14 @@ class VehicleController extends Controller
                 'customers' => fn() => CustomerResource::collection($customers),
                 'customer' => fn() => new CustomerResource($customer),
                 'brands' => fn() => BrandResource::collection($brands),
+                'redirect' => $request->redirect,
             ]);
         }
 
         return inertia('Customer/VehicleForm', [
             'customers' => fn() => CustomerResource::collection($customers),
             'brands' => fn() => BrandResource::collection($brands),
+            'redirect' => $request->redirect,
         ]);
     }
 
@@ -84,9 +87,13 @@ class VehicleController extends Controller
         try {
             Vehicle::create($request->validated());
 
-            if ($request->redirect == 'customer') return to_route('backoffice.customer.index')->with('success', 'Data pelanggan dan Kendaraan berhasil disimpan');
+            if ($request->redirect == 'customer')
+                return to_route('backoffice.customer.index')->with('success', 'Data pelanggan dan Kendaraan berhasil disimpan');
 
-            return to_route('backoffice.customer.index')->with('success', 'Data Kendaraan berhasil disimpan');
+            if ($request->redirect == 'customer-detail')
+                return to_route('backoffice.customer.show', $request->customer_id)->with('success', 'Data Kendaraan berhasil disimpan');
+
+            return redirect()->back()->with('success', 'Data Kendaraan berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
@@ -94,10 +101,18 @@ class VehicleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Vehicle $vehicle)
+    public function edit(Request $request, Vehicle $vehicle)
     {
-        return inertia('Vehicle/CustomerForm', [
-            'employee' => fn() => new VehicleResource($vehicle)
+        $customers = Customer::get();
+        $brands = Brand::get();
+
+
+        return inertia('Customer/VehicleForm', [
+            'customers' => fn() => CustomerResource::collection($customers),
+            'customer' => fn() => new CustomerResource($vehicle->customer),
+            'vehicle' => fn() => new VehicleEditResource($vehicle),
+            'brands' => fn() => BrandResource::collection($brands),
+            'redirect' => $request->redirect,
         ]);
     }
 
@@ -109,7 +124,7 @@ class VehicleController extends Controller
         try {
             $vehicle->update($request->validated());
 
-            return to_route('backoffice.customer.index')->with('success', 'Data Kendaraan berhasil disimpan');
+            return to_route('backoffice.customer.show', $request->customer_id)->with('success', 'Data Kendaraan berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

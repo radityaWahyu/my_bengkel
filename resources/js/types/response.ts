@@ -50,7 +50,7 @@ export interface ICustomerDetail extends ICustomer {
         name: string;
         plate_number: string;
         machine_frame: string;
-        engine_volume: string;
+        engine_volume: number;
         engine_type: string;
         type: string;
         production_year: number;
@@ -62,7 +62,7 @@ export interface IVehicle {
     name: string;
     plate_number: string;
     machine_frame: string;
-    engine_volume: string;
+    engine_volume: number;
     engine_type: string;
     type: string;
     production_year: number;
@@ -74,7 +74,7 @@ export interface IVehicleEdit {
     name: string;
     plate_number: string;
     machine_frame: string;
-    engine_volume: string;
+    engine_volume: number;
     engine_type: string;
     type: string;
     production_year: number;
