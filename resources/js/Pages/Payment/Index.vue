@@ -11,7 +11,7 @@ import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
 import {
   Plus,
-  Wrench,
+  Banknote,
   ArrowUpDown,
   ArrowDownUp,
   Search,
@@ -27,11 +27,12 @@ import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
 import PaymentForm from "@/Components/Payment/PaymentForm.vue";
 import PaymentButtonAction from "@/Components/Payment/PaymentButtonAction.vue";
+import PaymentBankNameBox from "@/Components/Payment/PaymentBankNameBox.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 
 const props = defineProps<{
-  repairs: { data: IPayment[]; meta: IPaginationMeta };
+  payments: { data: IPayment[]; meta: IPaginationMeta };
   params: {
     sortName: string;
     sortType: string;
@@ -41,18 +42,18 @@ const props = defineProps<{
 
 const formState = reactive({
   open: false,
-  title: "Tambah Perbaikan",
+  title: "Tambah Pembayaran",
   edit: false,
 });
 
 const httpService = useHttpService();
-const repair = ref<IPayment>();
+const payment = ref<IPayment>();
 const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
-const perPage = ref(props.repairs.meta.per_page);
+const perPage = ref(props.payments.meta.per_page);
 const isLoading = ref<boolean>(false);
 const selectedId = ref<string[]>([]);
-const repairTable = ref<InstanceType<typeof DataTable> | null>(null);
+const paymentTable = ref<InstanceType<typeof DataTable> | null>(null);
 const columns: ColumnDef<IPayment>[] = [
   {
     id: "select",
@@ -124,7 +125,7 @@ const columns: ColumnDef<IPayment>[] = [
               props.params.sortType = "asc";
             }
 
-            getrepairs(props.repairs.meta.current_page);
+            getpayments(props.payments.meta.current_page);
           },
           class: "w-full flex justify-between text-left px-0",
         },
@@ -133,46 +134,32 @@ const columns: ColumnDef<IPayment>[] = [
             props.params?.sortType == "desc" && props.params?.sortName == "name"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Nama Perbaikan",
+            "Nama Pembayaran",
           ]),
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("name")),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize font-medium text-sm" },
+        row.getValue("name")
+      ),
   },
   {
-    accessorKey: "price",
+    accessorKey: "bank_name",
+    enableResizing: false,
+    size: 300,
+    header: ({ column }) => h("div", { class: "px-4 font-semibold" }, "Bank"),
+    cell: ({ row }) => h(PaymentBankNameBox, { payment: row.original }),
+  },
+  {
+    accessorKey: "tax",
     enableResizing: false,
     size: 100,
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "price";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getrepairs(props.repairs.meta.current_page);
-          },
-          class: "w-full flex justify-between text-left px-0",
-        },
-        () => [
-          h("div", { class: "gap-2 flex items-center font-semibold" }, [
-            props.params?.sortType == "desc" &&
-            props.params?.sortName == "price"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Harga",
-          ]),
-        ]
-      );
-    },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("price")),
+    header: ({ column }) =>
+      h("div", { class: "text-right font-semibold" }, "Pajak Transaksi"),
+    cell: ({ row }) => h("div", { class: "text-right" }, row.original.tax),
   },
   {
     id: "actions",
@@ -181,7 +168,7 @@ const columns: ColumnDef<IPayment>[] = [
       const id: string = row.original.id as string;
       return h(PaymentButtonAction, {
         id: row.original.id,
-        onDeleted: () => getrepairs(props.repairs.meta.current_page),
+        onDeleted: () => getpayments(props.payments.meta.current_page),
         onUpdated,
       });
     },
@@ -190,10 +177,10 @@ const columns: ColumnDef<IPayment>[] = [
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getrepairs(props.repairs.meta.current_page);
+  getpayments(props.payments.meta.current_page);
 };
 // function get category data from database
-const getrepairs = (page: number) => {
+const getpayments = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
 
   if (props.params.sortName !== null && props.params.sortType !== null) {
@@ -204,8 +191,8 @@ const getrepairs = (page: number) => {
   }
   if (search.value !== null) Object.assign(url.value, { search });
 
-  router.get(route("backoffice.repair.index"), url.value, {
-    only: ["repairs", "params"],
+  router.get(route("backoffice.payment.index"), url.value, {
+    only: ["payments", "params"],
     preserveState: true,
     preserveScroll: true,
     onError: (error) => console.log(error),
@@ -213,21 +200,21 @@ const getrepairs = (page: number) => {
     onFinish: () => (isLoading.value = false),
   });
 };
-const addrepair = () => {
+const addpayment = () => {
   formState.open = true;
   formState.edit = false;
-  formState.title = "Tambah Perbaikan";
+  formState.title = "Tambah Pembayaran";
 };
 const onSaved = (value: boolean) => {
   // alert(value);
-  getrepairs(props.repairs.meta.current_page);
+  getpayments(props.payments.meta.current_page);
 };
 const onUpdated = async (id: string) => {
-  const response = await httpService.get(route("backoffice.repair.edit", id));
+  const response = await httpService.get(route("backoffice.payment.edit", id));
 
   if (response) {
-    repair.value = response.data;
-    formState.title = "Edit Perbaikan";
+    payment.value = response.data;
+    formState.title = "Edit Pembayaran";
     formState.edit = true;
     formState.open = true;
   }
@@ -235,7 +222,7 @@ const onUpdated = async (id: string) => {
 
 const deleteAll = () => {
   router.post(
-    route("backoffice.repair.delete-all"),
+    route("backoffice.payment.delete-all"),
     {
       ids: selectedId.value,
     },
@@ -247,31 +234,31 @@ const deleteAll = () => {
       onFinish: () => {
         isLoading.value = false;
         selectedId.value = [];
-        repairTable.value?.resetTable();
+        paymentTable.value?.resetTable();
       },
     }
   );
 };
 const cancelDeleteAll = () => {
   selectedId.value = [];
-  repairTable.value?.resetTable();
+  paymentTable.value?.resetTable();
 };
 
 watchDebounced(
   search,
   () => {
-    getrepairs(props.repairs.meta.current_page);
+    getpayments(props.payments.meta.current_page);
   },
   { debounce: 500, maxWait: 1000 }
 );
 </script>
 <template>
-  <Head title="Data Perbaikan" />
+  <Head title="Data Pembayaran" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <Wrench class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Jenis Perbaikan</h1>
+        <Banknote class="size-10" />
+        <h1 class="text-lg font-semibold tracking-wider">Jenis Pembayaran</h1>
       </div>
 
       <div class="px-4">
@@ -325,28 +312,28 @@ watchDebounced(
           v-else
           class="-tracking-wider space-x-2"
           type="button"
-          @click="addrepair"
+          @click="addpayment"
         >
           <Plus class="w-4 h-4" />
-          <span>Tambah Jenis Perbaikan</span>
+          <span>Tambah Jenis Pembayaran</span>
         </Button>
       </div>
     </div>
     <HeaderInformation>
-      Data rak dipergunakan untuk memanjemen penempatan barang berdasarkan rak
-      yang akan dijual pada pelanggan. Silahkan menambahkan data baru dengan
-      mengklik tombol
-      <strong>Tambah Rak</strong>
+      Jenis Pembayaran dipergunakan untuk memanjemen jenis pembayaran yang
+      dipergunakan untuk pembayaran setiap transaksi yang dilakukan dalam sistem
+      ini. Silahkan menambahkan data baru dengan mengklik tombol
+      <strong>Tambah Jenis Pembayaran</strong>
     </HeaderInformation>
     <div>
       <DataTable
-        ref="repairTable"
+        ref="paymentTable"
         :columns="columns"
-        :data="repairs.data"
-        :pagination="repairs.meta"
+        :data="payments.data"
+        :pagination="payments.meta"
         :loading="isLoading || httpService.processing.value"
         @change-limit="changeLimit"
-        @change-page="getrepairs"
+        @change-page="getpayments"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">
@@ -374,7 +361,7 @@ watchDebounced(
       v-model="formState.open"
       :title="formState.title"
       @saved="onSaved"
-      :repair="repair"
+      :payment="payment"
       :edit="formState.edit"
     />
     <ConfirmDialog

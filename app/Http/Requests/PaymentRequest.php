@@ -32,7 +32,10 @@ class PaymentRequest extends FormRequest
         } elseif (request()->isMethod('put')) {
             return [
                 'name' => ['required'],
-                'price' => ['required', 'numeric']
+                'bank_name' => ['required'],
+                'account_name' => ['required'],
+                'account_number' => ['required'],
+                'tax' => ['nullable', 'numeric']
             ];
         }
     }

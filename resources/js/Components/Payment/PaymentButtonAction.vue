@@ -18,14 +18,14 @@ const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
-  deleteForm.delete(route("backoffice.repair.delete", props.id), {
+  deleteForm.delete(route("backoffice.payment.delete", props.id), {
     onError: (error) => console.log(error),
     onSuccess: () => emits("deleted", true),
   });
 };
 </script>
 <template>
-  <div class="space-x-2">
+  <div class="space-x-2 text-center">
     <Button
       type="button"
       variant="outline"

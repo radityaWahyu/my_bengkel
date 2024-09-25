@@ -56,7 +56,7 @@ const onDelete = (id: string) => {
   <div class="container py-4 space-y-2">
     <Card class="shadow-none rounded">
       <CardHeader>
-        <CardTitle class="flex items-center gap-3">
+        <CardTitle class="flex items-center gap-3 font-medium text-lg">
           <Button size="icon" variant="outline" as-child>
             <Link :href="route('backoffice.customer.index')" replace>
               <MoveLeft class="size-4 text-blue-400" />
@@ -120,7 +120,9 @@ const onDelete = (id: string) => {
     </Card>
     <Card class="shadow-none rounded">
       <CardHeader>
-        <CardTitle class="flex items-center justify-between">
+        <CardTitle
+          class="flex items-center justify-between font-medium text-lg"
+        >
           <div class="flex items-center gap-3">
             <CarFront class="size-7" />
             <span>Detail Kendaraan</span>

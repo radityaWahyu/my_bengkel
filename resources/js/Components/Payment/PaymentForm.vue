@@ -21,14 +21,14 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 import { usePage, useForm as useInertiaForm } from "@inertiajs/vue3";
-import type { IRepair } from "@/types/response";
+import type { IPayment } from "@/types/response";
 import FormAlertiInfo from "../App/FormAlertiInfo.vue";
 
 const formOpen = defineModel<boolean>();
 
 const props = defineProps<{
   title: string;
-  repair?: IRepair | undefined;
+  payment?: IPayment | undefined;
   edit?: boolean;
 }>();
 
@@ -44,9 +44,18 @@ const userSchema = () => {
   return toTypedSchema(
     zod.object({
       name: zod
-        .string({ message: "Nama Merk harus diisi" })
-        .min(1, { message: "Nama Merk harus diisi." }),
-      price: zod.number({ message: "Harga harus diisi angkat" }),
+        .string({ message: "Nama Pembayaran harus diisi" })
+        .min(1, { message: "Nama Pembayaran harus diisi." }),
+      bank_name: zod
+        .string({ message: "Nama Bank harus diisi" })
+        .min(1, { message: "Nama Bank harus diisi." }),
+      account_name: zod
+        .string({ message: "Nama Akun harus diisi" })
+        .min(1, { message: "Nama Akun harus diisi." }),
+      account_number: zod
+        .string({ message: "No Rekening harus diisi" })
+        .min(1, { message: "No Rekening harus diisi." }),
+      tax: zod.number({ message: "Harga harus diisi angkat" }).optional(),
     })
   );
 };
@@ -56,21 +65,30 @@ const form = useForm({
   validationSchema,
 });
 
-const repairForm = useInertiaForm({
+const paymentForm = useInertiaForm({
   _token: page.props.csrf_token,
   name: "",
-  price: 0,
+  bank_name: "",
+  account_name: "",
+  account_number: "",
+  tax: 0,
 });
 
 watch(
-  () => props.repair,
+  () => props.payment,
   (values) => {
     if (values && props.edit) {
       id.value = values.id;
       form.setFieldValue("name", values.name);
-      form.setFieldValue("price", values.price);
-      repairForm.name = values.name;
-      repairForm.price = values.price;
+      form.setFieldValue("bank_name", values.bank_name);
+      form.setFieldValue("account_name", values.account_name);
+      form.setFieldValue("account_number", values.account_number);
+      form.setFieldValue("tax", values.tax);
+      paymentForm.name = values.name;
+      paymentForm.bank_name = values.bank_name;
+      paymentForm.account_name = values.account_name;
+      paymentForm.account_number = values.account_number;
+      paymentForm.tax = values.tax;
     }
   },
   { immediate: true }
@@ -78,10 +96,10 @@ watch(
 
 const onSubmit = form.handleSubmit(() => {
   if (props.edit) {
-    repairForm.put(route("backoffice.repair.update", id.value), {
+    paymentForm.put(route("backoffice.payment.update", id.value), {
       onSuccess: () => {
         emits("saved", true);
-        repairForm.reset();
+        paymentForm.reset();
         formOpen.value = false;
       },
       onError: (error) => {
@@ -92,10 +110,10 @@ const onSubmit = form.handleSubmit(() => {
       },
     });
   } else {
-    repairForm.post(route("backoffice.repair.store"), {
+    paymentForm.post(route("backoffice.payment.store"), {
       onSuccess: () => {
         emits("saved", true);
-        repairForm.reset();
+        paymentForm.reset();
         formOpen.value = false;
       },
       onError: (error) => {
@@ -110,7 +128,7 @@ const onSubmit = form.handleSubmit(() => {
 
 const onClose = () => {
   form.resetForm();
-  repairForm.reset();
+  paymentForm.reset();
   formOpen.value = false;
   emits("closed", true);
 };
@@ -123,7 +141,7 @@ const onClose = () => {
         <SheetTitle>{{ title }}</SheetTitle>
         <SheetDescription>
           <FormAlertiInfo>
-            Form ini dipergunakan untuk menambah atau mengubah data Merk.
+            Form ini dipergunakan untuk menambah atau mengubah Jenis Pembayaran.
             Silahkan isi data sesuai form dibawah.
           </FormAlertiInfo>
         </SheetDescription>
@@ -134,57 +152,147 @@ const onClose = () => {
             <FormItem>
               <FormLabel
                 :class="{
-                  'text-red-500': repairForm.errors.name,
+                  'text-red-500': paymentForm.errors.name,
                 }"
               >
-                Nama Perbaikan
+                Jenis Pembayaran
               </FormLabel>
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="nama perbaikan..."
+                  placeholder="nama pembayaran..."
                   v-bind="componentField"
-                  v-model="repairForm.name"
+                  v-model="paymentForm.name"
                   :class="{
-                    'border border-red-500': repairForm.errors.name,
+                    'border border-red-500': paymentForm.errors.name,
                   }"
-                  :disabled="repairForm.processing"
+                  :disabled="paymentForm.processing"
                 />
               </FormControl>
               <div
                 class="text-xs text-red-500 font-medium"
-                v-if="repairForm.errors.name"
+                v-if="paymentForm.errors.name"
               >
-                {{ repairForm.errors.name }}
+                {{ paymentForm.errors.name }}
               </div>
               <FormMessage v-else />
             </FormItem>
           </FormField>
-          <FormField v-slot="{ componentField }" name="price">
+          <FormField v-slot="{ componentField }" name="bank_name">
             <FormItem>
               <FormLabel
                 :class="{
-                  'text-red-500': repairForm.errors.price,
+                  'text-red-500': paymentForm.errors.bank_name,
                 }"
               >
-                Harga
+                Nama Bank
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="nama bank..."
+                  v-bind="componentField"
+                  v-model="paymentForm.bank_name"
+                  :class="{
+                    'border border-red-500': paymentForm.errors.bank_name,
+                  }"
+                  :disabled="paymentForm.processing"
+                />
+              </FormControl>
+              <div
+                class="text-xs text-red-500 font-medium"
+                v-if="paymentForm.errors.bank_name"
+              >
+                {{ paymentForm.errors.bank_name }}
+              </div>
+              <FormMessage v-else />
+            </FormItem>
+          </FormField>
+          <FormField v-slot="{ componentField }" name="account_name">
+            <FormItem>
+              <FormLabel
+                :class="{
+                  'text-red-500': paymentForm.errors.account_name,
+                }"
+              >
+                Nama Akun
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="nama akun..."
+                  v-bind="componentField"
+                  v-model="paymentForm.account_name"
+                  :class="{
+                    'border border-red-500': paymentForm.errors.account_name,
+                  }"
+                  :disabled="paymentForm.processing"
+                />
+              </FormControl>
+              <div
+                class="text-xs text-red-500 font-medium"
+                v-if="paymentForm.errors.account_name"
+              >
+                {{ paymentForm.errors.account_name }}
+              </div>
+              <FormMessage v-else />
+            </FormItem>
+          </FormField>
+          <FormField v-slot="{ componentField }" name="account_number">
+            <FormItem>
+              <FormLabel
+                :class="{
+                  'text-red-500': paymentForm.errors.account_number,
+                }"
+              >
+                No Rekening
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="no rekening..."
+                  v-bind="componentField"
+                  v-model="paymentForm.account_number"
+                  :class="{
+                    'border border-red-500': paymentForm.errors.account_number,
+                  }"
+                  :disabled="paymentForm.processing"
+                />
+              </FormControl>
+              <div
+                class="text-xs text-red-500 font-medium"
+                v-if="paymentForm.errors.account_number"
+              >
+                {{ paymentForm.errors.account_number }}
+              </div>
+              <FormMessage v-else />
+            </FormItem>
+          </FormField>
+          <FormField v-slot="{ componentField }" name="tax">
+            <FormItem>
+              <FormLabel
+                :class="{
+                  'text-red-500': paymentForm.errors.tax,
+                }"
+              >
+                PPN
               </FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   v-bind="componentField"
-                  v-model="repairForm.price"
+                  v-model="paymentForm.tax"
                   :class="{
-                    'border border-red-500': repairForm.errors.price,
+                    'border border-red-500': paymentForm.errors.tax,
                   }"
-                  :disabled="repairForm.processing"
+                  :disabled="paymentForm.processing"
                 />
               </FormControl>
               <div
                 class="text-xs text-red-500 font-medium"
-                v-if="repairForm.errors.price"
+                v-if="paymentForm.errors.tax"
               >
-                {{ repairForm.errors.price }}
+                {{ paymentForm.errors.tax }}
               </div>
               <FormMessage v-else />
             </FormItem>
@@ -196,16 +304,16 @@ const onClose = () => {
           type="button"
           variant="ghost"
           @click="onClose"
-          :disabled="repairForm.processing"
+          :disabled="paymentForm.processing"
         >
           Batal
         </Button>
         <Button
           type="button"
-          :disabled="repairForm.processing"
+          :disabled="paymentForm.processing"
           @click="onSubmit"
         >
-          <span v-if="repairForm.processing"> Menyimpan data... </span>
+          <span v-if="paymentForm.processing"> Menyimpan data... </span>
           <span v-else> Simpan data </span>
         </Button>
       </SheetFooter>

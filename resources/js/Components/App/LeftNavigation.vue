@@ -46,18 +46,21 @@ const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
 
 onMounted(() => {
   const fullUrl = page.url.split("/");
-  console.log(fullUrl.length);
+  // console.log(fullUrl.length);
   const currentUrl = ref();
 
   if (fullUrl.length === 3) {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
+    if (currentUrl.value[0] === "pengaturan")
+      currentUrl.value = fullUrl[3].split("?");
+
+    // console.log(currentUrl.value);
   } else if (fullUrl.length === 5) {
     currentUrl.value = fullUrl[2].split("?");
   }
 
-  console.log(currentUrl.value[0]);
   if (masterDataMenu.value.includes(currentUrl.value[0])) {
     masterDataOpen.value = true;
   }
@@ -209,7 +212,9 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
+                <SubMenuNavigation>
+                  Laporan Transaksi Service
+                </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>
@@ -245,7 +250,9 @@ onMounted(() => {
                 <SubMenuNavigation> User </SubMenuNavigation>
                 <SubMenuNavigation> Sistem </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="page.url.startsWith('backoffice/pengaturan/pembayaran', 1)"
+                  :active="
+                    page.url.startsWith('backoffice/pengaturan/pembayaran', 1)
+                  "
                   :to="route('backoffice.payment.index')"
                 >
                   Jenis Pembayaran
