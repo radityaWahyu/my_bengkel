@@ -31,6 +31,7 @@ const masterDataMenu = ref([
   "kategori",
   "rak",
   "merk",
+  "perbaikan",
   "barang",
   "pegawai",
   "pemasok",
@@ -133,6 +134,12 @@ onMounted(() => {
                   Data Barang
                 </SubMenuNavigation>
                 <SubMenuNavigation
+                  :active="page.url.startsWith('backoffice/perbaikan', 1)"
+                  :to="route('backoffice.repair.index')"
+                >
+                  Jenis Perbaikan
+                </SubMenuNavigation>
+                <SubMenuNavigation
                   :active="page.url.startsWith('backoffice/pegawai', 1)"
                   :to="route('backoffice.employee.index')"
                 >
@@ -202,9 +209,7 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation>
-                  Laporan Transaksi Service
-                </SubMenuNavigation>
+                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>
@@ -239,7 +244,12 @@ onMounted(() => {
               <div class="">
                 <SubMenuNavigation> User </SubMenuNavigation>
                 <SubMenuNavigation> Sistem </SubMenuNavigation>
-                <SubMenuNavigation> Jenis Pembayaran </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="page.url.startsWith('backoffice/pengaturan/pembayaran', 1)"
+                  :to="route('backoffice.payment.index')"
+                >
+                  Jenis Pembayaran
+                </SubMenuNavigation>
               </div>
             </CollapsibleContent>
           </Collapsible>

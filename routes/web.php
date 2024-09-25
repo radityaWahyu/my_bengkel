@@ -4,6 +4,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\RepairController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
@@ -49,6 +51,15 @@ Route::prefix('backoffice')->group(function () {
         Route::post('/delete_all', 'deleteAll')->name('backoffice.brand.delete-all');
         Route::delete('/{brand}', 'destroy')->name('backoffice.brand.delete');
         Route::put('/{brand}', 'update')->name('backoffice.brand.update');
+    });
+
+    Route::prefix('perbaikan')->controller(RepairController::class)->group(function () {
+        Route::get('/', 'index')->name('backoffice.repair.index');
+        Route::get('/{repair}', 'edit')->name('backoffice.repair.edit');
+        Route::post('/', 'store')->name('backoffice.repair.store');
+        Route::post('/delete_all', 'deleteAll')->name('backoffice.repair.delete-all');
+        Route::delete('/{repair}', 'destroy')->name('backoffice.repair.delete');
+        Route::put('/{repair}', 'update')->name('backoffice.repair.update');
     });
 
     Route::prefix('barang')->controller(ProductController::class)->group(function () {
@@ -99,6 +110,17 @@ Route::prefix('backoffice')->group(function () {
             Route::post('/delete_all', 'deleteAll')->name('backoffice.vehicle.delete-all');
             Route::delete('/{vehicle}', 'destroy')->name('backoffice.vehicle.delete');
             Route::put('/{vehicle}', 'update')->name('backoffice.vehicle.update');
+        });
+    });
+
+    Route::prefix('pengaturan')->group(function () {
+        Route::prefix('pembayaran')->controller(PaymentController::class)->group(function () {
+            Route::get('/', 'index')->name('backoffice.payment.index');
+            Route::get('/{payment}', 'edit')->name('backoffice.payment.edit');
+            Route::post('/', 'store')->name('backoffice.payment.store');
+            Route::post('/delete_all', 'deleteAll')->name('backoffice.payment.delete-all');
+            Route::delete('/{payment}', 'destroy')->name('backoffice.payment.delete');
+            Route::put('/{payment}', 'update')->name('backoffice.payment.update');
         });
     });
 });

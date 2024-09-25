@@ -70,48 +70,48 @@ const onDelete = (id: string) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div class="grid grid-cols-3 gap-2">
-          <div class="space-y-2">
-            <div class="space-y-1">
-              <p class="rounded bg-muted px-[0.3rem] py-[0.2rem] text-xs">
+        <div
+          class="grid grid-cols-3 divide-x divide-gray-200 border border-gray-200 rounded-lg"
+        >
+          <div class="space-y-2 divide-y divide-gray-200">
+            <div class="space-y-1 p-2">
+              <p class="rounded bg-muted px-2 py-[0.2rem] text-xs">
                 Nama Pelanggan
               </p>
-              <h4 class="capitalize font-medium text-sm">
+              <h4 class="capitalize font-medium text-md px-2">
                 {{ customer.name }}
               </h4>
             </div>
-            <div class="space-y-1">
-              <p class="rounded bg-muted px-[0.3rem] py-[0.2rem] text-xs">
+            <div class="space-y-1 p-2">
+              <p class="rounded bg-muted px-2 py-[0.2rem] text-xs">
                 Jenis Kelamin
               </p>
-              <h4 class="capitalize font-medium text-sm">
+              <h4 class="capitalize font-medium text-md px-2">
                 {{ customer.gender === "l" ? "Laki - laki" : "Perempuan" }}
               </h4>
             </div>
           </div>
-          <div class="space-y-2">
-            <div class="space-y-1">
-              <p class="rounded bg-muted px-[0.3rem] py-[0.2rem] text-xs">
+          <div class="space-y-2 divide-y divide-gray-200">
+            <div class="space-y-1 p-2">
+              <p class="rounded bg-muted px-2 py-[0.2rem] text-xs">
                 No Telepon
               </p>
-              <h4 class="capitalize font-medium text-sm">
+              <h4 class="capitalize font-medium text-md px-2">
                 {{ customer.phone }}
               </h4>
             </div>
-            <div class="space-y-1">
-              <p class="rounded bg-muted px-[0.3rem] py-[0.2rem] text-xs">
+            <div class="space-y-1 p-2">
+              <p class="rounded bg-muted px-2 py-[0.2rem] text-xs">
                 No Whatsapp
               </p>
-              <h4 class="capitalize font-medium text-sm">
+              <h4 class="capitalize font-medium text-md px-2">
                 {{ customer.whatsapp }}
               </h4>
             </div>
           </div>
-          <div class="space-y-1">
-            <p class="rounded bg-muted px-[0.3rem] py-[0.3rem] text-xs">
-              Alamat
-            </p>
-            <h4 class="capitalize font-medium text-sm">
+          <div class="space-y-1 p-2">
+            <p class="rounded bg-muted px-2 py-[0.3rem] text-xs">Alamat</p>
+            <h4 class="capitalize font-medium text-sm px-2">
               {{ customer.address }}
             </h4>
           </div>
@@ -145,10 +145,10 @@ const onDelete = (id: string) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div
-          class="overflow-x-auto max-w-full scrollbar border border-gray-100"
-        >
-          <Table class="table-fixed">
+        <div class="max-w-full border border-gray-100">
+          <Table
+            class="table-fixed overflow-x-scroll whitespace-nowrap scrollbar [&::-webkit-scrollbar]:block"
+          >
             <TableCaption>
               Pastikan data kendaraan pelanggan telah terinput dengan benar.
             </TableCaption>

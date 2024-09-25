@@ -13,6 +13,9 @@ export interface IPaginationMeta {
 export interface ICategory extends IBaseResponse { };
 export interface IRack extends IBaseResponse { }
 export interface IBrand extends IBaseResponse { }
+export interface IRepair extends IBaseResponse {
+    price: number;
+}
 export interface IProduct extends IBaseResponse {
     stock: number;
     buy_price: number;
@@ -80,4 +83,11 @@ export interface IVehicleEdit {
     production_year: number;
     brand_id: string;
     customer_id: string;
+}
+
+export interface IPayment extends IBaseResponse {
+    bank_name: string;
+    account_name: string;
+    account_number: string;
+    tax: number;
 }

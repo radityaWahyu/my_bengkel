@@ -35,9 +35,9 @@ watch(
     class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] antialiased"
   >
     <LeftNavigation />
-    <div class="h-screen flex flex-col overflow-y-auto scrollbar">
+    <div class="h-screen flex flex-col overflow-y-auto scrollbar bg-[#F5FAFE]">
       <TopNavigation />
-      <main class="h-auto bg-[#F5FAFE]">
+      <main class="h-auto">
         <TopAlert
           v-model="alert.show"
           :messages="alert.message"
