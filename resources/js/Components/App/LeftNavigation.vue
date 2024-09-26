@@ -46,7 +46,7 @@ const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
 
 onMounted(() => {
   const fullUrl = page.url.split("/");
-  // console.log(fullUrl.length);
+  console.log(fullUrl.length);
   const currentUrl = ref();
 
   if (fullUrl.length === 3) {
@@ -59,6 +59,9 @@ onMounted(() => {
     // console.log(currentUrl.value);
   } else if (fullUrl.length === 5) {
     currentUrl.value = fullUrl[2].split("?");
+
+    if (currentUrl.value[0] === "pengaturan")
+      currentUrl.value = fullUrl[3].split("?");
   }
 
   if (masterDataMenu.value.includes(currentUrl.value[0])) {
@@ -247,7 +250,12 @@ onMounted(() => {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div class="">
-                <SubMenuNavigation> User </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="page.url.startsWith('backoffice/pengaturan/user', 1)"
+                  :to="route('backoffice.user.index')"
+                >
+                  User
+                </SubMenuNavigation>
                 <SubMenuNavigation> Sistem </SubMenuNavigation>
                 <SubMenuNavigation
                   :active="

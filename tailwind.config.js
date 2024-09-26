@@ -14,11 +14,6 @@ module.exports = {
   ],
 
   theme: {
-    extend: {
-      fontFamily: {
-        montserrat: ["Montserrat"],
-      },
-    },
     container: {
       center: true,
       padding: "2rem",
@@ -27,6 +22,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        DM: ["DM Sans"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

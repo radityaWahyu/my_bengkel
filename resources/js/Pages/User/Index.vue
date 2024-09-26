@@ -9,29 +9,22 @@ export default {
 import { ref, h } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
-import {
-  Plus,
-  UserRound,
-  ArrowUpDown,
-  ArrowDownUp,
-  Search,
-  X,
-  Trash2,
-} from "lucide-vue-next";
+import { Plus, UserCircle, Search, X, Trash2 } from "lucide-vue-next";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Checkbox } from "@/shadcn/ui/checkbox";
 import type { ColumnDef } from "@tanstack/vue-table";
-import type { IPaginationMeta, IEmployee } from "@/types/response";
+import type { IPaginationMeta, IUser } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
-import EmployeeButtonAction from "@/Components/Employee/EmployeeButtonAction.vue";
+import UserButtonAction from "@/Components/User/UserButtonAction.vue";
+import UserNameBox from "@/Components/User/UserNameBox.vue";
+import UserEmployeeNameBox from "@/Components/User/UserEmployeeNameBox.vue";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 import LinkButton from "@/Components/App/LinkButton.vue";
-import EmployeeNameBox from "@/Components/Employee/EmployeeNameBox.vue";
 
 const props = defineProps<{
-  employees: { data: IEmployee[]; meta: IPaginationMeta };
+  users: { data: IUser[]; meta: IPaginationMeta };
   params: {
     sortName: string;
     sortType: string;
@@ -41,154 +34,35 @@ const props = defineProps<{
 
 const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
-const perPage = ref(props.employees.meta.per_page);
+const perPage = ref(props.users.meta.per_page);
 const isLoading = ref<boolean>(false);
 const selectedId = ref<string[]>([]);
-const employeeTable = ref<InstanceType<typeof DataTable> | null>(null);
-const columns: ColumnDef<IEmployee>[] = [
+const userTable = ref<InstanceType<typeof DataTable> | null>(null);
+const columns: ColumnDef<IUser>[] = [
   {
-    id: "select",
-    size: 50,
-    header: ({ table }) =>
-      h(
-        "div",
-        {
-          class: "text-center flex items-center justify-center h-full",
-        },
-        h(Checkbox, {
-          checked:
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate"),
-          "onUpdate:checked": (value: any) => {
-            console.log(value);
-            if (!value) {
-              selectedId.value = [];
-              table.resetRowSelection();
-            } else {
-              const row = table.getRowModel();
-              row.rows.forEach((rowData) => {
-                selectedId.value.push(rowData.original.id);
-              });
-            }
-            table.toggleAllPageRowsSelected(!!value);
-          },
-          ariaLabel: "Select all",
-        })
-      ),
-    cell: ({ row }) =>
-      h(
-        "div",
-        { class: "text-center flex items-center justify-center h-full" },
-        h(Checkbox, {
-          id: "check",
-          checked: row.getIsSelected(),
-          "onUpdate:checked": (value: any) => {
-            if (value) {
-              selectedId.value.push(row.original.id);
-            } else {
-              selectedId.value = selectedId.value.filter(
-                (id) => id !== row.original.id
-              );
-            }
-
-            row.toggleSelected(!!value);
-          },
-          ariaLabel: "Select row",
-        })
-      ),
-    enableSorting: false,
-    enableHiding: false,
+    accessorKey: "username",
+    enableResizing: false,
+    size: 300,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Username"),
+    cell: ({ row }) => h(UserNameBox, { user: row.original }),
   },
   {
     accessorKey: "name",
     enableResizing: false,
     size: 300,
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "name";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getEmployees(props.employees.meta.current_page);
-          },
-          class: "w-full flex justify-between text-left px-0",
-        },
-        () => [
-          h("div", { class: "gap-2 flex items-center font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "name"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Nama Pegawai",
-          ]),
-        ]
-      );
-    },
-    cell: ({ row }) => h(EmployeeNameBox, { name: row.original.name }),
-  },
-  {
-    accessorKey: "gender",
-    enableResizing: false,
-    size: 200,
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => {
-            props.params.sortName = "gender";
-            if (props.params.sortType == "asc") {
-              props.params.sortType = "desc";
-            } else {
-              props.params.sortType = "asc";
-            }
-
-            getEmployees(props.employees.meta.current_page);
-          },
-          class: "w-full flex justify-between text-left px-0",
-        },
-        () => [
-          h("div", { class: "gap-2 flex items-center font-semibold" }, [
-            props.params?.sortType == "desc" &&
-            props.params?.sortName == "gender"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Jenis Kelamin",
-          ]),
-        ]
-      );
-    },
-    cell: ({ row }) => {
-      return h(
+    header: ({ column }) =>
+      h(
         "div",
-        { class: "capitalize" },
-        row.original.gender === "l" ? "Laki - laki" : "Perempuan"
-      );
-    },
-  },
-  {
-    accessorKey: "phone",
-    enableResizing: false,
-    size: 150,
-    header: ({ column }) => {
-      return h(
-        "div",
-        { class: "gap-2 flex items-center text-left font-semibold" },
-        "No Telepon"
-      );
-    },
-    cell: ({ row }) => h("div", {}, row.original.phone),
+        { class: "gap-2 flex items-center font-semibold" },
+        "Nama Pegawai"
+      ),
+    cell: ({ row }) => h(UserEmployeeNameBox, { user: row.original }),
   },
   {
     accessorKey: "whatsapp",
     enableResizing: false,
-    size: 150,
+    size: 250,
     header: ({ column }) => {
       return h(
         "div",
@@ -199,16 +73,52 @@ const columns: ColumnDef<IEmployee>[] = [
     cell: ({ row }) => h("div", {}, row.original.whatsapp),
   },
   {
+    accessorKey: "role",
+    enableResizing: false,
+    size: 200,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Role"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize py-1 bg-sky-100 rounded-full inline-flex px-4" },
+        row.original.role
+      ),
+  },
+  {
+    accessorKey: "enabled",
+    enableResizing: false,
+    size: 200,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 text-center font-semibold" }, "Status"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        {
+          class: [
+            "capitalize py-1  rounded-full text-center ",
+            {
+              "bg-sky-100 text-blue-600": row.original.enabled,
+              "bg-yellow-100 text-yellow-800": !row.original.enabled,
+            },
+          ],
+        },
+        row.original.enabled ? "Aktif" : "Tidak Aktif"
+      ),
+  },
+
+  {
     id: "actions",
     enableHiding: false,
     size: 150,
     cell: ({ row }) =>
-      h(EmployeeButtonAction, {
-        id: row.original.id,
-        onDeleted: () => getEmployees(props.employees.meta.current_page),
+      h(UserButtonAction, {
+        user: row.original,
+        onDeleted: () => getUsers(props.users.meta.current_page),
+        onReload: () => getUsers(props.users.meta.current_page),
         onUpdated: () =>
           router.get(
-            route("backoffice.employee.edit", row.original.id),
+            route("backoffice.user.edit", row.original.id),
             {},
             { replace: true }
           ),
@@ -218,10 +128,10 @@ const columns: ColumnDef<IEmployee>[] = [
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getEmployees(props.employees.meta.current_page);
+  getUsers(props.users.meta.current_page);
 };
 // function get category data from database
-const getEmployees = (page: number) => {
+const getUsers = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
 
   if (props.params.sortName !== null && props.params.sortType !== null) {
@@ -232,8 +142,8 @@ const getEmployees = (page: number) => {
   }
   if (search.value !== null) Object.assign(url.value, { search });
 
-  router.get(route("backoffice.employee.index"), url.value, {
-    only: ["employees", "params"],
+  router.get(route("backoffice.user.index"), url.value, {
+    only: ["users", "params"],
     preserveState: true,
     preserveScroll: true,
     onError: (error) => console.log(error),
@@ -244,12 +154,12 @@ const getEmployees = (page: number) => {
 
 const onSaved = (value: boolean) => {
   // alert(value);
-  getEmployees(props.employees.meta.current_page);
+  getUsers(props.users.meta.current_page);
 };
 
 const deleteAll = () => {
   router.post(
-    route("backoffice.employee.delete-all"),
+    route("backoffice.user.delete-all"),
     {
       ids: selectedId.value,
     },
@@ -261,31 +171,31 @@ const deleteAll = () => {
       onFinish: () => {
         isLoading.value = false;
         selectedId.value = [];
-        employeeTable.value?.resetTable();
+        userTable.value?.resetTable();
       },
     }
   );
 };
 const cancelDeleteAll = () => {
   selectedId.value = [];
-  employeeTable.value?.resetTable();
+  userTable.value?.resetTable();
 };
 
 watchDebounced(
   search,
   () => {
-    getEmployees(props.employees.meta.current_page);
+    getUsers(props.users.meta.current_page);
   },
   { debounce: 500, maxWait: 1000 }
 );
 </script>
 <template>
-  <Head title="Data Pegawai" />
+  <Head title="Data User" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <UserRound class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Data Pegawai</h1>
+        <UserCircle class="size-10" />
+        <h1 class="text-lg font-semibold tracking-wider">Data User</h1>
       </div>
 
       <div class="px-4">
@@ -336,37 +246,36 @@ watchDebounced(
           </Button>
         </div>
         <LinkButton
-          :to="route('backoffice.employee.create')"
+          :to="route('backoffice.user.create')"
           v-else
           class="-tracking-wider space-x-2"
         >
           <Plus class="w-4 h-4" />
-          <span>Tambah Pegawai</span>
+          <span>Tambah User</span>
         </LinkButton>
       </div>
     </div>
     <HeaderInformation>
-      Data Pegawai dipergunakan untuk memanjemen pegawai yang berkerja
-      menggunakan sistem ini. Silahkan menambahkan data baru dengan mengklik
-      tombol
-      <strong>Tambah Pegawai</strong>
+      Data User dipergunakan untuk memanjemen user yang berkerja menggunakan
+      sistem ini. Silahkan menambahkan data baru dengan mengklik tombol
+      <strong>Tambah User</strong>
     </HeaderInformation>
     <div>
       <DataTable
-        ref="employeeTable"
+        ref="userTable"
         :columns="columns"
-        :data="employees.data"
-        :pagination="employees.meta"
+        :data="users.data"
+        :pagination="users.meta"
         :loading="isLoading"
         @change-limit="changeLimit"
-        @change-page="getEmployees"
+        @change-page="getUsers"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">
             <Input
               v-model="search"
               type="text"
-              placeholder="Cari Pegawai..."
+              placeholder="Cari User..."
               class="pl-10 w-full bg-white"
             />
             <span

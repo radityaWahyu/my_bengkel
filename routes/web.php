@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PaymentController;
@@ -114,6 +115,18 @@ Route::prefix('backoffice')->group(function () {
     });
 
     Route::prefix('pengaturan')->group(function () {
+
+        Route::prefix('user')->controller(UserController::class)->group(function () {
+            Route::get('/', 'index')->name('backoffice.user.index');
+            Route::get('/create', 'create')->name('backoffice.user.create');
+            Route::get('/{user}', 'edit')->name('backoffice.user.edit');
+            Route::post('/', 'store')->name('backoffice.user.store');
+            Route::post('/delete_all', 'deleteAll')->name('backoffice.user.delete-all');
+            Route::delete('/{user}', 'destroy')->name('backoffice.user.delete');
+            Route::put('/{user}', 'update')->name('backoffice.user.update');
+            Route::put('/{user}/enabled', 'enabled')->name('backoffice.user.enabled');
+        });
+
         Route::prefix('pembayaran')->controller(PaymentController::class)->group(function () {
             Route::get('/', 'index')->name('backoffice.payment.index');
             Route::get('/{payment}', 'edit')->name('backoffice.payment.edit');

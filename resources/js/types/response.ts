@@ -91,3 +91,19 @@ export interface IPayment extends IBaseResponse {
     account_number: string;
     tax: number;
 }
+
+export interface IUser extends IBaseResponse {
+    username: string;
+    role: string;
+    gender: string;
+    phone: string;
+    whatsapp: string;
+    enabled: boolean;
+}
+
+export interface IUserEdit {
+    id: string;
+    username: string;
+    role: string;
+    employee_id: string;
+}

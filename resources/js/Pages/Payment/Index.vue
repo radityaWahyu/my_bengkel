@@ -334,6 +334,7 @@ watchDebounced(
         :loading="isLoading || httpService.processing.value"
         @change-limit="changeLimit"
         @change-page="getpayments"
+        align-cell="align-top"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">

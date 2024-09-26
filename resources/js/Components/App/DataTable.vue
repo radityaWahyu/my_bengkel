@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import type { HTMLAttributes } from "vue";
+import { cn } from "@/shadcn/utils";
 import type { ColumnDef, ExpandedState } from "@tanstack/vue-table";
 import { valueUpdater } from "@/shadcn/utils";
 import { Skeleton } from "@/shadcn/ui/skeleton";
@@ -31,6 +33,7 @@ const props = defineProps<{
   pagination: IPaginationMeta;
   loading: boolean;
   expanded?: boolean;
+  alignCell?: HTMLAttributes["class"];
 }>();
 
 const slots = useSlots();
@@ -168,6 +171,7 @@ defineExpose({
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow :data-state="row.getIsSelected() && 'selected'">
                 <TableCell
+                  :class="cn(alignCell)"
                   v-for="cell in row.getVisibleCells()"
                   :key="cell.id"
                   :style="{ width: cell.column.getSize() + 'px' }"
