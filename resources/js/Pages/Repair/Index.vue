@@ -23,12 +23,15 @@ import { Input } from "@/shadcn/ui/input";
 import { Checkbox } from "@/shadcn/ui/checkbox";
 import type { ColumnDef } from "@tanstack/vue-table";
 import type { IPaginationMeta, IRepair } from "@/types/response";
+import { usePrice } from "@/Plugin/useNumber";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
 import RepairForm from "@/Components/Repair/RepairForm.vue";
 import RepairButtonAction from "@/Components/Repair/RepairButtonAction.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
+
+const price = usePrice();
 
 const props = defineProps<{
   repairs: { data: IRepair[]; meta: IPaginationMeta };
@@ -172,7 +175,12 @@ const columns: ColumnDef<IRepair>[] = [
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("price")),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize" },
+        price.convertToRupiah(row.getValue("price"))
+      ),
   },
   {
     id: "actions",

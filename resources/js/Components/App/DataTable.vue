@@ -124,10 +124,11 @@ defineExpose({
     </div>
     <div class="border border-l-0 border-r-0 bg-white max-w-full">
       <Table class="table-fixed scrollbar">
-        <TableHeader class="bg-gray-100 shadow">
+        <TableHeader class="bg-gray-100">
           <TableRow
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id"
+            class="border-b border-b-gray-200 shadow"
           >
             <TableHead
               v-for="header in headerGroup.headers"

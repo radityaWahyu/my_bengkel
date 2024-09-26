@@ -221,6 +221,7 @@ const onSubmit = form.handleSubmit(() => {
                 </FormLabel>
                 <FormControl>
                   <Select
+                    id="pegawai"
                     v-bind="componentField"
                     v-model="userForm.employee_id"
                     @update:model-value="onNameChange"
@@ -367,7 +368,11 @@ const onSubmit = form.handleSubmit(() => {
                 <FormRequiredLabel>Role User</FormRequiredLabel>
               </FormLabel>
               <FormControl>
-                <Select v-bind="componentField" v-model="userForm.role">
+                <Select
+                  v-bind="componentField"
+                  v-model="userForm.role"
+                  id="role"
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih Role" />

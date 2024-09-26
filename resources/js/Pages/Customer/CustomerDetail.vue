@@ -124,7 +124,7 @@ const onDelete = (id: string) => {
           class="flex items-center justify-between font-medium text-lg"
         >
           <div class="flex items-center gap-3">
-            <CarFront class="size-7" />
+            <CarFront class="size-7 text-sky-600" />
             <span>Detail Kendaraan</span>
           </div>
           <Button size="sm" as-child>
@@ -151,21 +151,28 @@ const onDelete = (id: string) => {
           <Table
             class="table-fixed overflow-x-scroll whitespace-nowrap scrollbar [&::-webkit-scrollbar]:block"
           >
-            <TableCaption>
-              Pastikan data kendaraan pelanggan telah terinput dengan benar.
-            </TableCaption>
             <TableHeader class="bg-gray-100">
-              <TableRow>
-                <TableHead class="w-[100px]"> No Plat </TableHead>
-                <TableHead class="w-[300px]"> Nama Kendaraan </TableHead>
-                <TableHead class="w-[150px]">Merk Kendaraan</TableHead>
-                <TableHead class="text-center w-[150px]">
+              <TableRow class="border-y border-y-gray-200 shadow">
+                <TableHead class="w-[100px] font-semibold"> No Plat </TableHead>
+                <TableHead class="w-[300px] font-semibold">
+                  Nama Kendaraan
+                </TableHead>
+                <TableHead class="w-[150px] font-semibold"
+                  >Merk Kendaraan</TableHead
+                >
+                <TableHead class="text-center w-[150px] font-semibold">
                   Tahun Pembuatan
                 </TableHead>
-                <TableHead class="text-center w-[100px]">CC Mesin</TableHead>
-                <TableHead class="w-[100px]"> Tipe Mesin </TableHead>
-                <TableHead class="w-[150px]"> Jenis Kendaraan </TableHead>
-                <TableHead class="w-[100px]"></TableHead>
+                <TableHead class="text-center w-[100px] font-semibold"
+                  >CC Mesin</TableHead
+                >
+                <TableHead class="w-[100px] font-semibold text-center">
+                  Tipe Mesin
+                </TableHead>
+                <TableHead class="w-[150px] font-semibold">
+                  Jenis Kendaraan
+                </TableHead>
+                <TableHead class="w-[100px] font-semibold"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -188,7 +195,7 @@ const onDelete = (id: string) => {
                 <TableCell class="font-medium text-center">
                   {{ vehicle.engine_volume }}
                 </TableCell>
-                <TableCell class="font-medium capitalize">
+                <TableCell class="font-medium capitalize text-center">
                   {{ vehicle.engine_type === "petrol" ? "bensin" : "diesel" }}
                 </TableCell>
                 <TableCell class="font-medium">

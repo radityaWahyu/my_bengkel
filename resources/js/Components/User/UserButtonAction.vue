@@ -40,7 +40,7 @@ const onEnabled = (status: boolean) => {
 };
 </script>
 <template>
-  <div class="space-x-2 w-full text-center">
+  <div class="space-x-1 w-full text-center">
     <Button
       type="button"
       variant="outline"

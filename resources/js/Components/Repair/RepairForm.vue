@@ -46,7 +46,7 @@ const userSchema = () => {
       name: zod
         .string({ message: "Nama Merk harus diisi" })
         .min(1, { message: "Nama Merk harus diisi." }),
-      price: zod.number({ message: "Harga harus diisi angkat" }),
+      price: zod.number({ message: "Harga harus diisi angka" }),
     })
   );
 };
