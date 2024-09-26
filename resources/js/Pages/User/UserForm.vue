@@ -61,6 +61,19 @@ const props = defineProps<{
 const page = usePage();
 
 const userSchema = () => {
+  if (props.user) {
+    return toTypedSchema(
+      zod.object({
+        username: zod
+          .string({ message: "Username harus diisi" })
+          .min(1, { message: "Username harus diisi." }),
+        role: zod
+          .string({ message: "Role harus dipilih" })
+          .min(1, { message: "Role belum dipilih." }),
+        employee_id: zod.string({ message: "Pegawai belum dipilih." }),
+      })
+    );
+  }
   return toTypedSchema(
     zod.object({
       username: zod
@@ -100,26 +113,6 @@ const userForm = useInertiaForm({
   employee_id: "",
 });
 
-watch(
-  () => props.user,
-  (user) => {
-    // console.log(user);
-    // if (user) {
-    //   userForm.name = user.name;
-    //   userForm.gender = user.gender;
-    //   userForm.address = user.address;
-    //   userForm.phone = user.phone;
-    //   userForm.whatsapp = user.whatsapp;
-    //   form.setFieldValue("name", user.name);
-    //   form.setFieldValue("gender", user.gender);
-    //   form.setFieldValue("address", user.address);
-    //   form.setFieldValue("phone", user.phone);
-    //   form.setFieldValue("whatsapp", user.whatsapp);
-    // }
-  },
-  { immediate: true }
-);
-
 const onNameChange = () => {
   const response = props.employees.data.find(
     (employee) => employee.id === userForm.employee_id
@@ -132,6 +125,22 @@ const onNameChange = () => {
     employee.whatsapp = response.whatsapp;
   }
 };
+watch(
+  () => props.user,
+  (user) => {
+    // console.log(user);
+    if (user) {
+      userForm.employee_id = user.employee_id;
+      userForm.username = user.username;
+      userForm.role = user.role;
+      form.setFieldValue("employee_id", user.employee_id);
+      form.setFieldValue("username", user.username);
+      form.setFieldValue("role", user.role);
+      onNameChange();
+    }
+  },
+  { immediate: true }
+);
 
 const onSubmit = form.handleSubmit(() => {
   if (props.user) {
@@ -215,6 +224,7 @@ const onSubmit = form.handleSubmit(() => {
                     v-bind="componentField"
                     v-model="userForm.employee_id"
                     @update:model-value="onNameChange"
+                    :disabled="!!user"
                     v-if="employees.data.length > 0"
                   >
                     <FormControl>

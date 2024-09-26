@@ -31,7 +31,6 @@ class UserRequest extends FormRequest
         } elseif (request()->isMethod('put')) {
             return [
                 'username' => ['required', 'unique:users,username'],
-                'password' => ['required'],
                 'employee_id' => ['required'],
                 'role' => ['required']
             ];

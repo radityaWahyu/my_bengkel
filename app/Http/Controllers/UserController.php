@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\UserEditResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
@@ -88,20 +89,24 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Employee $employee)
+    public function edit(user $user)
     {
+        $employees = Employee::whereNotIn('name', ['administrator'])
+            ->get();
+
         return inertia('User/UserForm', [
-            'employee' => fn() => new UserResource($employee)
+            'employees' => fn() => EmployeeResource::collection($employees),
+            'user' => fn() => new UserEditResource($user)
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, Employee $employee)
+    public function update(UserRequest $request, User $user)
     {
         try {
-            $employee->update($request->validated());
+            $user->update($request->validated());
 
             return to_route('backoffice.user.index')->with('success', 'Data User berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
