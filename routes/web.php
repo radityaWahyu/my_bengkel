@@ -8,6 +8,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -125,6 +126,11 @@ Route::prefix('backoffice')->group(function () {
             Route::delete('/{user}', 'destroy')->name('backoffice.user.delete');
             Route::put('/{user}', 'update')->name('backoffice.user.update');
             Route::put('/{user}/enabled', 'enabled')->name('backoffice.user.enabled');
+        });
+
+        Route::prefix('sistem')->controller(SettingController::class)->group(function () {
+            Route::get('/', 'index')->name('backoffice.setting.index');
+            Route::put('/', 'update')->name('backoffice.setting.update');
         });
 
         Route::prefix('pembayaran')->controller(PaymentController::class)->group(function () {

@@ -95,9 +95,7 @@ const columns: ColumnDef<IPayment>[] = [
             if (value) {
               selectedId.value.push(row.original.id);
             } else {
-              selectedId.value = selectedId.value.filter(
-                (id) => id !== row.original.id
-              );
+              selectedId.value = selectedId.value.filter((id) => id !== row.original.id);
             }
 
             row.toggleSelected(!!value);
@@ -140,11 +138,7 @@ const columns: ColumnDef<IPayment>[] = [
       );
     },
     cell: ({ row }) =>
-      h(
-        "div",
-        { class: "capitalize font-medium text-sm" },
-        row.getValue("name")
-      ),
+      h("div", { class: "capitalize font-medium text-sm" }, row.getValue("name")),
   },
   {
     accessorKey: "bank_name",
@@ -258,7 +252,7 @@ watchDebounced(
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
         <Banknote class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Jenis Pembayaran</h1>
+        <h1 class="text-lg font-semibold">Jenis Pembayaran</h1>
       </div>
 
       <div class="px-4">
@@ -279,11 +273,7 @@ watchDebounced(
             :disabled="isLoading"
             @click="openDeleteConfirm = true"
           >
-            <svg
-              class="size-4 animate-spin"
-              viewBox="0 0 100 100"
-              v-if="isLoading"
-            >
+            <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="isLoading">
               <circle
                 fill="none"
                 stroke-width="12"
@@ -320,9 +310,9 @@ watchDebounced(
       </div>
     </div>
     <HeaderInformation>
-      Jenis Pembayaran dipergunakan untuk memanjemen jenis pembayaran yang
-      dipergunakan untuk pembayaran setiap transaksi yang dilakukan dalam sistem
-      ini. Silahkan menambahkan data baru dengan mengklik tombol
+      Jenis Pembayaran dipergunakan untuk memanjemen jenis pembayaran yang dipergunakan
+      untuk pembayaran setiap transaksi yang dilakukan dalam sistem ini. Silahkan
+      menambahkan data baru dengan mengklik tombol
       <strong>Tambah Jenis Pembayaran</strong>
     </HeaderInformation>
     <div>
@@ -344,9 +334,7 @@ watchDebounced(
               placeholder="Cari data..."
               class="pl-10 w-full bg-white"
             />
-            <span
-              class="absolute inset-y-0 flex items-center justify-center px-2"
-            >
+            <span class="absolute inset-y-0 flex items-center justify-center px-2">
               <Search class="size-4 text-muted-foreground" />
             </span>
             <span
@@ -376,9 +364,7 @@ watchDebounced(
         <div>Konfirmasi Hapus Data</div>
       </template>
       <template #description>
-        <div>
-          Apakah anda ingin menghapus {{ selectedId.length }} data ini ?
-        </div>
+        <div>Apakah anda ingin menghapus {{ selectedId.length }} data ini ?</div>
       </template>
     </ConfirmDialog>
   </div>

@@ -107,3 +107,9 @@ export interface IUserEdit {
     role: string;
     employee_id: string;
 }
+
+export interface ISetting {
+    id: string;
+    name: string;
+    value: string;
+}

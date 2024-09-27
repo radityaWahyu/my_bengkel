@@ -52,11 +52,7 @@ const columns: ColumnDef<IUser>[] = [
     enableResizing: false,
     size: 300,
     header: ({ column }) =>
-      h(
-        "div",
-        { class: "gap-2 flex items-center font-semibold" },
-        "Nama Pegawai"
-      ),
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Nama Pegawai"),
     cell: ({ row }) => h(UserEmployeeNameBox, { user: row.original }),
   },
   {
@@ -195,7 +191,7 @@ watchDebounced(
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
         <UserCircle class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">Data User</h1>
+        <h1 class="text-lg font-semibold">Data User</h1>
       </div>
 
       <div class="px-4">
@@ -216,11 +212,7 @@ watchDebounced(
             :disabled="isLoading"
             @click="openDeleteConfirm = true"
           >
-            <svg
-              class="size-4 animate-spin"
-              viewBox="0 0 100 100"
-              v-if="isLoading"
-            >
+            <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="isLoading">
               <circle
                 fill="none"
                 stroke-width="12"
@@ -256,8 +248,8 @@ watchDebounced(
       </div>
     </div>
     <HeaderInformation>
-      Data User dipergunakan untuk memanjemen user yang berkerja menggunakan
-      sistem ini. Silahkan menambahkan data baru dengan mengklik tombol
+      Data User dipergunakan untuk memanjemen user yang berkerja menggunakan sistem ini.
+      Silahkan menambahkan data baru dengan mengklik tombol
       <strong>Tambah User</strong>
     </HeaderInformation>
     <div>
@@ -278,9 +270,7 @@ watchDebounced(
               placeholder="Cari User..."
               class="pl-10 w-full bg-white"
             />
-            <span
-              class="absolute inset-y-0 flex items-center justify-center px-2"
-            >
+            <span class="absolute inset-y-0 flex items-center justify-center px-2">
               <Search class="size-4 text-muted-foreground" />
             </span>
             <span
@@ -303,9 +293,7 @@ watchDebounced(
         <div>Konfirmasi Hapus Data</div>
       </template>
       <template #description>
-        <div>
-          Apakah anda ingin menghapus {{ selectedId.length }} data ini ?
-        </div>
+        <div>Apakah anda ingin menghapus {{ selectedId.length }} data ini ?</div>
       </template>
     </ConfirmDialog>
   </div>

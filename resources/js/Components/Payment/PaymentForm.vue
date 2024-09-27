@@ -136,18 +136,18 @@ const onClose = () => {
 
 <template>
   <Sheet v-model:open="formOpen">
-    <SheetContent @interact-outside="(e) => e.preventDefault()">
+    <SheetContent @interact-outside="(e) => e.preventDefault()" class="overflow-y-auto">
       <SheetHeader>
         <SheetTitle>{{ title }}</SheetTitle>
         <SheetDescription>
           <FormAlertiInfo>
-            Form ini dipergunakan untuk menambah atau mengubah Jenis Pembayaran.
-            Silahkan isi data sesuai form dibawah.
+            Form ini dipergunakan untuk menambah atau mengubah Jenis Pembayaran. Silahkan
+            isi data sesuai form dibawah.
           </FormAlertiInfo>
         </SheetDescription>
       </SheetHeader>
       <div class="grid gap-4 py-4">
-        <form @submit="onSubmit" class="space-y-8">
+        <form @submit="onSubmit" class="space-y-2">
           <FormField v-slot="{ componentField }" name="name">
             <FormItem>
               <FormLabel
@@ -288,10 +288,7 @@ const onClose = () => {
                   :disabled="paymentForm.processing"
                 />
               </FormControl>
-              <div
-                class="text-xs text-red-500 font-medium"
-                v-if="paymentForm.errors.tax"
-              >
+              <div class="text-xs text-red-500 font-medium" v-if="paymentForm.errors.tax">
                 {{ paymentForm.errors.tax }}
               </div>
               <FormMessage v-else />
@@ -308,11 +305,7 @@ const onClose = () => {
         >
           Batal
         </Button>
-        <Button
-          type="button"
-          :disabled="paymentForm.processing"
-          @click="onSubmit"
-        >
+        <Button type="button" :disabled="paymentForm.processing" @click="onSubmit">
           <span v-if="paymentForm.processing"> Menyimpan data... </span>
           <span v-else> Simpan data </span>
         </Button>
