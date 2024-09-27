@@ -108,6 +108,8 @@ class UserController extends Controller
         try {
             $user->update($request->validated());
 
+            $user->syncRoles($request->role);
+
             return to_route('backoffice.user.index')->with('success', 'Data User berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
