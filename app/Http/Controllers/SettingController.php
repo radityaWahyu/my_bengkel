@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use App\Http\Requests\SettingRequest;
+use App\Http\Resources\SettingResource;
+
 
 class SettingController extends Controller
 {
@@ -13,7 +15,7 @@ class SettingController extends Controller
      */
     public function index()
     {
-        $settings = Setting::select('id', 'name', 'data')
+        $settings = Setting::select('id', 'name', 'data', 'type', 'description')
             ->get();
 
 
@@ -25,10 +27,31 @@ class SettingController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
+     * store.
      */
-    public function update(Request $request, Setting $setting)
+    public function store(SettingRequest $request)
     {
-        //
+        // dd($request->validated());
+        try {
+            foreach ($request->settings as $setting) {
+                if ($setting['id'] == 2) {
+                    if ($request->hasFile("settings.1.value")) {
+                        // dd('berhasil');
+                        $request->settings[1]['value']->storeAs('images/', 'logo.jpg');
+
+                        Setting::find($setting['id'])->update([
+                            'data' => 'images/logo.jpg'
+                        ]);
+                    }
+                } else {
+                    Setting::find($setting['id'])->update([
+                        'data' => $setting['value']
+                    ]);
+                }
+            }
+            return redirect()->back()->with('success', 'Pengaturan berhasil disimpan');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
     }
 }

@@ -8,11 +8,18 @@ export default {
 <script setup lang="ts">
 import { watch } from "vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import LinkButton from "@/Components/App/LinkButton.vue";
+import { Button } from "@/shadcn/ui/button";
 import { Wrench, BadgeInfo } from "lucide-vue-next";
-import { Card, CardHeader, CardContent, CardDescription } from "@/shadcn/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardDescription,
+} from "@/shadcn/ui/card";
 import { Label } from "@/shadcn/ui/label";
 import { Input } from "@/shadcn/ui/input";
+import { Textarea } from "@/shadcn/ui/textarea";
+import InputImage from "@/Components/App/InputImage.vue";
 import type { ISetting } from "@/types/response";
 
 const props = defineProps<{
@@ -35,13 +42,17 @@ watch(
         });
       });
 
-      console.log(settingForm.settings);
+      // console.log(settingForm.settings);
     }
   },
   { immediate: true }
 );
 
-const onSubmit = () => {};
+const onSubmit = () => {
+  settingForm.post(route("backoffice.setting.store"), {
+    forceFormData: true,
+  });
+};
 </script>
 <template>
   <Head title="Pengaturan Sistem" />
@@ -53,9 +64,14 @@ const onSubmit = () => {};
       </div>
 
       <div class="">
-        <LinkButton :to="route('backoffice.user.create')" class="space-x-2">
-          <span>Simpan Pengaturan</span>
-        </LinkButton>
+        <Button
+          type="submit"
+          :disabled="settingForm.processing"
+          @click="onSubmit"
+        >
+          <span v-if="settingForm.processing">Menyimpan pengaturan..</span>
+          <span v-else>Simpan Pengaturan</span>
+        </Button>
       </div>
     </div>
 
@@ -69,8 +85,9 @@ const onSubmit = () => {};
             <div>
               <h4 class="font-medium">Keterangan:</h4>
               <p class="text-sm text-gray-400">
-                Halaman ini dipergunakan untuk mengatur data standart yang dibutuhkan oleh
-                sistem. Dalam menjalankan setiap operasi yang berlangsung.
+                Halaman ini dipergunakan untuk mengatur data standart yang
+                dibutuhkan oleh sistem. Dalam menjalankan setiap operasi yang
+                berlangsung.
               </p>
             </div>
           </div>
@@ -87,11 +104,30 @@ const onSubmit = () => {};
               <Label class="capitalize font-medium">{{ setting.name }}</Label>
             </div>
             <div class="space-y-1">
-              <Input
-                type="url"
+              <Textarea
+                v-if="setting.type === 'textarea'"
                 v-model="settingForm.settings[index].value"
                 :class="{
-                  'border-red-400 border': settingForm.errors[`settings.${index}.value`],
+                  'border-red-400 border':
+                    settingForm.errors[`settings.${index}.value`],
+                }"
+                rows="5"
+              />
+              <div v-if="setting.type === 'image'" class="w-3/5">
+                <InputImage
+                  class="h-52"
+                  v-model="settingForm.settings[index].value"
+                  @change="(e) => {}"
+                  :loading="settingForm.processing"
+                />
+              </div>
+              <Input
+                v-if="setting.type === 'text'"
+                :type="setting.type"
+                v-model="settingForm.settings[index].value"
+                :class="{
+                  'border-red-400 border':
+                    settingForm.errors[`settings.${index}.value`],
                 }"
                 class="bg-white text-slate-950 focus:border-none"
                 :disabled="settingForm.processing"
@@ -102,8 +138,8 @@ const onSubmit = () => {};
               >
                 {{ settingForm.errors[`settings.${index}.value`] }}
               </p>
-              <p class="text-xs text-gray-600">
-                <strong>Keterangan :</strong> Pengaturan ini dipergunakan untuk
+              <p class="text-xs text-gray-600 capitalize">
+                <strong>* </strong> {{ setting.description }}
               </p>
             </div>
           </div>

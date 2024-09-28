@@ -130,7 +130,7 @@ Route::prefix('backoffice')->group(function () {
 
         Route::prefix('sistem')->controller(SettingController::class)->group(function () {
             Route::get('/', 'index')->name('backoffice.setting.index');
-            Route::put('/', 'update')->name('backoffice.setting.update');
+            Route::post('/', 'store')->name('backoffice.setting.store');
         });
 
         Route::prefix('pembayaran')->controller(PaymentController::class)->group(function () {

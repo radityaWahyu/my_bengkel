@@ -112,4 +112,6 @@ export interface ISetting {
     id: string;
     name: string;
     value: string;
+    type: string;
+    description: string;
 }
