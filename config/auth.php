@@ -40,10 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'customer' => [
-            'driver' => 'session',
-            'provider' => 'customers',
-        ]
+        // 'customer' => [
+        //     'driver' => 'session',
+        //     'provider' => 'customers',
+        // ]
     ],
 
     /*
@@ -69,10 +69,10 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        'customers' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Customer::class,
-        ]
+        // 'customers' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\Customer::class,
+        // ]
 
         // 'users' => [
         //     'driver' => 'database',
@@ -106,11 +106,11 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-        'customers' => [
-            'provider' => 'customers',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+        // 'customers' => [
+        //     'provider' => 'customers',
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
     ],
 
     /*

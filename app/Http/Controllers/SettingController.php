@@ -31,12 +31,11 @@ class SettingController extends Controller
      */
     public function store(SettingRequest $request)
     {
-        // dd($request->validated());
         try {
             foreach ($request->settings as $setting) {
                 if ($setting['id'] == 2) {
                     if ($request->hasFile("settings.1.value")) {
-                        // dd('berhasil');
+
                         $request->settings[1]['value']->storeAs('images/', 'logo.jpg');
 
                         Setting::find($setting['id'])->update([

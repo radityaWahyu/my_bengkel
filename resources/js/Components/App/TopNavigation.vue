@@ -81,8 +81,13 @@ import { Button } from "@/shadcn/ui/button";
     <div class="w-full flex-1"></div>
     <div class="flex items-center gap-3 bg-sky-50 px-2 py-1 rounded">
       <div class="text-right text-sky-900">
-        <p class="text-sm capitalize font-medium">Raditya Wahyu Sasono</p>
-        <p class="text-xs capitalize">radityaw | Administrator</p>
+        <p class="text-sm capitalize font-medium">
+          {{ $page.props.auth.user.name }}
+        </p>
+        <p class="text-xs capitalize">
+          {{ $page.props.auth.user.username }} |
+          {{ $page.props.auth.user.level }}
+        </p>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>

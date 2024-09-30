@@ -53,13 +53,15 @@ onMounted(() => {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
-    if (currentUrl.value[0] === "pengaturan") currentUrl.value = fullUrl[3].split("?");
+    if (currentUrl.value[0] === "pengaturan")
+      currentUrl.value = fullUrl[3].split("?");
 
     // console.log(currentUrl.value);
   } else if (fullUrl.length === 5) {
     currentUrl.value = fullUrl[2].split("?");
 
-    if (currentUrl.value[0] === "pengaturan") currentUrl.value = fullUrl[3].split("?");
+    if (currentUrl.value[0] === "pengaturan")
+      currentUrl.value = fullUrl[3].split("?");
   }
 
   if (masterDataMenu.value.includes(currentUrl.value[0])) {
@@ -213,7 +215,9 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
+                <SubMenuNavigation>
+                  Laporan Transaksi Service
+                </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>
@@ -253,17 +257,22 @@ onMounted(() => {
                   User
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="page.url.startsWith('backoffice/pengaturan/sistem', 1)"
+                  :active="
+                    page.url.startsWith('backoffice/pengaturan/sistem', 1)
+                  "
                   :to="route('backoffice.setting.index')"
                 >
                   Sistem
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="page.url.startsWith('backoffice/pengaturan/pembayaran', 1)"
+                  :active="
+                    page.url.startsWith('backoffice/pengaturan/pembayaran', 1)
+                  "
                   :to="route('backoffice.payment.index')"
                 >
                   Jenis Pembayaran
                 </SubMenuNavigation>
+                <SubMenuNavigation> Satuan </SubMenuNavigation>
               </div>
             </CollapsibleContent>
           </Collapsible>

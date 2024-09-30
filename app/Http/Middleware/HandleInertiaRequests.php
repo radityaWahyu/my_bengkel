@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
             parent::share($request),
             [
                 'auth' => [
-                    'user' => null,
+                    'user' => fn() => Auth::check() ? new LoginResource($request->user()) : null,
                 ],
                 'csrf_token' => csrf_token(),
                 'flash' => [

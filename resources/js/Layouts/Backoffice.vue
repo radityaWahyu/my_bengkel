@@ -14,7 +14,7 @@ const alert = reactive({
 watch(
   () => props.flash,
   (value) => {
-    console.log(!!value.error);
+    // console.log(!!value.error);
     if (!!value.success) {
       alert.show = !!value.success;
       alert.type = "success";

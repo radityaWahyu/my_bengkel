@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\UserController;
@@ -26,8 +26,15 @@ use App\Http\Controllers\SupplierController;
 |
 */
 
+Route::get('/', [AuthController::class, 'index'])->name('backoffice.auth.login');
+
 // ---------------------route for backoffice-------------------------------------
 Route::prefix('backoffice')->group(function () {
+    Route::prefix('auth')->controller(AuthController::class)->group(function () {
+        Route::post('/', 'store')->name('backoffice.auth.store');
+        Route::get('/logout', 'destroy')->name('backoffice.auth.destroy');
+    });
+
     Route::prefix('kategori')->controller(CategoryController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.category.index');
         Route::get('/{category}', 'edit')->name('backoffice.category.edit');
