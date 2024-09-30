@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
@@ -119,6 +120,18 @@ Route::prefix('backoffice')->group(function () {
             Route::post('/delete_all', 'deleteAll')->name('backoffice.vehicle.delete-all');
             Route::delete('/{vehicle}', 'destroy')->name('backoffice.vehicle.delete');
             Route::put('/{vehicle}', 'update')->name('backoffice.vehicle.update');
+        });
+    });
+
+    Route::prefix('transaksi')->group(function () {
+        Route::prefix('service')->controller(ServiceController::class)->group(function () {
+            Route::get('/', 'index')->name('backoffice.service.index');
+            Route::get('/create', 'create')->name('backoffice.service.create');
+            Route::get('/{service}', 'edit')->name('backoffice.service.edit');
+            Route::post('/', 'store')->name('backoffice.service.store');
+            Route::post('/delete_all', 'deleteAll')->name('backoffice.service.delete-all');
+            Route::delete('/{service}', 'destroy')->name('backoffice.service.delete');
+            Route::put('/{service}', 'update')->name('backoffice.service.update');
         });
     });
 

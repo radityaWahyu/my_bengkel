@@ -115,3 +115,13 @@ export interface ISetting {
     type: string;
     description: string;
 }
+
+export interface IService {
+    id: string;
+    service_code: string;
+    vehicle_plate_number: string;
+    customer_name: string;
+    status: string;
+    total: number;
+    created_at: string;
+}

@@ -40,7 +40,7 @@ const masterDataMenu = ref([
 
 const transaksiMenu = ref(["service", "penjualan", "pembelian"]);
 
-const laporanMenu = ref(["barangs", "service", "penjualan", "pembelian"]);
+const laporanMenu = ref(["lbarangs", "lservice", "lpenjualan", "lpembelian"]);
 
 const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
 
@@ -53,16 +53,22 @@ onMounted(() => {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
-    if (currentUrl.value[0] === "pengaturan")
+    if (
+      currentUrl.value[0] === "pengaturan" ||
+      currentUrl.value[0] === "transaksi"
+    )
       currentUrl.value = fullUrl[3].split("?");
-
-    // console.log(currentUrl.value);
   } else if (fullUrl.length === 5) {
     currentUrl.value = fullUrl[2].split("?");
 
-    if (currentUrl.value[0] === "pengaturan")
+    if (
+      currentUrl.value[0] === "pengaturan" ||
+      currentUrl.value[0] === "transaksi"
+    )
       currentUrl.value = fullUrl[3].split("?");
   }
+
+  console.log(currentUrl.value);
 
   if (masterDataMenu.value.includes(currentUrl.value[0])) {
     masterDataOpen.value = true;
@@ -98,7 +104,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="masterDataOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
             >
               <div
@@ -168,8 +174,8 @@ onMounted(() => {
           </Collapsible>
           <Collapsible v-model:open="transaksiOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
-              @click="masterDataOpen != masterDataOpen"
+              class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              @click="transaksiMenu != transaksiMenu"
             >
               <div
                 class="flex items-center gap-3 text-muted-foreground hover:text-primary"
@@ -185,7 +191,14 @@ onMounted(() => {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div class="">
-                <SubMenuNavigation> Service Kendaraan </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/transaksi/service', 1)
+                  "
+                  :to="route('backoffice.service.index')"
+                >
+                  Service Kendaraan
+                </SubMenuNavigation>
                 <SubMenuNavigation> Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Pembelian </SubMenuNavigation>
               </div>
@@ -197,7 +210,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="laporanOpen != laporanOpen"
             >
               <div
@@ -233,7 +246,7 @@ onMounted(() => {
           </MenuNavigation>
           <Collapsible v-model:open="pengaturanOpen">
             <CollapsibleTrigger
-              class="flex w-full items-center text-sm font-medium px-4 py-4 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
+              class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="pengaturanOpen != pengaturanOpen"
             >
               <div
