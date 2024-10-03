@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerDetailResource;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\VehicleResource;
+use App\Models\Vehicle;
+use Illuminate\Database\Eloquent\Collection;
 
 class CustomerController extends Controller
 {
@@ -125,5 +128,32 @@ class CustomerController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->with('error', $exception);
         }
+    }
+
+    public function getVehicles(Request $request)
+    {
+        $perPage = 10;
+        $params = [];
+
+
+
+        if ($request->has('search')) {
+            $params += ['search' => $request->search];
+        } else {
+            $params += ['search' => null];
+        }
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $vehicles = Vehicle::query()
+            ->with(['customer'])
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->where('plate_number', 'like', '%' . $request->search . '%');
+            })
+            ->latest()->paginate($perPage);
+
+        return response()->json([
+            'data' => VehicleResource::collection($vehicles)
+        ]);
     }
 }

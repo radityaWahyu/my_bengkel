@@ -100,12 +100,12 @@ defineExpose({
 </script>
 
 <template>
-  <div class="">
-    <div class="px-4 py-2 flex items-center justify-between gap-3">
+  <div class="space-y-4">
+    <div class="py-2 space-y-2">
       <div class="grow w-full">
         <slot name="filter" />
       </div>
-      <div v-if="pagination" class="grid grid-cols-2 gap-2 items-center w-44">
+      <!-- <div v-if="pagination" class="grid grid-cols-2 gap-2 items-center w-full">
         <Label class="text-right sm:text-left">Filter Data</Label>
         <select
           v-model="perPage"
@@ -120,7 +120,7 @@ defineExpose({
             {{ list.label }}
           </option>
         </select>
-      </div>
+      </div> -->
     </div>
     <div class="border border-l-0 border-r-0 bg-white max-w-full">
       <Table class="table-fixed scrollbar">
@@ -212,25 +212,13 @@ defineExpose({
         </TableBody>
       </Table>
     </div>
-    <div
-      class="flex items-center justify-between flex-wrap gap-4 py-2 px-4"
-      v-if="pagination"
-    >
-      <div class="text-xs text-muted-foreground">
-        <span v-if="loading">
-          <Skeleton class="h-2 w-1/4" />
-        </span>
-        <span v-else>
-          Page {{ pagination?.current_page }} of
-          {{ pagination?.last_page }} From {{ pagination?.total }} Data.
-        </span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div
+    <div class="space-y-2" v-if="pagination">
+      <div class="flex items-center justify-between gap-2">
+        <!-- <div
           class="grid grid-cols-2 gap-2 items-center"
           v-if="pagination.total > 0"
         >
-          <Label class="text-right text-xs">Page</Label>
+          <Label class="text-left text-xs">Page</Label>
           <select
             v-model="pageFilter"
             class="bg-white text-center border border-gray-200 text-gray-900 text-xs rounded focus:ring-blue-500 focus:border-blue-500 p-1.5 shadow-sm w-14"
@@ -244,27 +232,35 @@ defineExpose({
               {{ page }}
             </option>
           </select>
+        </div> -->
+
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="pagination?.current_page == 1 || loading"
+          @click="changePage(pagination?.current_page - 1)"
+        >
+          <span>Previous</span>
+        </Button>
+        <div class="text-xs text-muted-foreground text-center">
+          <span v-if="loading">
+            <Skeleton class="h-2 w-1/4" />
+          </span>
+          <span v-else>
+            Page {{ pagination?.current_page }} of
+            {{ pagination?.last_page }} From {{ pagination?.total }} Data.
+          </span>
         </div>
-        <div class="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="pagination?.current_page == 1 || loading"
-            @click="changePage(pagination?.current_page - 1)"
-          >
-            <span>Previous</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="
-              pagination?.current_page == pagination?.last_page || loading
-            "
-            @click="changePage(pagination?.current_page + 1)"
-          >
-            <span>Next</span>
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="
+            pagination?.current_page == pagination?.last_page || loading
+          "
+          @click="changePage(pagination?.current_page + 1)"
+        >
+          <span>Next</span>
+        </Button>
       </div>
     </div>
   </div>

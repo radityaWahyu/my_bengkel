@@ -15,7 +15,7 @@ class AuthController extends Controller
 
     public function index()
     {
-        if (Auth::check()) return to_route('backoffice.dashboard');
+        if (Auth::check()) return to_route('backoffice.category.index');
 
         return inertia('Login',);
     }

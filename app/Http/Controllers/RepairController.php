@@ -119,4 +119,19 @@ class RepairController extends Controller
             return redirect()->back()->with('error', $exception);
         }
     }
+
+    public function getRepairLists(Request $request)
+    {
+        $perPage = 10;
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $repairs = Repair::query()
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%' . $request->search . '%');
+            })
+            ->latest()->paginate($perPage);
+
+        return RepairResource::collection($repairs);
+    }
 }

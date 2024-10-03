@@ -7,6 +7,7 @@ use App\Models\Service;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\ServiceRequest;
+use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceResource;
 
 
@@ -61,15 +62,23 @@ class ServiceController extends Controller
         return inertia('ServiceTransaction/ServiceTransactionForm');
     }
 
+    public function createInvoice(Service $service)
+    {
+        return inertia('ServiceTransaction/ServiceTransactionCheckingForm', [
+            'service' => fn() => new ServiceDetailResource($service)
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(ServiceRequest $request)
     {
         try {
-            Service::create($request->validated());
+            $field_validated = $request->validated() + ['status' => 'waiting'];
+            Service::create($field_validated);
 
-            return to_route('backoffice.product.index')->with('success', 'Transaksi Servis berhasil disimpan');
+            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
@@ -87,7 +96,7 @@ class ServiceController extends Controller
         try {
             $service->update($request->validated());
 
-            return to_route('backoffice.product.index')->with('success', 'Transaksi Servis berhasil disimpan');
+            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
@@ -110,9 +119,48 @@ class ServiceController extends Controller
     {
         try {
             Service::destroy($request->ids);
-            return to_route('backoffice.product.index')->with('success', 'Transaksi Servis berhasil dihapus.');
+            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil dihapus.');
         } catch (\Exception $exception) {
             return redirect()->back()->with('error', $exception);
+        }
+    }
+
+    public function addRepair(Request $request, Service $service)
+    {
+
+
+        try {
+            $service->service_repairs()->create(
+                [
+                    'service_id' => $service->id,
+                    'repair_id' => $request->repair_id,
+                    'qty' => $request->qty,
+                    'price' => $request->price,
+                    'total' => $request->price * $request->qty
+                ]
+            );
+
+            return redirect()->back()->with('success', 'Jenis Perbaikan berhasil di masukkan.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
+    public function addProduct(Request $request, Service $service)
+    {
+        try {
+            $service->products()->attach(
+                $request->product_id,
+                [
+                    'qty' => $request->qty,
+                    'price' => $request->price,
+                    'total' => $request->price * $request->qty
+                ]
+            );
+
+            return redirect()->back()->with('success', 'Barang berhasil di masukkan.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
         }
     }
 }

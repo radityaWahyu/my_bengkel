@@ -29,6 +29,7 @@ import ServiceTransactionButtonAction from "@/Components/ServiceTransaction/Serv
 import { usePrice } from "@/Plugin/useNumber";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 import LinkButton from "@/Components/App/LinkButton.vue";
+import ServiceTransactionStatusBox from "@/Components/ServiceTransaction/ServiceTransactionStatusBox.vue";
 
 const props = defineProps<{
   services: { data: IService[]; meta: IPaginationMeta };
@@ -101,6 +102,32 @@ const columns: ColumnDef<IService>[] = [
   //   enableHiding: false,
   // },
   {
+    accessorKey: "vehicle_number",
+    enableResizing: false,
+    size: 150,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "No Plat"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize font-semibold" },
+        row.original.vehicle_plate_number
+      ),
+  },
+  {
+    accessorKey: "customer",
+    enableResizing: false,
+    size: 300,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Pelanggan"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize font-semibold" },
+        row.original.customer_name
+      ),
+  },
+  {
     accessorKey: "service_code",
     enableResizing: false,
     size: 300,
@@ -113,14 +140,24 @@ const columns: ColumnDef<IService>[] = [
     cell: ({ row }) =>
       h(
         "div",
-        { class: "capitalize font-semibold" },
-        row.original.service_code
+        {
+          class: [
+            "capitalize font-semibold px-2 py-1 inline-flex",
+            {
+              "bg-yellow-100 text-yellow-800":
+                row.original.status === "waiting",
+            },
+          ],
+        },
+        row.original.service_code === null
+          ? "Menunggu Pengecekan..."
+          : row.original.service_code
       ),
   },
   {
     accessorKey: "created_at",
     enableResizing: false,
-    size: 100,
+    size: 300,
     header: ({ column }) => {
       return h(
         Button,
@@ -153,60 +190,34 @@ const columns: ColumnDef<IService>[] = [
       h("div", { class: "text-center" }, row.original.created_at),
   },
   {
-    accessorKey: "vehicle_number",
-    enableResizing: false,
-    size: 300,
-    header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "No Plat"),
-    cell: ({ row }) =>
-      h(
-        "div",
-        { class: "capitalize font-semibold" },
-        row.original.vehicle_plate_number
-      ),
-  },
-  {
-    accessorKey: "vehicle_number",
-    enableResizing: false,
-    size: 300,
-    header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "No Plat"),
-    cell: ({ row }) =>
-      h(
-        "div",
-        { class: "capitalize font-semibold" },
-        row.original.vehicle_plate_number
-      ),
-  },
-  {
     accessorKey: "status",
     enableResizing: false,
-    size: 300,
+    size: 200,
     header: ({ column }) =>
       h("div", { class: "gap-2 flex items-center font-semibold" }, "Status"),
     cell: ({ row }) =>
-      h("div", { class: "capitalize font-semibold" }, row.original.status),
+      h(ServiceTransactionStatusBox, { service: row.original }),
   },
   {
     accessorKey: "total",
     enableResizing: false,
-    size: 300,
+    size: 150,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "Total"),
+      h("div", { class: "gap-2 text-right font-semibold" }, "Total"),
     cell: ({ row }) =>
       h(
         "div",
-        { class: "capitalize font-semibold" },
+        { class: "capitalize font-semibold text-right" },
         price.convertToRupiah(row.original.total)
       ),
   },
   {
     id: "actions",
     enableHiding: false,
-    size: 150,
+    size: 350,
     cell: ({ row }) =>
       h(ServiceTransactionButtonAction, {
-        id: row.original.id,
+        service: row.original,
         onDeleted: () => getServices(props.services.meta.current_page),
         onUpdated: () =>
           router.get(

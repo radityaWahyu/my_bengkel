@@ -65,6 +65,7 @@ Route::prefix('backoffice')->group(function () {
 
     Route::prefix('perbaikan')->controller(RepairController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.repair.index');
+        Route::get('/list', 'getRepairLists')->name('backoffice.repair.list');
         Route::get('/{repair}', 'edit')->name('backoffice.repair.edit');
         Route::post('/', 'store')->name('backoffice.repair.store');
         Route::post('/delete_all', 'deleteAll')->name('backoffice.repair.delete-all');
@@ -74,6 +75,7 @@ Route::prefix('backoffice')->group(function () {
 
     Route::prefix('barang')->controller(ProductController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.product.index');
+        Route::get('/list', 'getProductLists')->name('backoffice.product.list');
         Route::get('/create', 'create')->name('backoffice.product.create');
         Route::get('/{product}', 'edit')->name('backoffice.product.edit');
         Route::post('/', 'store')->name('backoffice.product.store');
@@ -114,6 +116,7 @@ Route::prefix('backoffice')->group(function () {
 
         Route::prefix('kendaraan')->controller(VehicleController::class)->group(function () {
             Route::get('/', 'index')->name('backoffice.vehicle.index');
+            Route::get('/list', 'getVehicleLists')->name('backoffice.vehicle.list');
             Route::get('/create', 'create')->name('backoffice.vehicle.create');
             Route::get('/{vehicle}', 'edit')->name('backoffice.vehicle.edit');
             Route::post('/', 'store')->name('backoffice.vehicle.store');
@@ -127,9 +130,11 @@ Route::prefix('backoffice')->group(function () {
         Route::prefix('service')->controller(ServiceController::class)->group(function () {
             Route::get('/', 'index')->name('backoffice.service.index');
             Route::get('/create', 'create')->name('backoffice.service.create');
+            Route::get('/create-invoice/{service}', 'createInvoice')->name('backoffice.service.create-invoice');
             Route::get('/{service}', 'edit')->name('backoffice.service.edit');
             Route::post('/', 'store')->name('backoffice.service.store');
-            Route::post('/delete_all', 'deleteAll')->name('backoffice.service.delete-all');
+            Route::post('/add-product/{service}', 'addProduct')->name('backoffice.service.add-product');
+            Route::post('/add-repair/{service}', 'addRepair')->name('backoffice.service.add-repair');
             Route::delete('/{service}', 'destroy')->name('backoffice.service.delete');
             Route::put('/{service}', 'update')->name('backoffice.service.update');
         });

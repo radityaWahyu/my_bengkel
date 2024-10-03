@@ -11,16 +11,18 @@ class Service extends Model
     use HasUuids;
     use HasFactory;
 
-    public function products()
+
+    protected $guarded = [];
+
+
+    public function service_repairs()
     {
-        return $this->belongsToMany(Product::class, 'service_products')
-            ->withPivot(['qty', 'price', 'total']);
+        return $this->hasMany(ServiceRepair::class,);
     }
 
-    public function repairs()
+    public function service_products()
     {
-        return $this->belongsToMany(Repair::class, 'service_repairs')
-            ->withPivot(['employee_id', 'qty', 'price', 'total']);
+        return $this->hasMany(ServiceProduct::class,);
     }
 
     public function user()

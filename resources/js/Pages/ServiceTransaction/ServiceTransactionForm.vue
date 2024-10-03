@@ -6,20 +6,14 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import {
   Head,
   usePage,
   useForm as useInertiaForm,
   Link,
 } from "@inertiajs/vue3";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shadcn/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shadcn/ui/card";
 import {
   FormControl,
   FormField,
@@ -27,16 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/shadcn/ui/form";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shadcn/ui/table";
-import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
@@ -49,61 +33,77 @@ import {
   ClipboardPen,
   CarFront,
   TextSearch,
-  Wrench,
   PlusSquare,
   StickyNote,
-  OctagonAlert,
-  Package,
 } from "lucide-vue-next";
-import type { IRepair, IProduct } from "@/types/response";
+
+import type { IVehicle } from "@/types/response";
+import VehicleList from "@/Components/Vehicle/VehicleList.vue";
 
 const vehicle = reactive({
   id: "",
   name: "",
   plate_number: "",
   machine_frame: "",
-  engine_volume: "",
+  engine_volume: 0,
   engine_type: "",
   type: "",
-  production_year: "",
+  production_year: 0,
   brand: "",
   customer: "",
 });
 
+const vehicleDialogOpen = ref<boolean>(false);
+const vehicleName = computed(() => {
+  if (vehicle.id.length > 0) return `${vehicle.plate_number}-${vehicle.name}`;
+});
+
+const page = usePage();
 const serviceForm = useInertiaForm({
+  _token: page.props.csrf_token,
   vehicle_id: "",
   description: "",
 });
 
-const page = usePage();
-const repairs = ref<IRepair[]>();
-const products = ref<IProduct[]>([]);
-
-const userSchema = () => {
+const serviceSchema = () => {
   return toTypedSchema(
     zod.object({
-      vehicle_id: zod
-        .string({ message: "Nama Merk harus diisi" })
-        .min(1, { message: "Nama Merk harus diisi." }),
-      category_id: zod
-        .string({ message: "Kategori harus diisi" })
-        .min(1, { message: "Kategori harus diisi." }),
-      rack_id: zod
-        .string({ message: "Rak harus diisi" })
-        .min(1, { message: "Rak harus diisi." }),
-      stock: zod.number({ message: "Stok awal Produk harus diisi" }),
-      buy_price: zod.number({ message: "Harga beli Produk harus diisi" }),
-      sale_price: zod.number({ message: "Harga jual Produk harus diisi" }),
+      vehicle_name: zod
+        .string({ message: "Data Kendaraan harus diisi" })
+        .min(1, { message: "Data Kendaraan harus diisi" }),
+      description: zod
+        .string({ message: "Keluhan harus diisi" })
+        .min(1, { message: "Keluhan harus diisi" }),
     })
   );
 };
 
-const validationSchema = userSchema();
+const validationSchema = serviceSchema();
 const form = useForm({
   validationSchema,
 });
 
-const onSubmit = () => {};
+const onVehicleSelected = (value: IVehicle) => {
+  vehicleDialogOpen.value = false;
+  vehicle.id = value.id;
+  serviceForm.vehicle_id = value.id;
+  vehicle.name = value.name;
+  vehicle.plate_number = value.plate_number;
+  vehicle.machine_frame = value.machine_frame;
+  vehicle.engine_volume = value.engine_volume;
+  vehicle.engine_type = value.engine_type === "petrol" ? "Bensin" : "Diesel";
+  vehicle.type = value.type === "car" ? "Mobil" : "Sepeca Motor";
+  vehicle.production_year = value.production_year;
+  vehicle.brand = value.brand;
+  vehicle.customer = value.customer;
+  form.setFieldValue("vehicle_name", vehicleName.value);
+};
+
+const onSubmit = form.handleSubmit(() => {
+  serviceForm.post(route("backoffice.service.store"), {
+    onError: (error) => console.log(error),
+  });
+});
 </script>
 <template>
   <Head title="Form Transaksi Service" />
@@ -126,7 +126,7 @@ const onSubmit = () => {};
             >
               Batal
             </Link>
-            <Button @click="onSubmit">
+            <Button @click="onSubmit" :disabled="serviceForm.processing">
               <span v-if="serviceForm.processing">Meyimpan data...</span>
               <span v-else>Simpan data</span>
             </Button>
@@ -152,7 +152,7 @@ const onSubmit = () => {};
             </div>
             <div class="grid grid-cols-2 items-center gap-2">
               <div>
-                <FormField v-slot="{ componentField }" name="vehicle_id">
+                <FormField v-slot="{ componentField }" name="vehicle_name">
                   <FormItem>
                     <FormLabel
                       :class="{
@@ -163,19 +163,24 @@ const onSubmit = () => {};
                     </FormLabel>
                     <div class="grid grid-cols-[80%_20%] items-center gap-2">
                       <div>
-                        <Input
-                          type="hidden"
-                          v-bind="componentField"
-                          v-model="serviceForm.vehicle_id"
-                        />
-                        <Input
-                          type="text"
-                          :default-value="vehicle.name"
-                          placeholder="Silhkan pilih kendaraan"
-                        />
+                        <FormControl>
+                          <Input
+                            type="text"
+                            v-bind="componentField"
+                            v-model="vehicleName"
+                            placeholder="Silhkan pilih kendaraan"
+                            readonly
+                          />
+                        </FormControl>
                       </div>
                       <div class="space-x-1">
-                        <Button as="button" size="icon">
+                        <Button
+                          as="button"
+                          size="icon"
+                          id="search-vehicle"
+                          @click="vehicleDialogOpen = true"
+                          :disabled="serviceForm.processing"
+                        >
                           <TextSearch class="size-5" />
                         </Button>
                         <Button as="button" size="icon">
@@ -195,25 +200,45 @@ const onSubmit = () => {};
               </div>
               <div class="space-y-1">
                 <Label>Nama Pelanggan</Label>
-                <Input type="text" :default-value="vehicle.customer" readonly />
+                <Input
+                  type="text"
+                  v-model:model-value="vehicle.customer"
+                  readonly
+                />
               </div>
             </div>
             <div class="grid grid-cols-4 gap-2">
               <div class="space-y-1">
                 <Label>CC Mesin</Label>
-                <Input type="text" :default-value="vehicle.customer" readonly />
+                <Input
+                  type="number"
+                  v-model:model-value="vehicle.engine_volume"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label>Tipe Mesin</Label>
-                <Input type="text" :default-value="vehicle.customer" readonly />
+                <Input
+                  type="text"
+                  v-model:model-value="vehicle.engine_type"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label>Jenis Kendaraan</Label>
-                <Input type="text" :default-value="vehicle.customer" readonly />
+                <Input
+                  type="text"
+                  v-model:model-value="vehicle.type"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label>Tahun Pembuatan</Label>
-                <Input type="text" :default-value="vehicle.customer" readonly />
+                <Input
+                  type="number"
+                  v-model:model-value="vehicle.production_year"
+                  readonly
+                />
               </div>
             </div>
           </div>
@@ -260,126 +285,9 @@ const onSubmit = () => {};
               </FormItem>
             </FormField>
           </div>
-          <div class="space-y-3">
-            <div
-              class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
-            >
-              <Wrench class="size-8 text-blue-400" />
-              <div class="grow">
-                <h4 class="font-medium">Daftar Perbaikan</h4>
-                <p class="text-sm text-gray-500">
-                  Silahkam masukan jenis jasa perbaikan pada kendaraan dengan
-                  mengklik tombol
-                  <strong>Pilih Perbaikan</strong>
-                </p>
-              </div>
-              <Button
-                as="button"
-                variant="outline"
-                class="text-primary space-x-2"
-              >
-                <PlusSquare class="size-5" />
-                <span>Pilih Perbaikan</span>
-              </Button>
-            </div>
-            <Table class="border-b border-b-gray-200">
-              <TableHeader class="border-t border-t-gray-200 shadow">
-                <TableRow>
-                  <TableHead> Nama Perbaikan </TableHead>
-                  <TableHead>Harga</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody v-if="repairs && repairs?.length > 0">
-                <TableRow v-for="(repair, index) in repairs" :key="index">
-                  <TableCell class="font-medium">
-                    {{ repair.name }}
-                  </TableCell>
-                  <TableCell>{{ repair.price }}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell collspan="2">Sub Total</TableCell>
-                  <TableCell> Rp.0</TableCell>
-                </TableRow>
-              </TableBody>
-              <TableBody v-else>
-                <TableRow>
-                  <TableCell colspan="3">
-                    <Alert class="bg-orange-50 border-none rounded w-full">
-                      <OctagonAlert class="size-6" />
-                      <AlertTitle class="ml-2">Keterangan</AlertTitle>
-                      <AlertDescription class="ml-2">
-                        Tidak terdapat data perbaikan silahkan menambahkan
-                        terlebih dahulu
-                      </AlertDescription>
-                    </Alert>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-          <div class="space-y-3">
-            <div
-              class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
-            >
-              <Package class="size-8 text-blue-400" />
-              <div class="grow">
-                <h4 class="font-medium">Daftar Spare Part</h4>
-                <p class="text-sm text-gray-500">
-                  Untuk masukan spare part perbaikan pada kendaraan dengan
-                  silahkan mengklik tombol
-                  <strong>Pilih Spare Part</strong>
-                </p>
-              </div>
-              <Button
-                as="button"
-                variant="outline"
-                class="text-primary space-x-2"
-              >
-                <PlusSquare class="size-5" />
-                <span>Pilih Spare Part</span>
-              </Button>
-            </div>
-            <Table class="border-b border-b-gray-200">
-              <TableHeader class="border-t border-t-gray-200 shadow">
-                <TableRow>
-                  <TableHead> Nama Perbaikan </TableHead>
-                  <TableHead>Harga</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody v-if="products && products?.length > 0">
-                <TableRow v-for="(product, index) in products" :key="index">
-                  <TableCell class="font-medium">
-                    {{ product.name }}
-                  </TableCell>
-                  <TableCell>{{ product.sale_price }}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell collspan="2">Sub Total</TableCell>
-                  <TableCell> Rp.0</TableCell>
-                </TableRow>
-              </TableBody>
-              <TableBody v-else>
-                <TableRow>
-                  <TableCell colspan="3">
-                    <Alert class="bg-orange-50 border-none rounded w-full">
-                      <OctagonAlert class="size-6" />
-                      <AlertTitle class="ml-2">Keterangan</AlertTitle>
-                      <AlertDescription class="ml-2">
-                        Tidak terdapat data barang silahkan menambahkan terlebih
-                        dahulu
-                      </AlertDescription>
-                    </Alert>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
         </form>
       </CardContent>
     </Card>
+    <VehicleList v-model="vehicleDialogOpen" @selected="onVehicleSelected" />
   </div>
 </template>

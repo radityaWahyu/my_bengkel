@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm, router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
 import { FilePenLine, Trash2 } from "lucide-vue-next";
+import type { IService } from "@/types/response";
 import ConfirmDialog from "../App/ConfirmDialog.vue";
 
 const emits = defineEmits<{
@@ -11,29 +12,36 @@ const emits = defineEmits<{
 }>();
 
 const props = defineProps<{
-  id: string;
+  service: IService;
 }>();
 
 const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
-  deleteForm.delete(route("backoffice.product.delete", props.id), {
+  deleteForm.delete(route("backoffice.product.delete", props.service.id), {
     onError: (error) => console.log(error),
     onSuccess: () => emits("deleted", true),
   });
 };
+const serviceCheckingVehicle = () => {
+  router.get(route("backoffice.service.create-invoice", props.service.id));
+};
 </script>
 <template>
-  <div class="space-x-2 w-full text-center">
+  <div class="flex items-center justify-center gap-1 w-full">
     <Button
       type="button"
       variant="outline"
-      size="icon"
       :disabled="deleteForm.processing"
-      @click="emits('updated', id)"
+      v-if="service.status === 'waiting'"
+      @click="serviceCheckingVehicle"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"
@@ -53,7 +61,7 @@ const onDelete = () => {
           r="40"
         />
       </svg>
-      <FilePenLine class="size-4 text-blue-500" v-else />
+      <span v-else>Cek Kendaraan</span>
     </Button>
     <Button
       type="button"
@@ -62,7 +70,11 @@ const onDelete = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"

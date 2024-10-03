@@ -62,6 +62,7 @@ export interface ICustomerDetail extends ICustomer {
 }
 
 export interface IVehicle {
+    id: string;
     name: string;
     plate_number: string;
     machine_frame: string;
@@ -116,6 +117,24 @@ export interface ISetting {
     description: string;
 }
 
+export interface IServiceProduct {
+    id: string;
+    name: string;
+    qty: number;
+    price: number;
+    total: number;
+}
+
+export interface IServiceRepair {
+    id: string;
+    name: string;
+    employee_id: string | null;
+    employee_name: string | null;
+    qty: number;
+    price: number;
+    total: number;
+}
+
 export interface IService {
     id: string;
     service_code: string;
@@ -124,4 +143,16 @@ export interface IService {
     status: string;
     total: number;
     created_at: string;
+}
+
+export interface IServiceDetail {
+    id: string;
+    service_code: string;
+    vehicle: IVehicle;
+    status: string;
+    total: number;
+    created_at: string;
+    description: string;
+    products: IServiceProduct[];
+    repairs: IServiceRepair[];
 }

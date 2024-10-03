@@ -139,4 +139,20 @@ class ProductController extends Controller
             return redirect()->back()->with('error', $exception);
         }
     }
+
+    public function getProductLists(Request $request)
+    {
+        $perPage = 10;
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $products = Product::query()
+            ->with(['category', 'rack'])
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%' . $request->search . '%');
+            })
+            ->latest()->paginate($perPage);
+
+        return ProductResource::collection($products);
+    }
 }

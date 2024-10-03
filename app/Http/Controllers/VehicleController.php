@@ -152,4 +152,29 @@ class VehicleController extends Controller
             return redirect()->back()->with('error', $exception);
         }
     }
+
+    public function getVehicleLists(Request $request)
+    {
+        $perPage = 10;
+        $params = [];
+
+        if ($request->has('search')) {
+            $params += ['search' => $request->search];
+        } else {
+            $params += ['search' => null];
+        }
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $vehicles = Vehicle::query()
+            ->with(['customer'])
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->whereHas('customer', function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%');
+                })->orWhere('plate_number', 'like', '%' . $request->search . '%');
+            })
+            ->latest()->paginate($perPage);
+
+        return VehicleResource::collection($vehicles);
+    }
 }

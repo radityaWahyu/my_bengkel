@@ -21,24 +21,11 @@ class ServiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        if (request()->isMethod('post')) {
-            return [
-                'name' => ['required', 'unique:products,name'],
-                'stock' => ['required', 'integer'],
-                'category_id' => ['required'],
-                'rack_id' => ['required'],
-                'buy_price' => ['required', 'integer'],
-                'sale_price' => ['required', 'integer'],
-            ];
-        } elseif (request()->isMethod('put')) {
-            return [
-                'name' => ['required'],
-                'category_id' => ['required'],
-                'rack_id' => ['required'],
-                'buy_price' => ['required', 'integer'],
-                'sale_price' => ['required', 'integer'],
-            ];
-        }
+
+        return [
+            'vehicle_id' => ['required'],
+            'description' => ['required'],
+        ];
     }
 
     public function messages(): array
@@ -53,12 +40,8 @@ class ServiceRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'Nama Merk',
-            'category_id' => 'Kategori',
-            'rack_id' => 'Rak',
-            'buy_price' => 'Harga Beli',
-            'sale_price' => 'Harga Jual',
-            'stock' => 'Stok Awal',
+            'vehicle_id' => 'Data kendaraan',
+            'description' => 'Deskripsi Keluhan',
         ];
     }
 }
