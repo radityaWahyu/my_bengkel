@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\User;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use App\Http\Requests\EmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 
@@ -115,5 +117,35 @@ class EmployeeController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->with('error', $exception);
         }
+    }
+
+    public function employeeList(Request $request)
+    {
+        $perPage = 10;
+        $params = [];
+
+        if ($request->has('search')) {
+            $params += ['search' => $request->search];
+        } else {
+            $params += ['search' => null];
+        }
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $users = User::query()
+            ->with(['employee', 'roles'])
+            ->when($request->has('role'), function ($query) use ($request) {
+                return $query->whereHas('roles', function ($query) use ($request) {
+                    return $query->where('name', $request->role);
+                });
+            })
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->whereHas('employee', function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->latest()->paginate($perPage);
+
+        return UserResource::collection($users);
     }
 }

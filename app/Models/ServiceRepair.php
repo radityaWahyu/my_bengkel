@@ -18,4 +18,9 @@ class ServiceRepair extends Model
     {
         return $this->belongsTo(Repair::class);
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

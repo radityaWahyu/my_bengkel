@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 
+use Carbon\Carbon;
+
+use App\Models\Product;
 use App\Models\Service;
-
 use Illuminate\Http\Request;
+use App\Models\ServiceRepair;
+use App\Models\ServiceProduct;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\ServiceRequest;
-use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceResource;
-
+use App\Http\Resources\ServiceDetailResource;
 
 class ServiceController extends Controller
 {
@@ -38,7 +42,7 @@ class ServiceController extends Controller
 
         $services = Service::query()
             ->with(['user' => ['employee'], 'vehicle' => ['customer']])
-            ->withCount(['products', 'repairs'])
+            ->withCount(['service_repairs', 'service_products'])
             ->when($request->has('sortName'), function ($query) use ($request) {
                 return $query->orderBy($request->sortName, $request->sortType);
             })
@@ -83,24 +87,44 @@ class ServiceController extends Controller
             return redirect()->back()->with('error', $exception->errorInfo);
         }
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Service $service) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ServiceRequest $request, Service $service)
+    public function approvedService(Request $request, Service $service)
     {
         try {
-            $service->update($request->validated());
+            $service_count = Service::whereDate('created_at', Carbon::today())->count();
+            $service_code = 'INVOICE/SRV/' . Carbon::today()->format('dmY') . '/' . str_pad($service_count + 1, 3, '0', STR_PAD_LEFT);
 
-            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
+            $service->update([
+                'service_code' => $service_code,
+                'status' => 'approved',
+                'total' => $request->total,
+                'created_at' => Carbon::today(),
+                'updated_at' => Carbon::today(),
+            ]);
+
+            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil dibuat invoice');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
     }
+    /**
+     * Show the form for editing the specified resource.
+     */
+    // public function edit(Service $service) {}
+
+    /**
+     * Update the specified resource in storage.
+     */
+    // public function update(ServiceRequest $request, Service $service)
+    // {
+    //     try {
+    //         $service->update($request->validated());
+
+    //         return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
+    //     } catch (\Illuminate\Database\QueryException $exception) {
+    //         return redirect()->back()->with('error', $exception->errorInfo);
+    //     }
+    // }
 
     /**
      * Remove the specified resource from storage.
@@ -130,6 +154,10 @@ class ServiceController extends Controller
 
 
         try {
+            $repair = $service->service_repairs()->where('repair_id', $request->repair_id)->count();
+
+            if ($repair) return redirect()->back()->with('error', 'Jenis Perbaikan sudah terinput pada sistem ');
+
             $service->service_repairs()->create(
                 [
                     'service_id' => $service->id,
@@ -146,21 +174,144 @@ class ServiceController extends Controller
         }
     }
 
+    public function addEmployee(Request $request, ServiceRepair $service_repair)
+    {
+        try {
+            $service_repair->update([
+                'employee_id' => $request->employee_id
+            ]);
+
+            return redirect()->back()->with('success', 'Mekanik berhasil di input ke sistem.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
+    public function deleteServiceRepair(ServiceRepair $service_repair)
+    {
+        try {
+            $service_repair->delete();
+
+            return redirect()->back()->with('success', 'Jenis Perbaikan berhasil di hapus.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
     public function addProduct(Request $request, Service $service)
     {
         try {
-            $service->products()->attach(
-                $request->product_id,
-                [
-                    'qty' => $request->qty,
-                    'price' => $request->price,
-                    'total' => $request->price * $request->qty
-                ]
-            );
+            $product = Product::find($request->product_id);
 
-            return redirect()->back()->with('success', 'Barang berhasil di masukkan.');
+            $productStock = $product->stock;
+
+            if ($product->stock < $request->qty)
+                return redirect()->back()->with('error', 'Stok Barang tidak mencukupi silahkan tambah stok terlebih dahulu.');
+
+            DB::transaction(function () use ($service, $request, $productStock, $product) {
+
+                $service_product = $service->service_products()
+                    ->where('product_id', $request->product_id)->first();
+
+                $qty = 0;
+
+                if ($service_product) {
+                    $qty = $service_product->qty + $request->qty;
+
+                    $service->service_products()
+                        ->where('id', $service_product->id)
+                        ->update([
+                            'qty' => $qty,
+                            'total' => $qty * $request->price
+                        ]);
+                } else {
+                    $qty = $request->qty;
+                    $service->service_products()->create(
+                        [
+                            'product_id' => $request->product_id,
+                            'qty' => $qty,
+                            'price' => $request->price,
+                            'total' => $request->price * $request->qty
+                        ]
+                    );
+                }
+
+                $product->update([
+                    'stock' => $productStock - $request->qty,
+                ]);
+
+                return redirect()->back()->with('success', 'Barang berhasil di masukkan.');
+            });
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
+    }
+
+    public function updateQtyProduct(Request $request, ServiceProduct $service_product)
+    {
+        try {
+
+            $product = Product::find($service_product->product_id);
+
+
+            DB::transaction(function () use ($request, $service_product, $product) {
+                $productStock = $product->stock;
+                $serviceProductQty = $service_product->qty;
+
+                if ($serviceProductQty > $request->qty) {
+                    $deviation = $serviceProductQty - $request->qty;
+
+                    $service_product->update([
+                        'qty' => $request->qty,
+                        'total' => $service_product->price * $request->qty,
+                    ]);
+
+                    $product->update([
+                        'stock' => $productStock + $deviation,
+                    ]);
+                } else {
+                    $deviation =  $request->qty - $serviceProductQty;
+
+                    $service_product->update([
+                        'qty' => $request->qty,
+                        'total' => $service_product->price * $request->qty,
+                    ]);
+
+                    $product->update([
+                        'stock' => $productStock - $deviation,
+                    ]);
+                }
+
+                return redirect()->back()->with('success', 'Jumlah berhasil di rubah.');
+            });
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception);
+        }
+    }
+
+    public function deleteServiceProduct(ServiceProduct $service_product)
+    {
+        try {
+            $product = Product::find($service_product->product_id);
+            $productStock = $product->stock;
+
+            DB::transaction(function () use ($service_product, $product, $productStock) {
+                $service_product->delete();
+
+                $product->update([
+                    'stock' => $productStock + $service_product->qty,
+                ]);
+
+                return redirect()->back()->with('success', 'Barang berhasil di hapus.');
+            });
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception);
         }
     }
 }

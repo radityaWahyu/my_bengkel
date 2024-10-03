@@ -37,11 +37,7 @@ const columns: ColumnDef<IRepair>[] = [
     accessorKey: "repair",
     enableResizing: false,
     header: ({ column }) =>
-      h(
-        "div",
-        { class: "gap-2 flex items-center font-semibold" },
-        "Detail Kendaraan"
-      ),
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Jenis Perbaikan"),
     cell: ({ row }) =>
       h(RepairNameBox, {
         repair: row.original,
@@ -58,9 +54,7 @@ const getrepairs = async (page: number) => {
 
   if (search.value !== null) Object.assign(url.value, { search });
 
-  const response = await httpService.get(
-    route("backoffice.repair.list", url.value)
-  );
+  const response = await httpService.get(route("backoffice.repair.list", url.value));
   repairs.value = response.data;
   pagination.value = response.meta;
 };
@@ -112,9 +106,7 @@ watchDebounced(
                 placeholder="Cari data..."
                 class="pl-10 w-full bg-white"
               />
-              <span
-                class="absolute inset-y-0 flex items-center justify-center px-2"
-              >
+              <span class="absolute inset-y-0 flex items-center justify-center px-2">
                 <Search class="size-4 text-muted-foreground" />
               </span>
               <span
@@ -128,13 +120,7 @@ watchDebounced(
         </DataTableDialog>
       </div>
       <SheetFooter>
-        <Button
-          type="button"
-          variant="default"
-          size="lg"
-          @click="onClose"
-          class="w-full"
-        >
+        <Button type="button" variant="default" size="lg" @click="onClose" class="w-full">
           Tutup
         </Button>
       </SheetFooter>

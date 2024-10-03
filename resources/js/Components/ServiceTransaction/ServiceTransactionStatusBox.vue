@@ -14,15 +14,15 @@ defineProps<{
       Menunggu Pengecekan...
     </span>
     <span
-      v-if="service.status === 'process'"
+      v-if="service.status === 'approved'"
       class="bg-blue-100 text-blue-500 px-2 py-1"
     >
+      Menunggu proses service
+    </span>
+    <span v-if="service.status === 'process'" class="bg-blue-100 text-blue-500 px-2 py-1">
       Proses Service...
     </span>
-    <span
-      v-if="service.status === 'pending'"
-      class="bg-gray-100 text-gray-500 px-2 py-1"
-    >
+    <span v-if="service.status === 'pending'" class="bg-gray-100 text-gray-500 px-2 py-1">
       Service Pending
     </span>
     <span

@@ -146,22 +146,14 @@ defineExpose({
         <TableBody v-if="loading">
           <template v-if="table.getRowModel().rows?.length">
             <TableRow v-for="index in 6" :key="index">
-              <TableCell
-                v-for="index in columns.length"
-                class="h-10"
-                :key="index"
-              >
+              <TableCell v-for="index in columns.length" class="h-10" :key="index">
                 <Skeleton class="h-2 w-1/2" />
               </TableCell>
             </TableRow>
           </template>
           <template v-else>
             <TableRow v-for="index in 6" :key="index">
-              <TableCell
-                v-for="index in columns.length"
-                class="h-10"
-                :key="index"
-              >
+              <TableCell v-for="index in columns.length" class="h-10" :key="index">
                 <Skeleton class="h-2 w-1/2" />
               </TableCell>
             </TableRow>
@@ -201,8 +193,8 @@ defineExpose({
                     <OctagonAlert class="size-6" />
                     <AlertTitle class="ml-2">Keterangan</AlertTitle>
                     <AlertDescription class="ml-2">
-                      Tidak terdapat data pada halaman ini silahkan menambahkan
-                      terlebih dahulu
+                      Tidak terdapat data pada halaman ini silahkan menambahkan terlebih
+                      dahulu
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -247,16 +239,14 @@ defineExpose({
             <Skeleton class="h-2 w-1/4" />
           </span>
           <span v-else>
-            Page {{ pagination?.current_page }} of
-            {{ pagination?.last_page }} From {{ pagination?.total }} Data.
+            Page {{ pagination?.current_page }} of {{ pagination?.last_page }} From
+            {{ pagination?.total }} Data.
           </span>
         </div>
         <Button
           variant="outline"
           size="sm"
-          :disabled="
-            pagination?.current_page == pagination?.last_page || loading
-          "
+          :disabled="pagination?.current_page == pagination?.last_page || loading"
           @click="changePage(pagination?.current_page + 1)"
         >
           <span>Next</span>

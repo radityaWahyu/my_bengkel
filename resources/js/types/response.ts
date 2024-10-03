@@ -94,6 +94,7 @@ export interface IPayment extends IBaseResponse {
 }
 
 export interface IUser extends IBaseResponse {
+    employee_id: string;
     username: string;
     role: string;
     gender: string;

@@ -6,44 +6,26 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { reactive, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import { Head, usePage, router, Link } from "@inertiajs/vue3";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shadcn/ui/card";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shadcn/ui/form";
+import { Card, CardContent, CardHeader } from "@/shadcn/ui/card";
+
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/shadcn/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as zod from "zod";
 import { Input } from "@/shadcn/ui/input";
 import { Textarea } from "@/shadcn/ui/textarea";
 import { Label } from "@/shadcn/ui/label";
 import { Button } from "@/shadcn/ui/button";
-import FormRequiredLabel from "@/Components/App/FormRequiredLabel.vue";
+import { Skeleton } from "@/shadcn/ui/skeleton";
 import {
-  ClipboardPen,
   CarFront,
-  TextSearch,
   Wrench,
   PlusSquare,
   StickyNote,
@@ -55,13 +37,15 @@ import {
 import { usePrice } from "@/Plugin/useNumber";
 import type {
   IRepair,
-  IVehicle,
   IProduct,
   IServiceDetail,
+  IUser,
+  IServiceProduct,
 } from "@/types/response";
 
 import RepairList from "@/Components/Repair/RepairList.vue";
 import ProductList from "@/Components/Product/ProductList.vue";
+import EmployeeList from "@/Components/Employee/EmployeeList.vue";
 
 const props = defineProps<{
   service: IServiceDetail;
@@ -69,45 +53,34 @@ const props = defineProps<{
 
 const repairDialogOpen = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
+const employeeDialogOpen = ref<boolean>(false);
+const repairIdSelected = ref<string>("");
 
 const isLoading = ref<boolean>(false);
+const isLoadingProduct = ref<boolean>(false);
+const isLoadingInvoice = ref<boolean>(false);
 
 const price = usePrice();
 const page = usePage();
 
 const repairsSubTotal = computed(() => {
-  return 0;
+  return props.service.repairs.reduce(
+    (accumulator, current) => accumulator + current.total,
+    0
+  );
 });
 
 const productsSubTotal = computed(() => {
-  return 0;
-});
-
-const userSchema = () => {
-  return toTypedSchema(
-    zod.object({
-      vehicle_id: zod
-        .string({ message: "Nama Merk harus diisi" })
-        .min(1, { message: "Nama Merk harus diisi." }),
-      category_id: zod
-        .string({ message: "Kategori harus diisi" })
-        .min(1, { message: "Kategori harus diisi." }),
-      rack_id: zod
-        .string({ message: "Rak harus diisi" })
-        .min(1, { message: "Rak harus diisi." }),
-      stock: zod.number({ message: "Stok awal Produk harus diisi" }),
-      buy_price: zod.number({ message: "Harga beli Produk harus diisi" }),
-      sale_price: zod.number({ message: "Harga jual Produk harus diisi" }),
-    })
+  return props.service.products.reduce(
+    (accumulator, current) => accumulator + current.total,
+    0
   );
-};
-
-const validationSchema = userSchema();
-const form = useForm({
-  validationSchema,
 });
+
+const totalInvoice = computed(() => productsSubTotal.value + repairsSubTotal.value);
 
 const onRepairSelected = (value: IRepair) => {
+  repairDialogOpen.value = false;
   router.post(
     route("backoffice.service.add-repair", props.service.id),
     {
@@ -119,7 +92,6 @@ const onRepairSelected = (value: IRepair) => {
       onStart: () => (isLoading.value = true),
       onError: (error) => console.log("error"),
       onSuccess: () => {
-        repairDialogOpen.value = false;
         router.reload({
           only: ["service"],
         });
@@ -129,13 +101,85 @@ const onRepairSelected = (value: IRepair) => {
   );
 };
 
+const deleteServiceRepair = (repairId: string) => {
+  router.delete(route("backoffice.service.delete-repair", repairId), {
+    preserveScroll: false,
+    onStart: () => (isLoading.value = true),
+    onError: (error) => console.log("error"),
+    onSuccess: () => {
+      router.reload({
+        only: ["service"],
+      });
+    },
+    onFinish: () => (isLoading.value = false),
+  });
+};
+
+const deleteServiceProduct = (repairId: string) => {
+  router.delete(route("backoffice.service.delete-product", repairId), {
+    preserveScroll: false,
+    onStart: () => (isLoadingProduct.value = true),
+    onError: (error) => console.log("error"),
+    onSuccess: () => {
+      router.reload({
+        only: ["service"],
+      });
+    },
+    onFinish: () => (isLoading.value = false),
+  });
+};
+
 const onProductSelected = (value: IProduct) => {
+  productDialogOpen.value = false;
   router.post(
     route("backoffice.service.add-product", props.service.id),
     {
-      repair_id: value.id,
+      product_id: value.id,
       price: value.sale_price,
       qty: 1,
+    },
+    {
+      preserveScroll: false,
+      onStart: () => (isLoading.value = true),
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload({
+          only: ["service"],
+        });
+      },
+      onFinish: () => (isLoading.value = false),
+    }
+  );
+};
+
+const updateQtyProduct = (serviceProduct: IServiceProduct) => {
+  // alert("update");
+  router.post(
+    route("backoffice.service.update-qty-product", serviceProduct.id),
+    {
+      qty: serviceProduct.qty,
+    },
+    {
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload({
+          only: ["service"],
+        });
+      },
+    }
+  );
+};
+
+const selectEmployee = (repairId: string) => {
+  repairIdSelected.value = repairId;
+  employeeDialogOpen.value = true;
+};
+const onEmployeeSelected = (value: IUser) => {
+  employeeDialogOpen.value = false;
+  router.post(
+    route("backoffice.service.add-employee", repairIdSelected.value),
+    {
+      employee_id: value.employee_id,
     },
     {
       onStart: () => (isLoading.value = true),
@@ -149,9 +193,11 @@ const onProductSelected = (value: IProduct) => {
     }
   );
 };
-
-const removeRepair = (index: number) => {};
-const onSubmit = () => {};
+const onSubmit = () => {
+  router.put(route("backoffice.service.approved", props.service.id), {
+    total: totalInvoice.value,
+  });
+};
 </script>
 <template>
   <Head title="Form Transaksi Service" />
@@ -163,26 +209,10 @@ const onSubmit = () => {};
             <ClipboardPenLine class="size-8" />
             <h1 class="font-medium text-lg">Form Transaksi Service</h1>
           </div>
-
-          <div class="space-x-2">
-            <Link
-              :href="route('backoffice.service.index')"
-              as="button"
-              type="button"
-              :disabled="isLoading"
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-            >
-              Batal
-            </Link>
-            <Button @click="onSubmit">
-              <span v-if="isLoading">Meyimpan data...</span>
-              <span v-else>Simpan data</span>
-            </Button>
-          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <form @submit.prevent="onSubmit" class="space-y-6 pb-4">
+        <div class="space-y-3 pb-4">
           <div class="space-y-3">
             <div
               class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
@@ -191,8 +221,8 @@ const onSubmit = () => {};
               <div>
                 <h4 class="font-medium">Data Kendaraan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki
-                  oleh pelanggan.
+                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki oleh
+                  pelanggan.
                 </p>
               </div>
             </div>
@@ -209,11 +239,7 @@ const onSubmit = () => {};
               </div>
               <div class="space-y-1">
                 <Label>Nama Pelanggan</Label>
-                <Input
-                  type="text"
-                  :default-value="service.vehicle.customer"
-                  readonly
-                />
+                <Input type="text" :default-value="service.vehicle.customer" readonly />
               </div>
             </div>
             <div class="grid grid-cols-4 gap-2">
@@ -230,9 +256,7 @@ const onSubmit = () => {};
                 <Input
                   type="text"
                   :default-value="
-                    service.vehicle.engine_type === 'petrol'
-                      ? 'Bensin'
-                      : 'Diesel'
+                    service.vehicle.engine_type === 'petrol' ? 'Bensin' : 'Diesel'
                   "
                   readonly
                 />
@@ -265,17 +289,13 @@ const onSubmit = () => {};
               <div>
                 <h4 class="font-medium">Keluhan Pelanggan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan isi keluhan pelanggan terhadap kerusakan kendaraan
-                  yang dimiliki oleh pelanggan tersebut.
+                  Keluhan pelanggan berisikan diagnosa awal yang diberikan oleh pelanggan
+                  terhadap kerusakan pada kendaraan yang dimiliki pelanggan.
                 </p>
               </div>
             </div>
             <div>
-              <Textarea
-                cols="6"
-                :default-value="service.description"
-                readonly
-              />
+              <Textarea cols="6" :default-value="service.description" readonly />
             </div>
           </div>
           <div class="space-y-3">
@@ -286,7 +306,7 @@ const onSubmit = () => {};
               <div class="grow">
                 <h4 class="font-medium">Daftar Perbaikan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkam masukan jenis jasa perbaikan pada kendaraan dengan
+                  Silahkan untuk memasukkan jenis jasa perbaikan pada kendaraan dengan
                   mengklik tombol
                   <strong>Pilih Perbaikan</strong>
                 </p>
@@ -296,6 +316,7 @@ const onSubmit = () => {};
                 variant="outline"
                 class="text-primary space-x-2"
                 @click="repairDialogOpen = true"
+                :disabled="isLoading || isLoadingInvoice"
               >
                 <PlusSquare class="size-5" />
                 <span>Pilih Perbaikan</span>
@@ -305,51 +326,77 @@ const onSubmit = () => {};
             <Table class="border-b border-b-gray-200">
               <TableHeader class="border-t border-t-gray-200 shadow">
                 <TableRow>
-                  <TableHead class="w-[450px]"> Nama Perbaikan </TableHead>
+                  <TableHead class="w-[250px]"> Nama Perbaikan </TableHead>
                   <TableHead class="text-right w-32">Harga</TableHead>
+                  <TableHead>Nama Mekanik</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody v-if="!!service && service.repairs.length > 0">
-                <TableRow
-                  v-for="(repair, index) in service.repairs"
-                  :key="index"
-                >
+              <TableBody v-if="!!service && service.repairs.length > 0 && !isLoading">
+                <TableRow v-for="(repair, index) in service.repairs" :key="index">
                   <TableCell class="font-medium">
                     {{ repair.name }}
                   </TableCell>
                   <TableCell class="text-right">
                     {{ price.convertToRupiah(repair.price) }}
                   </TableCell>
-                  <TableCell>
+                  <TableCell class="capitalize">
+                    <span v-if="repair.employee_name" class="bg-sky-100 px-2 py-1">{{
+                      repair.employee_name
+                    }}</span>
+                    <span v-else class="bg-yellow-100 px-2 py-1"
+                      >Silahkan pilih mekanik</span
+                    >
+                  </TableCell>
+                  <TableCell class="flex items-center gap-1">
                     <Button
                       size="sm"
-                      variant="outline"
-                      @click="removeRepair(index)"
+                      variant="destructive"
+                      @click="deleteServiceRepair(repair.id)"
+                      :disabled="isLoadingInvoice"
                     >
                       <X class="size-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      :disabled="isLoadingInvoice"
+                      @click="selectEmployee(repair.id)"
+                    >
+                      Pilih Mekanik
                     </Button>
                   </TableCell>
                 </TableRow>
                 <TableRow class="bg-sky-50 text-blue-700">
-                  <TableCell class="text-right font-semibold py-2">
-                    Sub Total
-                  </TableCell>
+                  <TableCell class="text-right font-semibold py-2"> Sub Total </TableCell>
                   <TableCell class="font-semibold text-right">
                     {{ price.convertToRupiah(repairsSubTotal) }}
                   </TableCell>
                   <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableBody>
-              <TableBody v-else>
+              <TableBody v-if="isLoading">
+                <TableRow v-for="index in 3" :key="index">
+                  <TableCell>
+                    <Skeleton class="h-4 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton class="h-4 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton class="h-4 w-full" />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+              <TableBody v-if="!isLoading && service.repairs.length === 0">
                 <TableRow>
                   <TableCell colspan="3">
                     <Alert class="bg-orange-50 border-none rounded w-full">
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data perbaikan silahkan menambahkan
-                        terlebih dahulu
+                        Tidak terdapat data perbaikan silahkan menambahkan terlebih dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -366,7 +413,7 @@ const onSubmit = () => {};
               <div class="grow">
                 <h4 class="font-medium">Daftar Spare Part</h4>
                 <p class="text-sm text-gray-500">
-                  Untuk masukan spare part perbaikan pada kendaraan dengan
+                  Silahkan untuk memasukkan spare part perbaikan pada kendaraan dengan
                   silahkan mengklik tombol
                   <strong>Pilih Spare Part</strong>
                 </p>
@@ -375,6 +422,7 @@ const onSubmit = () => {};
                 as="button"
                 variant="outline"
                 class="text-primary space-x-2"
+                :disabled="isLoadingInvoice"
                 @click="productDialogOpen = true"
               >
                 <PlusSquare class="size-5" />
@@ -392,21 +440,18 @@ const onSubmit = () => {};
                 </TableRow>
               </TableHeader>
               <TableBody v-if="service!! && service.products.length > 0">
-                <TableRow
-                  v-for="(product, index) in service.products"
-                  :key="index"
-                >
+                <TableRow v-for="(product, index) in service.products" :key="index">
                   <TableCell class="font-medium">
                     {{ product.name }}
                   </TableCell>
-                  <TableCell>{{
-                    price.convertToRupiah(product.price)
-                  }}</TableCell>
+                  <TableCell>{{ price.convertToRupiah(product.price) }}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
                       v-model="product.qty"
                       class="text-center"
+                      @change="updateQtyProduct(product)"
+                      :disabled="isLoadingInvoice"
                     />
                   </TableCell>
                   <TableCell class="text-right">
@@ -415,8 +460,9 @@ const onSubmit = () => {};
                   <TableCell>
                     <Button
                       size="sm"
-                      variant="outline"
-                      @click="removeRepair(index)"
+                      variant="destructive"
+                      @click="deleteServiceProduct(product.id)"
+                      :disabled="isLoadingInvoice"
                     >
                       <X class="size-3" />
                     </Button>
@@ -434,13 +480,12 @@ const onSubmit = () => {};
               </TableBody>
               <TableBody v-else>
                 <TableRow>
-                  <TableCell colspan="3">
+                  <TableCell colspan="5">
                     <Alert class="bg-orange-50 border-none rounded w-full">
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data barang silahkan menambahkan terlebih
-                        dahulu
+                        Tidak terdapat data barang silahkan menambahkan terlebih dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -448,10 +493,47 @@ const onSubmit = () => {};
               </TableBody>
             </Table>
           </div>
-        </form>
+
+          <div class="flex items-center justify-between w-full py-4 px-4 bg-sky-50">
+            <div class="space-x-2">
+              <Link
+                :href="route('backoffice.service.index')"
+                as="button"
+                type="button"
+                :disabled="isLoadingInvoice"
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+              >
+                Batal
+              </Link>
+              <Button @click="onSubmit" :disabled="isLoadingInvoice">
+                <span v-if="isLoadingInvoice">Meyimpan data...</span>
+                <span v-else>Simpan data</span>
+              </Button>
+            </div>
+            <div class="text-blue-500">
+              <h2 class="text-lg">Total Invoice Service</h2>
+              <h2 class="text-3xl font-semibold">
+                {{ price.convertToRupiah(totalInvoice) }}
+              </h2>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
-    <RepairList v-model="repairDialogOpen" @selected="onRepairSelected" />
-    <ProductList v-model="productDialogOpen" @selected="onProductSelected" />
+    <RepairList
+      v-model="repairDialogOpen"
+      @selected="onRepairSelected"
+      @closed="() => (repairDialogOpen = false)"
+    />
+    <ProductList
+      v-model="productDialogOpen"
+      @selected="onProductSelected"
+      @closed="() => (productDialogOpen = false)"
+    />
+    <EmployeeList
+      v-model="employeeDialogOpen"
+      @selected="onEmployeeSelected"
+      role="mekanik"
+    />
   </div>
 </template>

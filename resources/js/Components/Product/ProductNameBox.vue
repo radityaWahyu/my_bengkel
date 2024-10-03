@@ -26,8 +26,16 @@ const onSelect = () => {
           <span>
             {{ product.name }}
           </span>
-          <span class="p-1 bg-sky-50">
-            {{ product.stock }}
+          <span
+            :class="[
+              'px-2 py-1 text-xs font-medium',
+              {
+                'bg-sky-100': product.stock > 0,
+                'bg-yellow-100': product.stock === 0,
+              },
+            ]"
+          >
+            stok : {{ product.stock }}
           </span>
         </h4>
         <p class="text-sm text-gray-400">

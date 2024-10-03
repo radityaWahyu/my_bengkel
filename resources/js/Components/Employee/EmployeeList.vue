@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted, watch } from "vue";
+import { ref, h, onMounted } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
@@ -12,82 +12,75 @@ import {
   SheetTitle,
 } from "@/shadcn/ui/sheet";
 import DataTableDialog from "@/Components/App/DataTableDialog.vue";
-import type { IProduct, IPaginationMeta } from "@/types/response";
+import type { IUser, IPaginationMeta } from "@/types/response";
 import type { ColumnDef } from "@tanstack/vue-table";
-import ProductNameBox from "./ProductNameBox.vue";
+import EmployeeListNameBox from "./EmployeeListNameBox.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 
 const formOpen = defineModel<boolean>();
 
+const props = defineProps<{
+  role: "mekanik" | "opeartor";
+}>();
+
 const emits = defineEmits<{
-  (e: "selected", value: IProduct): void;
+  (e: "selected", value: IUser): void;
   (e: "closed", value: boolean): void;
 }>();
 
 const httpService = useHttpService();
-const products = ref<IProduct[]>();
+const employees = ref<IUser[]>();
 const pagination = ref<IPaginationMeta>();
 const search = ref("");
 const perPage = ref(10);
 const isLoading = ref<boolean>(false);
 const brandTable = ref<InstanceType<typeof DataTableDialog> | null>(null);
 
-const columns: ColumnDef<IProduct>[] = [
+const columns: ColumnDef<IUser>[] = [
   {
-    accessorKey: "product",
+    accessorKey: "repair",
     enableResizing: false,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "Daftar Barang"),
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Daftar Mekanik"),
     cell: ({ row }) =>
-      h(ProductNameBox, {
-        product: row.original,
-        onSelected: (product: IProduct) => {
+      h(EmployeeListNameBox, {
+        user: row.original,
+        onSelected: (user: IUser) => {
           search.value = "";
-          emits("selected", product);
+          emits("selected", user);
         },
       }),
   },
 ];
 
-const getProducts = async (page: number) => {
-  const url = ref({ page: page, perPage: perPage.value });
+const getEmployees = async (page: number) => {
+  const url = ref({ role: props.role, page: page, perPage: perPage.value });
 
   if (search.value !== null) Object.assign(url.value, { search });
 
-  isLoading.value = true;
-  const response = await httpService.get(route("backoffice.product.list", url.value));
-  products.value = response.data;
+  const response = await httpService.get(route("backoffice.employee.list", url.value));
+  employees.value = response.data;
   pagination.value = response.meta;
-  isLoading.value = false;
 };
 const onClose = () => {
   search.value = "";
+  formOpen.value = false;
   emits("closed", true);
 };
 
 onMounted(() => {
-  getProducts(1);
+  getEmployees(1);
 });
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getProducts(1);
+  getEmployees(1);
 };
-
-watch(
-  () => formOpen.value,
-  (value) => {
-    if (value) {
-      getProducts(1);
-    }
-  },
-  { immediate: true }
-);
 
 watchDebounced(
   search,
   () => {
-    getProducts(1);
+    getEmployees(1);
   },
   { debounce: 500, maxWait: 1000 }
 );
@@ -97,18 +90,18 @@ watchDebounced(
   <Sheet v-model:open="formOpen">
     <SheetContent @interact-outside="(e) => e.preventDefault()">
       <SheetHeader>
-        <SheetTitle>Pilih Kendaraan Pelanggan</SheetTitle>
+        <SheetTitle v-if="role === 'mekanik'">Pilih Mekanik</SheetTitle>
+        <SheetTitle v-else>Pilih Operator</SheetTitle>
       </SheetHeader>
       <div>
         <DataTableDialog
           class="py-4"
-          ref="brandTable"
           :columns="columns"
-          :data="products"
+          :data="employees"
           :pagination="pagination"
-          :loading="isLoading"
+          :loading="isLoading || httpService.processing.value"
           @change-limit="changeLimit"
-          @change-page="getProducts"
+          @change-page="getEmployees"
         >
           <template #filter>
             <div class="relative w-full items-center">

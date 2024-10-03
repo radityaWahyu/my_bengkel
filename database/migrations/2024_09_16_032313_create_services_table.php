@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('service_code', 50)->nullable();
             $table->foreignUuid('user_id')->nullable();
             $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
-            $table->enum('status', ['waiting', 'process', 'pending', 'finish'])->default('waiting');
+            $table->enum('status', ['waiting', 'approved', 'process', 'pending', 'finish'])->default('waiting');
             $table->bigInteger('total')->default(0);
             $table->foreignUuid('vehicle_id');
             $table->foreign('vehicle_id')->on('vehicles')->references('id')->onDelete('restrict');

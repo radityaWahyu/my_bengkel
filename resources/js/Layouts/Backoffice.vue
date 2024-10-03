@@ -23,7 +23,7 @@ watch(
     } else if (!!value.error) {
       alert.show = !!value.error;
       alert.type = "error";
-      alert.message = value.error[2];
+      alert.message = value.error;
     }
   },
   { immediate: true }
@@ -35,14 +35,13 @@ watch(
     class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[260px_1fr] antialiased"
   >
     <LeftNavigation />
-    <div class="h-screen flex flex-col overflow-y-auto scrollbar bg-[#F5FAFE]">
+    <div
+      class="h-screen flex flex-col overflow-y-auto scrollbar bg-[#F5FAFE]"
+      scroll-region
+    >
       <TopNavigation />
       <main class="h-auto">
-        <TopAlert
-          v-model="alert.show"
-          :messages="alert.message"
-          :type="alert.type"
-        />
+        <TopAlert v-model="alert.show" :messages="alert.message" :type="alert.type" />
         <slot />
       </main>
     </div>

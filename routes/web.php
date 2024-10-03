@@ -87,6 +87,7 @@ Route::prefix('backoffice')->group(function () {
     Route::prefix('pegawai')->controller(EmployeeController::class)->group(function () {
         Route::get('/', 'index')->name('backoffice.employee.index');
         Route::get('/create', 'create')->name('backoffice.employee.create');
+        Route::get('/list', 'employeeList')->name('backoffice.employee.list');
         Route::get('/{employee}', 'edit')->name('backoffice.employee.edit');
         Route::post('/', 'store')->name('backoffice.employee.store');
         Route::post('/delete_all', 'deleteAll')->name('backoffice.employee.delete-all');
@@ -135,8 +136,12 @@ Route::prefix('backoffice')->group(function () {
             Route::post('/', 'store')->name('backoffice.service.store');
             Route::post('/add-product/{service}', 'addProduct')->name('backoffice.service.add-product');
             Route::post('/add-repair/{service}', 'addRepair')->name('backoffice.service.add-repair');
+            Route::post('/add-employee/{service_repair}', 'addEmployee')->name('backoffice.service.add-employee');
+            Route::post('/update-qty/{service_product}', 'updateQtyProduct')->name('backoffice.service.update-qty-product');
+            Route::delete('delete-repair/{service_repair}', 'deleteServiceRepair')->name('backoffice.service.delete-repair');
+            Route::delete('delete-product/{service_product}', 'deleteServiceProduct')->name('backoffice.service.delete-product');
             Route::delete('/{service}', 'destroy')->name('backoffice.service.delete');
-            Route::put('/{service}', 'update')->name('backoffice.service.update');
+            Route::put('/approved/{service}', 'approvedService')->name('backoffice.service.approved');
         });
     });
 
