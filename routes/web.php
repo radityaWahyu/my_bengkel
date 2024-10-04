@@ -28,6 +28,7 @@ use App\Http\Controllers\SupplierController;
 */
 
 Route::get('/', [AuthController::class, 'index'])->name('backoffice.auth.login');
+Route::get('/transaksi/service/detail/{service}', [ServiceController::class, 'customerServiceDetail'])->name('backoffice.service.customer-service-detail');
 
 // ---------------------route for backoffice-------------------------------------
 Route::prefix('backoffice')->group(function () {

@@ -27,6 +27,10 @@ const onDelete = () => {
 const serviceCheckingVehicle = () => {
   router.get(route("backoffice.service.create-invoice", props.service.id));
 };
+
+const printReceipt = () => {
+  router.get(route("backoffice.service.receipt", props.service.id));
+};
 </script>
 <template>
   <div class="flex items-center justify-center gap-1 w-full">
@@ -37,7 +41,11 @@ const serviceCheckingVehicle = () => {
       v-if="service.status === 'waiting'"
       @click="serviceCheckingVehicle"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"
@@ -63,10 +71,14 @@ const serviceCheckingVehicle = () => {
       type="button"
       variant="outline"
       size="icon"
-      @click="openConfirmDialog = true"
+      @click="printReceipt"
       :disabled="deleteForm.processing"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"
@@ -95,7 +107,11 @@ const serviceCheckingVehicle = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"
@@ -124,7 +140,11 @@ const serviceCheckingVehicle = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"
@@ -153,7 +173,11 @@ const serviceCheckingVehicle = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
+      <svg
+        class="size-4 animate-spin"
+        viewBox="0 0 100 100"
+        v-if="deleteForm.processing"
+      >
         <circle
           fill="none"
           stroke-width="12"

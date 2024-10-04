@@ -158,3 +158,12 @@ export interface IServiceDetail {
     products: IServiceProduct[];
     repairs: IServiceRepair[];
 }
+
+export interface ISettingData {
+    nama_bengkel: string;
+    alamat_bengkel: string;
+    logo_bengkel: string;
+    nama_kontak: string;
+    telepon_kontak: string;
+    whatsapp_kontak: string;
+}

@@ -7,6 +7,8 @@ use Carbon\Carbon;
 
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\Setting;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ServiceRepair;
 use App\Models\ServiceProduct;
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\ServiceRequest;
 use App\Http\Resources\ServiceResource;
 use App\Http\Resources\ServiceDetailResource;
+use App\Http\Resources\ServiceReceipt;
+use App\Http\Resources\ServiceReceiptResource;
 
 class ServiceController extends Controller
 {
@@ -108,7 +112,24 @@ class ServiceController extends Controller
         }
     }
 
-    public function printReceipt(Service $service) {}
+    public function printReceipt(Service $service)
+    {
+        $service->with(['vehicle']);
+
+        $settingData = [];
+        $settings = Setting::query()->get();
+        foreach ($settings as $setting) {
+            $name = Str::replace(' ', '_', Str::lower($setting->name));
+            $settingData += [$name => $setting->data];
+        }
+
+        return inertia('ServiceTransaction/ServiceTransactionReceipt', [
+            'setting' => fn() => $settingData,
+            'service' => fn() => new ServiceReceiptResource($service)
+        ]);
+    }
+
+    public function customerServiceDetail(Service $service) {}
 
     public function destroy(Service $service)
     {
