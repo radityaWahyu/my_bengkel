@@ -140,6 +140,7 @@ export interface IService {
     id: string;
     service_code: string;
     vehicle_plate_number: string;
+    vehicle_name: string;
     customer_name: string;
     status: string;
     total: number;

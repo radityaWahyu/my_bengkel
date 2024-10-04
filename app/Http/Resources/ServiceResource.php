@@ -20,6 +20,7 @@ class ServiceResource extends JsonResource
             'id' => $this->id,
             'service_code' => $this->service_code,
             'vehicle_plate_number' => $this->vehicle->plate_number,
+            'vehicle_name' => $this->vehicle->name,
             'customer_name' => $this->vehicle->customer->name,
             'status' => $this->status,
             'total' => $this->total,

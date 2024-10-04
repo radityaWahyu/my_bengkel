@@ -104,20 +104,19 @@ const columns: ColumnDef<IService>[] = [
   {
     accessorKey: "vehicle_number",
     enableResizing: false,
-    size: 150,
+    size: 250,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "No Plat"),
+      h("div", { class: "px-3 font-semibold" }, "No Plat"),
     cell: ({ row }) =>
-      h(
-        "div",
-        { class: "capitalize font-semibold" },
-        row.original.vehicle_plate_number
-      ),
+      h("div", { class: "capitalize px-3" }, [
+        h("p", { class: "font-semibold" }, row.original.vehicle_plate_number),
+        h("p", { class: "font-medium" }, row.original.vehicle_name),
+      ]),
   },
   {
     accessorKey: "customer",
     enableResizing: false,
-    size: 300,
+    size: 250,
     header: ({ column }) =>
       h("div", { class: "gap-2 flex items-center font-semibold" }, "Pelanggan"),
     cell: ({ row }) =>
@@ -130,7 +129,7 @@ const columns: ColumnDef<IService>[] = [
   {
     accessorKey: "service_code",
     enableResizing: false,
-    size: 300,
+    size: 200,
     header: ({ column }) =>
       h(
         "div",
@@ -157,7 +156,7 @@ const columns: ColumnDef<IService>[] = [
   {
     accessorKey: "created_at",
     enableResizing: false,
-    size: 300,
+    size: 250,
     header: ({ column }) => {
       return h(
         Button,
@@ -192,7 +191,7 @@ const columns: ColumnDef<IService>[] = [
   {
     accessorKey: "status",
     enableResizing: false,
-    size: 200,
+    size: 250,
     header: ({ column }) =>
       h("div", { class: "gap-2 flex items-center font-semibold" }, "Status"),
     cell: ({ row }) =>
@@ -298,15 +297,13 @@ watchDebounced(
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
         <CarFront class="size-10" />
-        <h1 class="text-lg font-semibold tracking-wider">
-          Transaksi Service Kendaraan
-        </h1>
+        <h1 class="text-lg font-semibold">Transaksi Service Kendaraan</h1>
       </div>
 
       <div class="px-4">
         <div class="flex items-center gap-1" v-if="selectedId.length > 0">
           <Button
-            class="-tracking-wider space-x-2"
+            class="space-x-2"
             type="button"
             variant="outline"
             :disabled="isLoading"

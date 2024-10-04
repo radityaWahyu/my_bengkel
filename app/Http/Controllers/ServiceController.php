@@ -107,28 +107,9 @@ class ServiceController extends Controller
             return redirect()->back()->with('error', $exception->errorInfo);
         }
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(Service $service) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(ServiceRequest $request, Service $service)
-    // {
-    //     try {
-    //         $service->update($request->validated());
+    public function printReceipt(Service $service) {}
 
-    //         return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
-    //     } catch (\Illuminate\Database\QueryException $exception) {
-    //         return redirect()->back()->with('error', $exception->errorInfo);
-    //     }
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Service $service)
     {
         try {
@@ -136,16 +117,6 @@ class ServiceController extends Controller
             return redirect()->back()->with('success', 'Transaksi Servis berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
-        }
-    }
-
-    public function deleteAll(Request $request)
-    {
-        try {
-            Service::destroy($request->ids);
-            return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil dihapus.');
-        } catch (\Exception $exception) {
-            return redirect()->back()->with('error', $exception);
         }
     }
 

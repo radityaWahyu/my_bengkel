@@ -132,6 +132,7 @@ Route::prefix('backoffice')->group(function () {
             Route::get('/', 'index')->name('backoffice.service.index');
             Route::get('/create', 'create')->name('backoffice.service.create');
             Route::get('/create-invoice/{service}', 'createInvoice')->name('backoffice.service.create-invoice');
+            Route::get('/receipt/{service}', 'printReceipt')->name('backoffice.service.receipt');
             Route::get('/{service}', 'edit')->name('backoffice.service.edit');
             Route::post('/', 'store')->name('backoffice.service.store');
             Route::post('/add-product/{service}', 'addProduct')->name('backoffice.service.add-product');

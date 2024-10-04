@@ -24,9 +24,9 @@ const onSelect = () => {
         <p class="text-sm text-gray-400">{{ vehicle.customer }}</p>
       </div>
       <p class="space-x-1">
-        <span class="px-2 py-1 bg-sky-100 rounded text-xs text-sky-600">{{
-          vehicle.engine_volume
-        }}</span>
+        <span class="px-2 py-1 bg-sky-100 rounded text-xs text-sky-600">
+          {{ vehicle.engine_volume }}cc
+        </span>
         <span class="px-2 py-1 bg-sky-100 rounded text-xs text-sky-600">{{
           vehicle.engine_type === "petrol" ? "Bensin" : "Diesel"
         }}</span>

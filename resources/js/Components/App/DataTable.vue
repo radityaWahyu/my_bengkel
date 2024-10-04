@@ -112,11 +112,7 @@ defineExpose({
           class="grow bg-white border border-gray-200 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
           @change="() => emits('changeLimit', perPage)"
         >
-          <option
-            :value="list.value"
-            v-for="(list, index) in listPerPage"
-            :key="index"
-          >
+          <option :value="list.value" v-for="(list, index) in listPerPage" :key="index">
             {{ list.label }}
           </option>
         </select>
@@ -146,22 +142,14 @@ defineExpose({
         <TableBody v-if="loading">
           <template v-if="table.getRowModel().rows?.length">
             <TableRow v-for="index in 6" :key="index">
-              <TableCell
-                v-for="index in columns.length"
-                class="h-10"
-                :key="index"
-              >
+              <TableCell v-for="index in columns.length" class="h-10" :key="index">
                 <Skeleton class="h-2 w-1/2" />
               </TableCell>
             </TableRow>
           </template>
           <template v-else>
             <TableRow v-for="index in 6" :key="index">
-              <TableCell
-                v-for="index in columns.length"
-                class="h-10"
-                :key="index"
-              >
+              <TableCell v-for="index in columns.length" class="h-10" :key="index">
                 <Skeleton class="h-2 w-1/2" />
               </TableCell>
             </TableRow>
@@ -201,8 +189,8 @@ defineExpose({
                     <OctagonAlert class="size-6" />
                     <AlertTitle class="ml-2">Keterangan</AlertTitle>
                     <AlertDescription class="ml-2">
-                      Tidak terdapat data pada halaman ini silahkan menambahkan
-                      terlebih dahulu
+                      Tidak terdapat data pada halaman ini silahkan menambahkan terlebih
+                      dahulu
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -221,15 +209,12 @@ defineExpose({
           <Skeleton class="h-2 w-1/4" />
         </span>
         <span v-else>
-          Page {{ pagination?.current_page }} of
-          {{ pagination?.last_page }} From {{ pagination?.total }} Data.
+          Page {{ pagination?.current_page }} of {{ pagination?.last_page }} From
+          {{ pagination?.total }} Data.
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <div
-          class="grid grid-cols-2 gap-2 items-center"
-          v-if="pagination.total > 0"
-        >
+        <div class="grid grid-cols-2 gap-2 items-center" v-if="pagination.total > 0">
           <Label class="text-right text-xs">Page</Label>
           <select
             v-model="pageFilter"
@@ -257,9 +242,7 @@ defineExpose({
           <Button
             variant="outline"
             size="sm"
-            :disabled="
-              pagination?.current_page == pagination?.last_page || loading
-            "
+            :disabled="pagination?.current_page == pagination?.last_page || loading"
             @click="changePage(pagination?.current_page + 1)"
           >
             <span>Next</span>
