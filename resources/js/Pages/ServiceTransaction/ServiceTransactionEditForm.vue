@@ -49,6 +49,7 @@ import EmployeeList from "@/Components/Employee/EmployeeList.vue";
 
 const props = defineProps<{
   service: IServiceDetail;
+  edit?: boolean;
 }>();
 
 const repairDialogOpen = ref<boolean>(false);
@@ -77,7 +78,9 @@ const productsSubTotal = computed(() => {
   );
 });
 
-const totalInvoice = computed(() => productsSubTotal.value + repairsSubTotal.value);
+const totalInvoice = computed(
+  () => productsSubTotal.value + repairsSubTotal.value
+);
 
 const onRepairSelected = (value: IRepair) => {
   repairDialogOpen.value = false;
@@ -194,9 +197,13 @@ const onEmployeeSelected = (value: IUser) => {
   );
 };
 const onSubmit = () => {
-  router.put(route("backoffice.service.approved", props.service.id), {
-    total: totalInvoice.value,
-  });
+  if (props.edit) {
+    alert("update");
+  } else {
+    router.put(route("backoffice.service.approved", props.service.id), {
+      total: totalInvoice.value,
+    });
+  }
 };
 </script>
 <template>
@@ -221,8 +228,8 @@ const onSubmit = () => {
               <div>
                 <h4 class="font-medium">Data Kendaraan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki oleh
-                  pelanggan.
+                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki
+                  oleh pelanggan.
                 </p>
               </div>
             </div>
@@ -239,7 +246,11 @@ const onSubmit = () => {
               </div>
               <div class="space-y-1">
                 <Label>Nama Pelanggan</Label>
-                <Input type="text" :default-value="service.vehicle.customer" readonly />
+                <Input
+                  type="text"
+                  :default-value="service.vehicle.customer"
+                  readonly
+                />
               </div>
             </div>
             <div class="grid grid-cols-4 gap-2">
@@ -256,7 +267,9 @@ const onSubmit = () => {
                 <Input
                   type="text"
                   :default-value="
-                    service.vehicle.engine_type === 'petrol' ? 'Bensin' : 'Diesel'
+                    service.vehicle.engine_type === 'petrol'
+                      ? 'Bensin'
+                      : 'Diesel'
                   "
                   readonly
                 />
@@ -289,13 +302,18 @@ const onSubmit = () => {
               <div>
                 <h4 class="font-medium">Keluhan Pelanggan</h4>
                 <p class="text-sm text-gray-500">
-                  Keluhan pelanggan berisikan diagnosa awal yang diberikan oleh pelanggan
-                  terhadap kerusakan pada kendaraan yang dimiliki pelanggan.
+                  Keluhan pelanggan berisikan diagnosa awal yang diberikan oleh
+                  pelanggan terhadap kerusakan pada kendaraan yang dimiliki
+                  pelanggan.
                 </p>
               </div>
             </div>
             <div>
-              <Textarea cols="6" :default-value="service.description" readonly />
+              <Textarea
+                cols="6"
+                :default-value="service.description"
+                readonly
+              />
             </div>
           </div>
           <div class="space-y-3">
@@ -306,8 +324,8 @@ const onSubmit = () => {
               <div class="grow">
                 <h4 class="font-medium">Daftar Perbaikan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan untuk memasukkan jenis jasa perbaikan pada kendaraan dengan
-                  mengklik tombol
+                  Silahkan untuk memasukkan jenis jasa perbaikan pada kendaraan
+                  dengan mengklik tombol
                   <strong>Pilih Perbaikan</strong>
                 </p>
               </div>
@@ -326,14 +344,22 @@ const onSubmit = () => {
             <Table class="border-b border-b-gray-200">
               <TableHeader class="border-t border-t-gray-200 shadow">
                 <TableRow>
-                  <TableHead class="w-[250px]"> Nama Perbaikan </TableHead>
+                  <TableHead class="w-[150px]"> Nama Perbaikan </TableHead>
                   <TableHead class="text-right w-32">Harga</TableHead>
                   <TableHead>Nama Mekanik</TableHead>
+                  <template v-if="edit">
+                    <TableHead>Status</TableHead>
+                  </template>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody v-if="!!service && service.repairs.length > 0 && !isLoading">
-                <TableRow v-for="(repair, index) in service.repairs" :key="index">
+              <TableBody
+                v-if="!!service && service.repairs.length > 0 && !isLoading"
+              >
+                <TableRow
+                  v-for="(repair, index) in service.repairs"
+                  :key="index"
+                >
                   <TableCell class="font-medium">
                     {{ repair.name }}
                   </TableCell>
@@ -341,13 +367,18 @@ const onSubmit = () => {
                     {{ price.convertToRupiah(repair.price) }}
                   </TableCell>
                   <TableCell class="capitalize">
-                    <span v-if="repair.employee_name" class="bg-sky-100 px-2 py-1">{{
-                      repair.employee_name
-                    }}</span>
-                    <span v-else class="bg-yellow-100 px-2 py-1"
-                      >Silahkan pilih mekanik</span
+                    <span
+                      v-if="repair.employee_name"
+                      class="bg-sky-100 px-2 py-1"
+                      >{{ repair.employee_name }}</span
                     >
+                    <span v-else class="bg-yellow-100 px-2 py-1">
+                      Silahkan pilih mekanik
+                    </span>
                   </TableCell>
+                  <TableCell class="text-right"> </TableCell>
+                  <TableCell class="text-right"> </TableCell>
+
                   <TableCell class="flex items-center gap-1">
                     <Button
                       size="sm"
@@ -365,13 +396,36 @@ const onSubmit = () => {
                     >
                       Pilih Mekanik
                     </Button>
+                    <template v-if="edit">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        :disabled="isLoadingInvoice"
+                        @click=""
+                      >
+                        <span>Proses</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        :disabled="isLoadingInvoice"
+                        @click=""
+                      >
+                        <span>Selesai</span>
+                      </Button>
+                    </template>
                   </TableCell>
                 </TableRow>
                 <TableRow class="bg-sky-50 text-blue-700">
-                  <TableCell class="text-right font-semibold py-2"> Sub Total </TableCell>
+                  <TableCell class="text-right font-semibold py-2">
+                    Sub Total
+                  </TableCell>
                   <TableCell class="font-semibold text-right">
                     {{ price.convertToRupiah(repairsSubTotal) }}
                   </TableCell>
+                  <template v-if="edit">
+                    <TableCell></TableCell>
+                  </template>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -396,7 +450,8 @@ const onSubmit = () => {
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data perbaikan silahkan menambahkan terlebih dahulu
+                        Tidak terdapat data perbaikan silahkan menambahkan
+                        terlebih dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -413,8 +468,8 @@ const onSubmit = () => {
               <div class="grow">
                 <h4 class="font-medium">Daftar Spare Part</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan untuk memasukkan spare part perbaikan pada kendaraan dengan
-                  silahkan mengklik tombol
+                  Silahkan untuk memasukkan spare part perbaikan pada kendaraan
+                  dengan silahkan mengklik tombol
                   <strong>Pilih Spare Part</strong>
                 </p>
               </div>
@@ -440,11 +495,16 @@ const onSubmit = () => {
                 </TableRow>
               </TableHeader>
               <TableBody v-if="service!! && service.products.length > 0">
-                <TableRow v-for="(product, index) in service.products" :key="index">
+                <TableRow
+                  v-for="(product, index) in service.products"
+                  :key="index"
+                >
                   <TableCell class="font-medium">
                     {{ product.name }}
                   </TableCell>
-                  <TableCell>{{ price.convertToRupiah(product.price) }}</TableCell>
+                  <TableCell>{{
+                    price.convertToRupiah(product.price)
+                  }}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
@@ -485,7 +545,8 @@ const onSubmit = () => {
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data barang silahkan menambahkan terlebih dahulu
+                        Tidak terdapat data barang silahkan menambahkan terlebih
+                        dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -494,7 +555,9 @@ const onSubmit = () => {
             </Table>
           </div>
 
-          <div class="flex items-center justify-between w-full py-4 px-4 bg-sky-50">
+          <div
+            class="flex items-center justify-between w-full py-4 px-4 bg-sky-50"
+          >
             <div class="space-x-2">
               <Link
                 :href="route('backoffice.service.index')"

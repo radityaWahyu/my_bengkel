@@ -25,6 +25,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 import TopAlert from "@/Components/App/TopAlert.vue";
+import Header from "@/Components/App/Header.vue";
 
 const props = defineProps<{ flash: any }>();
 const alert = reactive({
@@ -89,14 +90,7 @@ const onSubmit = form.handleSubmit((formData) => {
 <template>
   <Head title="Login User" />
   <div class="w-screen h-screen bg-slate-100">
-    <header
-      class="flex h-14 items-center gap-4 border-b bg-white py-4 px-4 lg:px-6"
-    >
-      <div class="flex items-center gap-2 font-medium text-primary">
-        <Bolt class="size-6" />
-        <span class="font-bold text-lg">BENGKELKU</span>
-      </div>
-    </header>
+    <Header />
     <TopAlert
       v-model="alert.show"
       :messages="alert.message"

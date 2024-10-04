@@ -72,7 +72,7 @@ class ServiceController extends Controller
 
     public function createInvoice(Service $service)
     {
-        return inertia('ServiceTransaction/ServiceTransactionCheckingForm', [
+        return inertia('ServiceTransaction/ServiceTransactionEditForm', [
             'service' => fn() => new ServiceDetailResource($service)
         ]);
     }
@@ -90,6 +90,14 @@ class ServiceController extends Controller
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
+    }
+
+    public function edit(Service $service)
+    {
+        return inertia('ServiceTransaction/ServiceTransactionEditForm', [
+            'service' => fn() => new ServiceDetailResource($service),
+            'edit' => fn() => true,
+        ]);
     }
 
     public function approvedService(Request $request, Service $service)
@@ -129,7 +137,12 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function customerServiceDetail(Service $service) {}
+    public function customerServiceDetail(Service $service)
+    {
+        return inertia('ServiceTransaction/ServiceTransactionCustomerDetail', [
+            'service' => fn() => new ServiceDetailResource($service),
+        ]);
+    }
 
     public function destroy(Service $service)
     {

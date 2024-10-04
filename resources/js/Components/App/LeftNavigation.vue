@@ -58,7 +58,7 @@ onMounted(() => {
       currentUrl.value[0] === "transaksi"
     )
       currentUrl.value = fullUrl[3].split("?");
-  } else if (fullUrl.length > 5) {
+  } else if (fullUrl.length >= 5) {
     currentUrl.value = fullUrl[2].split("?");
 
     if (
