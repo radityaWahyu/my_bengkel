@@ -120,4 +120,10 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', $exception);
         }
     }
+
+    public function listPayment()
+    {
+        $payments = Payment::query()->get();
+        return PaymentResource::collection($payments);
+    }
 }

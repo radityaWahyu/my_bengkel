@@ -14,6 +14,11 @@ class ServiceRepair extends Model
     protected $table = "service_repairs";
     protected $guarded = [];
 
+    protected $casts = [
+        'started_at' => 'datetime',
+        'finished_at' => 'datetime',
+    ];
+
     public function repair()
     {
         return $this->belongsTo(Repair::class);

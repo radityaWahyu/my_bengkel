@@ -25,6 +25,14 @@ const renderAs = ref<RenderAs>("svg");
 const background = ref("#ffffff");
 const foreground = ref("#000000");
 const margin = ref(0);
+const imageSettings = ref<ImageSettings>({
+  src: props.setting.logo_bengkel,
+  width: 30,
+  height: 30,
+  // x: 10,
+  // y: 10,
+  excavate: true,
+});
 </script>
 <template>
   <Head title="Cetak Receipt" />
@@ -64,9 +72,7 @@ const margin = ref(0);
         </p>
         <p>
           <span>Jenis kendaraan : </span>
-          <span>{{
-            service.engine_type === "car" ? "Mobil" : "Sepeda Motor"
-          }}</span>
+          <span>{{ service.type === "car" ? "Mobil" : "Sepeda Motor" }}</span>
         </p>
       </div>
 

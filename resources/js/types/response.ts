@@ -134,6 +134,8 @@ export interface IServiceRepair {
     qty: number;
     price: number;
     total: number;
+    started_at: string;
+    finished_at: string;
 }
 
 export interface IService {

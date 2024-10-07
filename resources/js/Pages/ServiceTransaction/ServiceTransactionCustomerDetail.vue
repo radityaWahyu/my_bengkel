@@ -55,7 +55,7 @@ const totalInvoice = computed(
 );
 </script>
 <template>
-  <Head title="Form Transaksi Service" />
+  <Head title="Detail Transaksi Service" />
   <div class="min-h-screen bg-slate-100">
     <Header />
     <div class="py-6">

@@ -14,9 +14,10 @@ use App\Models\ServiceRepair;
 use App\Models\ServiceProduct;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\ServiceRequest;
-use App\Http\Resources\ServiceResource;
-use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceReceipt;
+use App\Http\Resources\ServiceResource;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceReceiptResource;
 
 class ServiceController extends Controller
@@ -128,7 +129,11 @@ class ServiceController extends Controller
         $settings = Setting::query()->get();
         foreach ($settings as $setting) {
             $name = Str::replace(' ', '_', Str::lower($setting->name));
-            $settingData += [$name => $setting->data];
+            if ($setting['type'] == 'image') {
+                $settingData += [$name => "data:image/jpeg;base64," . base64_encode(Storage::get($setting->data))];
+            } else {
+                $settingData += [$name => $setting->data];
+            }
         }
 
         return inertia('ServiceTransaction/ServiceTransactionReceipt', [
@@ -174,6 +179,43 @@ class ServiceController extends Controller
             );
 
             return redirect()->back()->with('success', 'Jenis Perbaikan berhasil di masukkan.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
+    public function startRepair(ServiceRepair $service_repair)
+    {
+
+        try {
+            DB::transaction(function () use ($service_repair) {
+                $service_repair->update([
+                    'started_at' => Carbon::now(),
+                ]);
+
+                $service = Service::find($service_repair->service_id);
+
+                if ($service->status == 'approved') {
+                    $service->update(['status' => 'process']);
+                }
+
+                return redirect()->back()->with('success', 'Perbaikan kendaraan dimulai');
+            });
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
+    }
+
+    public function finishRepair(ServiceRepair $service_repair)
+    {
+        try {
+            DB::transaction(function () use ($service_repair) {
+                $service_repair->update([
+                    'finished_at' => Carbon::now(),
+                ]);
+
+                return redirect()->back()->with('success', 'Perbaikan telah selesai');
+            });
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

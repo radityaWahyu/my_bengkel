@@ -24,6 +24,8 @@ class ServiceRepairResource extends JsonResource
             'qty' => $this->qty,
             'price' => $this->price,
             'total' => $this->total,
+            'started_at' => empty($this->started_at) ? null : $this->started_at->format('d/m/Y H:i:s'),
+            'finished_at' => empty($this->finished_at) ? null : $this->finished_at->format('d/m/Y H:i:s')
         ];
     }
 }

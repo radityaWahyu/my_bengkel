@@ -139,6 +139,8 @@ Route::prefix('backoffice')->group(function () {
             Route::post('/add-product/{service}', 'addProduct')->name('backoffice.service.add-product');
             Route::post('/add-repair/{service}', 'addRepair')->name('backoffice.service.add-repair');
             Route::post('/add-employee/{service_repair}', 'addEmployee')->name('backoffice.service.add-employee');
+            Route::post('/start_repair/{service_repair}', 'startRepair')->name('backoffice.service.start-repair');
+            Route::post('/finish_repair/{service_repair}', 'finishRepair')->name('backoffice.service.finish-repair');
             Route::post('/update-qty/{service_product}', 'updateQtyProduct')->name('backoffice.service.update-qty-product');
             Route::delete('delete-repair/{service_repair}', 'deleteServiceRepair')->name('backoffice.service.delete-repair');
             Route::delete('delete-product/{service_product}', 'deleteServiceProduct')->name('backoffice.service.delete-product');
@@ -167,6 +169,7 @@ Route::prefix('backoffice')->group(function () {
 
         Route::prefix('pembayaran')->controller(PaymentController::class)->group(function () {
             Route::get('/', 'index')->name('backoffice.payment.index');
+            Route::get('/list', 'listPayment')->name('backoffice.payment.list');
             Route::get('/{payment}', 'edit')->name('backoffice.payment.edit');
             Route::post('/', 'store')->name('backoffice.payment.store');
             Route::post('/delete_all', 'deleteAll')->name('backoffice.payment.delete-all');
@@ -174,4 +177,4 @@ Route::prefix('backoffice')->group(function () {
             Route::put('/{payment}', 'update')->name('backoffice.payment.update');
         });
     });
-});
+})->middleware('auth.backoffice');

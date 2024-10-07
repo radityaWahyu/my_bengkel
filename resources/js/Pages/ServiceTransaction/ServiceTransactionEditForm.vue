@@ -6,8 +6,14 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { Head, usePage, router, Link } from "@inertiajs/vue3";
+import { ref, computed, defineAsyncComponent } from "vue";
+import {
+  Head,
+  usePage,
+  useForm as useInertiaForm,
+  router,
+  Link,
+} from "@inertiajs/vue3";
 import { Card, CardContent, CardHeader } from "@/shadcn/ui/card";
 
 import {
@@ -18,12 +24,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/shadcn/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shadcn/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import { Input } from "@/shadcn/ui/input";
 import { Textarea } from "@/shadcn/ui/textarea";
 import { Label } from "@/shadcn/ui/label";
 import { Button } from "@/shadcn/ui/button";
 import { Skeleton } from "@/shadcn/ui/skeleton";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as zod from "zod";
 import {
   CarFront,
   Wrench,
@@ -47,22 +71,58 @@ import RepairList from "@/Components/Repair/RepairList.vue";
 import ProductList from "@/Components/Product/ProductList.vue";
 import EmployeeList from "@/Components/Employee/EmployeeList.vue";
 
+import TopAlert from "@/Components/App/TopAlert.vue";
+
 const props = defineProps<{
   service: IServiceDetail;
   edit?: boolean;
 }>();
 
+const ServiceTransactionPayment = defineAsyncComponent(
+  () => import("@/Components/ServiceTransaction/ServiceTransactionPayment.vue")
+);
+
 const repairDialogOpen = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
 const employeeDialogOpen = ref<boolean>(false);
+const paymentDialogOpen = ref<boolean>(false);
 const repairIdSelected = ref<string>("");
 
 const isLoading = ref<boolean>(false);
 const isLoadingProduct = ref<boolean>(false);
 const isLoadingInvoice = ref<boolean>(false);
+const notfinishService = ref<boolean>(false);
 
+const statusList = ref([
+  { label: "Pending", value: "pending" },
+  { label: "Selesai", value: "finish" },
+]);
 const price = usePrice();
 const page = usePage();
+
+const serviceEditForm = useInertiaForm({
+  _token: page.props.csrf_token,
+  status: "",
+  notes: "",
+});
+
+const serviceSchema = () => {
+  return toTypedSchema(
+    zod.object({
+      status: zod
+        .string({ message: "Status harus dipilih" })
+        .min(1, { message: "Status harus dipilih" }),
+      notes: zod
+        .string({ message: "Catatan harus diisi" })
+        .min(1, { message: "Catatan harus diisi" }),
+    })
+  );
+};
+
+const validationSchema = serviceSchema();
+const form = useForm({
+  validationSchema,
+});
 
 const repairsSubTotal = computed(() => {
   return props.service.repairs.reduce(
@@ -196,13 +256,58 @@ const onEmployeeSelected = (value: IUser) => {
     }
   );
 };
-const onSubmit = () => {
-  if (props.edit) {
-    alert("update");
-  } else {
-    router.put(route("backoffice.service.approved", props.service.id), {
-      total: totalInvoice.value,
+
+const onPaymentSelected = (value: any) => {};
+
+const startRepair = (repairId: string) => {
+  router.post(
+    route("backoffice.service.start-repair", repairId),
+    {},
+    {
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload({
+          only: ["service"],
+        });
+      },
+    }
+  );
+};
+
+const finishRepair = (repairId: string) => {
+  router.post(
+    route("backoffice.service.finish-repair", repairId),
+    {},
+    {
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload({
+          only: ["service"],
+        });
+      },
+    }
+  );
+};
+const updateStatusService = form.handleSubmit(() => {
+  notfinishService.value = false;
+  if (serviceEditForm.status === "finish") {
+    props.service.repairs.forEach((value) => {
+      if (value.finished_at === null) {
+        notfinishService.value = true;
+      }
     });
+
+    if (!notfinishService.value) {
+      paymentDialogOpen.value = true;
+    }
+  } else {
+  }
+});
+const onSubmit = () => {
+  if (serviceEditForm.status !== "") {
+    updateStatusService();
+  } else {
+    router.get(route("backoffice.service.index"), {}, { replace: true });
   }
 };
 </script>
@@ -219,7 +324,7 @@ const onSubmit = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div class="space-y-3 pb-4">
+        <div class="space-y-3">
           <div class="space-y-3">
             <div
               class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
@@ -244,7 +349,7 @@ const onSubmit = () => {
                   readonly
                 />
               </div>
-              <div class="space-y-1">
+              <div class="">
                 <Label>Nama Pelanggan</Label>
                 <Input
                   type="text"
@@ -345,11 +450,9 @@ const onSubmit = () => {
               <TableHeader class="border-t border-t-gray-200 shadow">
                 <TableRow>
                   <TableHead class="w-[150px]"> Nama Perbaikan </TableHead>
+                  <TableHead class="text-center">Nama Mekanik</TableHead>
+                  <TableHead v-if="edit" class="text-center">Status</TableHead>
                   <TableHead class="text-right w-32">Harga</TableHead>
-                  <TableHead>Nama Mekanik</TableHead>
-                  <template v-if="edit">
-                    <TableHead>Status</TableHead>
-                  </template>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -363,24 +466,50 @@ const onSubmit = () => {
                   <TableCell class="font-medium">
                     {{ repair.name }}
                   </TableCell>
+                  <TableCell class="capitalize text-center">
+                    <div
+                      v-if="repair.employee_name"
+                      class="bg-sky-100 py-1 w-full"
+                    >
+                      {{ repair.employee_name }}
+                    </div>
+                    <div v-else class="bg-yellow-100 px-2 py-1 w-full">
+                      Silahkan pilih mekanik
+                    </div>
+                  </TableCell>
+                  <TableCell class="text-center" v-if="edit">
+                    <div
+                      class="w-full bg-yellow-50 py-1"
+                      v-if="repair.started_at === null"
+                    >
+                      Menunggu Perbaikan
+                    </div>
+                    <div
+                      class="w-full bg-blue-50 py-1"
+                      v-if="
+                        repair.started_at !== null &&
+                        repair.finished_at === null
+                      "
+                    >
+                      Proses Perbaikan
+                    </div>
+                    <div
+                      class="w-full bg-green-50 py-1"
+                      v-if="
+                        repair.started_at !== null &&
+                        repair.finished_at !== null
+                      "
+                    >
+                      Perbaikan Selesai
+                    </div>
+                  </TableCell>
                   <TableCell class="text-right">
                     {{ price.convertToRupiah(repair.price) }}
                   </TableCell>
-                  <TableCell class="capitalize">
-                    <span
-                      v-if="repair.employee_name"
-                      class="bg-sky-100 px-2 py-1"
-                      >{{ repair.employee_name }}</span
-                    >
-                    <span v-else class="bg-yellow-100 px-2 py-1">
-                      Silahkan pilih mekanik
-                    </span>
-                  </TableCell>
-                  <TableCell class="text-right"> </TableCell>
-                  <TableCell class="text-right"> </TableCell>
 
-                  <TableCell class="flex items-center gap-1">
+                  <TableCell class="flex items-center justify-center gap-1">
                     <Button
+                      v-if="repair.started_at === null"
                       size="sm"
                       variant="destructive"
                       @click="deleteServiceRepair(repair.id)"
@@ -389,6 +518,7 @@ const onSubmit = () => {
                       <X class="size-3" />
                     </Button>
                     <Button
+                      v-if="repair.started_at === null"
                       size="sm"
                       variant="default"
                       :disabled="isLoadingInvoice"
@@ -401,15 +531,24 @@ const onSubmit = () => {
                         size="sm"
                         variant="default"
                         :disabled="isLoadingInvoice"
-                        @click=""
+                        @click="startRepair(repair.id)"
+                        v-if="
+                          repair.started_at === null &&
+                          repair.finished_at === null
+                        "
                       >
                         <span>Proses</span>
                       </Button>
                       <Button
+                        v-if="
+                          repair.started_at !== null &&
+                          repair.finished_at === null
+                        "
                         size="sm"
                         variant="default"
                         :disabled="isLoadingInvoice"
-                        @click=""
+                        @click="finishRepair(repair.id)"
+                        class="w-full"
                       >
                         <span>Selesai</span>
                       </Button>
@@ -417,15 +556,13 @@ const onSubmit = () => {
                   </TableCell>
                 </TableRow>
                 <TableRow class="bg-sky-50 text-blue-700">
-                  <TableCell class="text-right font-semibold py-2">
+                  <TableCell class="text-right font-semibold py-2" colspan="3">
                     Sub Total
                   </TableCell>
                   <TableCell class="font-semibold text-right">
                     {{ price.convertToRupiah(repairsSubTotal) }}
                   </TableCell>
-                  <template v-if="edit">
-                    <TableCell></TableCell>
-                  </template>
+                  <TableCell></TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -555,25 +692,104 @@ const onSubmit = () => {
             </Table>
           </div>
 
+          <TopAlert
+            v-model="notfinishService"
+            messages="Proses perbaikan masih belum selesai, silahkan di selesaiakn terlebih dahulu."
+            type="error"
+            class="flex-shrink w-full"
+          />
           <div
-            class="flex items-center justify-between w-full py-4 px-4 bg-sky-50"
+            class="flex items-start justify-between w-full py-4 px-4 bg-sky-50"
           >
-            <div class="space-x-2">
-              <Link
-                :href="route('backoffice.service.index')"
-                as="button"
-                type="button"
-                :disabled="isLoadingInvoice"
-                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-              >
-                Batal
-              </Link>
-              <Button @click="onSubmit" :disabled="isLoadingInvoice">
-                <span v-if="isLoadingInvoice">Meyimpan data...</span>
-                <span v-else>Simpan data</span>
-              </Button>
+            <div class="space-y-2 grow h-auto relative">
+              <FormField v-slot="{ componentField }" name="status">
+                <FormItem>
+                  <FormLabel
+                    :class="{
+                      'text-red-500': serviceEditForm.errors.status,
+                    }"
+                  >
+                    <FormRequiredLabel>Status Perbaikan</FormRequiredLabel>
+                  </FormLabel>
+                  <Select
+                    v-bind="componentField"
+                    v-model="serviceEditForm.status"
+                  >
+                    <FormControl>
+                      <SelectTrigger class="bg-white">
+                        <SelectValue placeholder="Pilih status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem
+                          :value="status.value"
+                          v-for="(status, index) in statusList"
+                          :key="index"
+                        >
+                          {{ status.label }}
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <div
+                    class="text-xs text-red-500 font-medium"
+                    v-if="serviceEditForm.errors.status"
+                  >
+                    {{ serviceEditForm.errors.status }}
+                  </div>
+                  <FormMessage v-else />
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="notes">
+                <FormItem>
+                  <FormLabel
+                    :class="{
+                      'text-red-500': serviceEditForm.errors.notes,
+                    }"
+                  >
+                    <FormRequiredLabel>Catatan</FormRequiredLabel>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      cols="6"
+                      v-bind="componentField"
+                      v-model="serviceEditForm.notes"
+                      :class="{
+                        'border border-red-500': serviceEditForm.errors.notes,
+                      }"
+                      class="bg-white"
+                      :disabled="serviceEditForm.processing"
+                    />
+                  </FormControl>
+                  <div
+                    class="text-xs text-red-500 font-medium"
+                    v-if="serviceEditForm.errors.notes"
+                  >
+                    {{ serviceEditForm.errors.notes }}
+                  </div>
+                  <FormMessage v-else />
+                </FormItem>
+              </FormField>
+              <div class="space-x-2">
+                <Link
+                  :href="route('backoffice.service.index')"
+                  as="button"
+                  type="button"
+                  :disabled="isLoadingInvoice"
+                  class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                >
+                  Batal
+                </Link>
+                <Button @click="onSubmit" :disabled="isLoadingInvoice">
+                  <span v-if="serviceEditForm.status === 'finish'"
+                    >Selesaikan Transaksi</span
+                  >
+                  <span v-else>Simpan data</span>
+                </Button>
+              </div>
             </div>
-            <div class="text-blue-500">
+            <div class="text-blue-500 text-right grow">
               <h2 class="text-lg">Total Invoice Service</h2>
               <h2 class="text-3xl font-semibold">
                 {{ price.convertToRupiah(totalInvoice) }}
@@ -597,6 +813,12 @@ const onSubmit = () => {
       v-model="employeeDialogOpen"
       @selected="onEmployeeSelected"
       role="mekanik"
+    />
+    <ServiceTransactionPayment
+      :total="totalInvoice"
+      v-if="paymentDialogOpen"
+      @selected="onPaymentSelected"
+      @closed="paymentDialogOpen = false"
     />
   </div>
 </template>
