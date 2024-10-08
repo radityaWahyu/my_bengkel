@@ -24,6 +24,7 @@ class ServiceResource extends JsonResource
             'customer_name' => $this->vehicle->customer->name,
             'status' => $this->status,
             'total' => $this->total,
+            'extra_pay' => $this->extra_pay,
             'created_at' => $this->created_at->format('d/m/Y')
         ];
     }

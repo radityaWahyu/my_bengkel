@@ -16,7 +16,7 @@ class AuthBackoffice
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
+        if (Auth::guard('web')->check()) {
 
             $response = $next($request);
 

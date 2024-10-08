@@ -146,6 +146,7 @@ export interface IService {
     customer_name: string;
     status: string;
     total: number;
+    extra_pay: number;
     created_at: string;
 }
 
@@ -168,4 +169,13 @@ export interface ISettingData {
     nama_kontak: string;
     telepon_kontak: string;
     whatsapp_kontak: string;
+}
+
+export interface ICustomerPay {
+    payment_id: string;
+    extra_pay: number;
+    paid: number;
+    total: number;
+    total_payment: number;
+    payment_charge: number;
 }

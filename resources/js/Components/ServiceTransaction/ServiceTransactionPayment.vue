@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
-import { X, Search } from "lucide-vue-next";
+import { HandCoins } from "lucide-vue-next";
 import {
   FormControl,
   FormField,
@@ -33,7 +33,7 @@ import * as zod from "zod";
 import { usePage, useForm as useInertiaForm } from "@inertiajs/vue3";
 import { usePrice } from "@/Plugin/useNumber";
 import { useHttpService } from "@/Services/useHttpServices";
-import { IPayment } from "@/types/response";
+import { ICustomerPay, IPayment } from "@/types/response";
 
 const httpService = useHttpService();
 const paymentList = ref<IPayment[]>();
@@ -47,7 +47,7 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-  (e: "selected", value: any): void;
+  (e: "selected", value: ICustomerPay): void;
   (e: "closed", value: boolean): void;
 }>();
 
@@ -92,11 +92,22 @@ const chargePayment = computed(() => {
 const getPayment = async () => {
   const response = await httpService.get(route("backoffice.payment.list"));
   paymentList.value = response.data;
-  console.log(response);
+  // console.log(response);
 };
 
 onMounted(() => {
   getPayment();
+});
+
+const onSubmit = form.handleSubmit(() => {
+  emits("selected", {
+    payment_id: paymentSelected.value,
+    extra_pay: extraPay.value,
+    paid: customerPay.value,
+    total: props.total,
+    payment_charge: chargePayment.value,
+    total_payment: totalPayment.value,
+  });
 });
 </script>
 
@@ -104,20 +115,21 @@ onMounted(() => {
   <Sheet default-open>
     <SheetContent @interact-outside="(e) => e.preventDefault()">
       <SheetHeader>
-        <SheetTitle class="py-4 text-muted-foreground"
-          >Form Pembayaran</SheetTitle
-        >
+        <SheetTitle class="py-4 text-muted-foreground flex items-center gap-2">
+          <HandCoins class="size-6" />
+          <span>Form Pembayaran</span>
+        </SheetTitle>
       </SheetHeader>
       <div class="space-y-4">
         <FormField v-slot="{ componentField }" name="payment_type">
           <FormItem>
             <FormLabel>
-              <FormRequiredLabel>Status Perbaikan</FormRequiredLabel>
+              <FormRequiredLabel>Jenis Bayar</FormRequiredLabel>
             </FormLabel>
             <Select v-bind="componentField" v-model="paymentSelected">
               <FormControl>
                 <SelectTrigger class="bg-white">
-                  <SelectValue placeholder="Pilih status" />
+                  <SelectValue placeholder="pilih jenis" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -132,7 +144,6 @@ onMounted(() => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-
             <FormMessage />
           </FormItem>
         </FormField>
@@ -192,7 +203,7 @@ onMounted(() => {
             type="button"
             variant="default"
             size="lg"
-            @click=""
+            @click="onSubmit"
             class="w-full"
           >
             Bayar Sekarang

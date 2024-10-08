@@ -207,7 +207,7 @@ const columns: ColumnDef<IService>[] = [
       h(
         "div",
         { class: "capitalize font-semibold text-right" },
-        price.convertToRupiah(row.original.total)
+        price.convertToRupiah(row.original.total + row.original.extra_pay)
       ),
   },
   {

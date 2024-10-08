@@ -65,6 +65,7 @@ import type {
   IServiceDetail,
   IUser,
   IServiceProduct,
+  ICustomerPay,
 } from "@/types/response";
 
 import RepairList from "@/Components/Repair/RepairList.vue";
@@ -257,7 +258,19 @@ const onEmployeeSelected = (value: IUser) => {
   );
 };
 
-const onPaymentSelected = (value: any) => {};
+const onPaymentSelected = (payment: ICustomerPay) => {
+  serviceEditForm
+    .transform((data) => ({
+      ...data,
+      payment_id: payment.payment_id,
+      extra_pay: payment.extra_pay,
+      paid: payment.paid,
+    }))
+    .put(route("backoffice.service.update", props.service.id), {
+      onError: (error) => console.log(error),
+      onSuccess: () => alert("berhasil di update"),
+    });
+};
 
 const startRepair = (repairId: string) => {
   router.post(
@@ -301,6 +314,9 @@ const updateStatusService = form.handleSubmit(() => {
       paymentDialogOpen.value = true;
     }
   } else {
+    serviceEditForm.put(route("backoffice.service.update", props.service.id), {
+      onError: (error) => console.log(error),
+    });
   }
 });
 const onSubmit = () => {

@@ -19,9 +19,11 @@ use App\Http\Resources\ServiceResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceReceiptResource;
+use App\Traits\Settings;
 
 class ServiceController extends Controller
 {
+    use Settings;
     /**
      * Display a listing of the resource.
      */
@@ -67,7 +69,6 @@ class ServiceController extends Controller
      */
     public function create()
     {
-
         return inertia('ServiceTransaction/ServiceTransactionForm');
     }
 
@@ -101,6 +102,37 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function update(Request $request, Service $service)
+    {
+
+        switch ($request->status) {
+            case 'finish':
+                $service->update([
+                    'payment_id' => $request->payment_id,
+                    'extra_pay' => $request->extra_pay,
+                    'paid' => $request->paid,
+                    'status' => 'finish',
+                    'notes' => $request->notes,
+                ]);
+
+                return redirect()->back()->with('success', 'Transaksi Service telah telah selesai di bayar');
+                break;
+
+            case 'pending':
+                $service->update([
+                    'status' => 'pending',
+                    'notes' => $request->notes,
+                ]);
+
+                return to_route('backoffice.service.index')->with('success', 'Transaksi berhasil di simpan');
+
+                break;
+            default:
+                return to_route('backoffice.service.index');
+                break;
+        }
+    }
+
     public function approvedService(Request $request, Service $service)
     {
         try {
@@ -125,20 +157,18 @@ class ServiceController extends Controller
     {
         $service->with(['vehicle']);
 
-        $settingData = [];
-        $settings = Setting::query()->get();
-        foreach ($settings as $setting) {
-            $name = Str::replace(' ', '_', Str::lower($setting->name));
-            if ($setting['type'] == 'image') {
-                $settingData += [$name => "data:image/jpeg;base64," . base64_encode(Storage::get($setting->data))];
-            } else {
-                $settingData += [$name => $setting->data];
-            }
-        }
-
         return inertia('ServiceTransaction/ServiceTransactionReceipt', [
-            'setting' => fn() => $settingData,
+            'setting' => fn() => $this->getSetting(),
             'service' => fn() => new ServiceReceiptResource($service)
+        ]);
+    }
+
+    public function printInvoice(Service $service)
+    {
+
+        return inertia('ServiceTransaction/ServiceTransactionInvoice', [
+            'setting' => fn() => $this->getSetting(),
+            'service' => fn() => new ServiceDetailResource($service)
         ]);
     }
 

@@ -127,12 +127,10 @@ const serviceCheckingVehicle = () => {
       </svg>
       <FilePenLine class="size-4 text-blue-500" v-else />
     </Button>
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      @click="openConfirmDialog = true"
-      :disabled="deleteForm.processing"
+    <a
+      :href="route('backoffice.service.invoice', props.service.id)"
+      target="_blank"
+      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9"
     >
       <svg
         class="size-4 animate-spin"
@@ -159,7 +157,7 @@ const serviceCheckingVehicle = () => {
         />
       </svg>
       <Printer class="size-4 text-blue-500" v-else />
-    </Button>
+    </a>
     <Button
       type="button"
       variant="outline"
