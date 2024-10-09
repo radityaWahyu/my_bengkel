@@ -22,9 +22,12 @@ class ServiceDetailResource extends JsonResource
             'vehicle' => new VehicleResource($this->vehicle),
             'status' => $this->status,
             'total' => $this->total,
+            'extra_pay' => $this->extra_pay,
             'products' => ServiceProductResource::collection($this->service_products),
             'repairs' => ServiceRepairResource::collection($this->service_repairs),
             'description' => $this->description,
+            'notes' => $this->notes,
+            'paid' => $this->paid,
             'created_at' => $this->created_at->format('d/m/Y')
         ];
     }

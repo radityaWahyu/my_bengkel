@@ -113,6 +113,7 @@ class ServiceController extends Controller
                     'paid' => $request->paid,
                     'status' => 'finish',
                     'notes' => $request->notes,
+                    'finished_date' => Carbon::now(),
                 ]);
 
                 return redirect()->back()->with('success', 'Transaksi Service telah telah selesai di bayar');

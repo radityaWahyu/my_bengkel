@@ -156,8 +156,11 @@ export interface IServiceDetail {
     vehicle: IVehicle;
     status: string;
     total: number;
+    extra_pay: number;
+    paid: number;
     created_at: string;
     description: string;
+    notes: string;
     products: IServiceProduct[];
     repairs: IServiceRepair[];
 }

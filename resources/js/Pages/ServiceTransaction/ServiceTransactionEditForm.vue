@@ -1,12 +1,13 @@
 <script lang="ts">
 import Backoffice from "@/Layouts/Backoffice.vue";
+import { readonly } from "vue";
 
 export default {
   layout: Backoffice,
 };
 </script>
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from "vue";
+import { ref, computed, defineAsyncComponent, watch } from "vue";
 import {
   Head,
   usePage,
@@ -71,7 +72,7 @@ import type {
 import RepairList from "@/Components/Repair/RepairList.vue";
 import ProductList from "@/Components/Product/ProductList.vue";
 import EmployeeList from "@/Components/Employee/EmployeeList.vue";
-
+import ServiceTransactionFinishDialog from "@/Components/ServiceTransaction/ServiceTransactionFinishDialog.vue";
 import TopAlert from "@/Components/App/TopAlert.vue";
 
 const props = defineProps<{
@@ -87,6 +88,7 @@ const repairDialogOpen = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
 const employeeDialogOpen = ref<boolean>(false);
 const paymentDialogOpen = ref<boolean>(false);
+const finishDialogOpen = ref<boolean>(true);
 const repairIdSelected = ref<string>("");
 
 const isLoading = ref<boolean>(false);
@@ -108,16 +110,18 @@ const serviceEditForm = useInertiaForm({
 });
 
 const serviceSchema = () => {
-  return toTypedSchema(
-    zod.object({
-      status: zod
-        .string({ message: "Status harus dipilih" })
-        .min(1, { message: "Status harus dipilih" }),
-      notes: zod
-        .string({ message: "Catatan harus diisi" })
-        .min(1, { message: "Catatan harus diisi" }),
-    })
-  );
+  if (props.service.status !== "finish") {
+    return toTypedSchema(
+      zod.object({
+        status: zod
+          .string({ message: "Status harus dipilih" })
+          .min(1, { message: "Status harus dipilih" }),
+        notes: zod
+          .string({ message: "Catatan harus diisi" })
+          .min(1, { message: "Catatan harus diisi" }),
+      })
+    );
+  }
 };
 
 const validationSchema = serviceSchema();
@@ -217,7 +221,7 @@ const onProductSelected = (value: IProduct) => {
 };
 
 const updateQtyProduct = (serviceProduct: IServiceProduct) => {
-  // alert("update");
+  if (props.service.status === "finish") return true;
   router.post(
     route("backoffice.service.update-qty-product", serviceProduct.id),
     {
@@ -326,6 +330,17 @@ const onSubmit = () => {
     router.get(route("backoffice.service.index"), {}, { replace: true });
   }
 };
+
+watch(
+  () => props.service.status,
+  (status) => {
+    if (status === "finish") {
+      serviceEditForm.status = status;
+      serviceEditForm.notes = props.service.notes;
+    }
+  },
+  { immediate: true }
+);
 </script>
 <template>
   <Head title="Form Transaksi Service" />
@@ -456,6 +471,7 @@ const onSubmit = () => {
                 class="text-primary space-x-2"
                 @click="repairDialogOpen = true"
                 :disabled="isLoading || isLoadingInvoice"
+                v-if="service.status !== 'finish'"
               >
                 <PlusSquare class="size-5" />
                 <span>Pilih Perbaikan</span>
@@ -632,6 +648,7 @@ const onSubmit = () => {
                 class="text-primary space-x-2"
                 :disabled="isLoadingInvoice"
                 @click="productDialogOpen = true"
+                v-if="service.status !== 'finish'"
               >
                 <PlusSquare class="size-5" />
                 <span>Pilih Spare Part</span>
@@ -664,7 +681,7 @@ const onSubmit = () => {
                       v-model="product.qty"
                       class="text-center"
                       @change="updateQtyProduct(product)"
-                      :disabled="isLoadingInvoice"
+                      :disabled="service.status !== 'finish'"
                     />
                   </TableCell>
                   <TableCell class="text-right">
@@ -676,6 +693,7 @@ const onSubmit = () => {
                       variant="destructive"
                       @click="deleteServiceProduct(product.id)"
                       :disabled="isLoadingInvoice"
+                      v-if="service.status !== 'finish'"
                     >
                       <X class="size-3" />
                     </Button>
@@ -730,6 +748,7 @@ const onSubmit = () => {
                   <Select
                     v-bind="componentField"
                     v-model="serviceEditForm.status"
+                    v-if="service.status !== 'finish'"
                   >
                     <FormControl>
                       <SelectTrigger class="bg-white">
@@ -742,12 +761,16 @@ const onSubmit = () => {
                           :value="status.value"
                           v-for="(status, index) in statusList"
                           :key="index"
+                          :disabled="service.status !== 'finish'"
                         >
                           {{ status.label }}
                         </SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  <p class="px-2 py-1 bg-green-200 text-sm" v-else>
+                    Transaksi Selesai
+                  </p>
                   <div
                     class="text-xs text-red-500 font-medium"
                     v-if="serviceEditForm.errors.status"
@@ -775,7 +798,7 @@ const onSubmit = () => {
                         'border border-red-500': serviceEditForm.errors.notes,
                       }"
                       class="bg-white"
-                      :disabled="serviceEditForm.processing"
+                      :readonly="service.status === 'finish'"
                     />
                   </FormControl>
                   <div
@@ -795,12 +818,17 @@ const onSubmit = () => {
                   :disabled="isLoadingInvoice"
                   class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
                 >
-                  Batal
+                  <span v-if="service.status === 'finish'">Kembali</span>
+                  <span v-else>Batal</span>
                 </Link>
-                <Button @click="onSubmit" :disabled="isLoadingInvoice">
-                  <span v-if="serviceEditForm.status === 'finish'"
-                    >Selesaikan Transaksi</span
-                  >
+                <Button
+                  @click="onSubmit"
+                  :disabled="isLoadingInvoice"
+                  v-if="service.status !== 'finish'"
+                >
+                  <span v-if="serviceEditForm.status === 'finish'">
+                    Selesaikan Transaksi
+                  </span>
                   <span v-else>Simpan data</span>
                 </Button>
               </div>
@@ -836,5 +864,6 @@ const onSubmit = () => {
       @selected="onPaymentSelected"
       @closed="paymentDialogOpen = false"
     />
+    <ServiceTransactionFinishDialog v-if="finishDialogOpen" />
   </div>
 </template>
