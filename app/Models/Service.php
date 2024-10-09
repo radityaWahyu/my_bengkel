@@ -39,4 +39,9 @@ class Service extends Model
     {
         return $this->morphMany(Jurnal::class, 'transactable');
     }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
+    }
 }

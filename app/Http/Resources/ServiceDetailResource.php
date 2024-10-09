@@ -22,6 +22,7 @@ class ServiceDetailResource extends JsonResource
             'vehicle' => new VehicleResource($this->vehicle),
             'status' => $this->status,
             'total' => $this->total,
+            'payment_type' => empty($this->payment_id) ? null : $this->payment->name,
             'extra_pay' => $this->extra_pay,
             'products' => ServiceProductResource::collection($this->service_products),
             'repairs' => ServiceRepairResource::collection($this->service_repairs),

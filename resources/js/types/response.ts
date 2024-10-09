@@ -156,6 +156,7 @@ export interface IServiceDetail {
     vehicle: IVehicle;
     status: string;
     total: number;
+    payment_type: string;
     extra_pay: number;
     paid: number;
     created_at: string;

@@ -52,9 +52,7 @@ const payCharge = computed(() => props.service.paid - props.service.total);
             </div>
             <div class="bg-gray-600 text-gray-50">
               <p class="px-2 py-1 text-xs">Nama Pelanggan</p>
-              <h4
-                class="bg-gray-100 text-gray-600 px-2 py-1 text-sm capitalize"
-              >
+              <h4 class="bg-gray-100 text-gray-600 px-2 py-1 text-sm capitalize">
                 {{ service.vehicle.customer }}
               </h4>
             </div>
@@ -69,9 +67,7 @@ const payCharge = computed(() => props.service.paid - props.service.total);
             <div class="bg-gray-600 text-gray-50">
               <p class="px-2 py-1 text-xs">Tipe Mesin</p>
               <h4 class="bg-gray-100 text-gray-600 px-2 py-1 text-sm">
-                {{
-                  service.vehicle.engine_type === "petrol" ? "Bensin" : "Diesel"
-                }}
+                {{ service.vehicle.engine_type === "petrol" ? "Bensin" : "Diesel" }}
               </h4>
             </div>
             <div class="bg-gray-600 text-gray-50">
@@ -150,15 +146,17 @@ const payCharge = computed(() => props.service.paid - props.service.total);
               <TableRow class="border border-gray-500 divide-x divide-gray-500">
                 <TableCell colspan="4" class="text-right">
                   Biaya Ekstra
+                  <p class="text-xs">
+                    *Pembayaran dengan meggunakan
+                    <strong>{{ service.payment_type }}</strong>
+                  </p>
                 </TableCell>
                 <TableCell class="text-right">{{
                   price.convertToRupiah(service.extra_pay)
                 }}</TableCell>
               </TableRow>
               <TableRow class="border border-gray-500 divide-x divide-gray-500">
-                <TableCell colspan="4" class="text-right">
-                  Total Invoice
-                </TableCell>
+                <TableCell colspan="4" class="text-right"> Total Invoice </TableCell>
                 <TableCell class="text-right">{{
                   price.convertToRupiah(service.total + service.extra_pay)
                 }}</TableCell>
@@ -170,9 +168,7 @@ const payCharge = computed(() => props.service.paid - props.service.total);
                 }}</TableCell>
               </TableRow>
               <TableRow class="border border-gray-500 divide-x divide-gray-500">
-                <TableCell colspan="4" class="text-right">
-                  Kembalian
-                </TableCell>
+                <TableCell colspan="4" class="text-right"> Kembalian </TableCell>
                 <TableCell class="text-right">{{
                   price.convertToRupiah(payCharge)
                 }}</TableCell>
@@ -188,8 +184,8 @@ const payCharge = computed(() => props.service.paid - props.service.total);
             </p>
             <p class="text-xs">
               <strong class="block capitalize">Keterangan :</strong>
-              Garansi service diberikan selama 1 minggu setelah perbaikan,
-              dengan cara menunjukan lembar invoice ini.
+              Garansi service diberikan selama 1 minggu setelah perbaikan, dengan cara
+              menunjukan lembar invoice ini.
             </p>
           </div>
           <div class="grow text-sm text-center">
