@@ -55,7 +55,12 @@ class ServiceController extends Controller
                 return $query->orderBy($request->sortName, $request->sortType);
             })
             ->when($request->has('search'), function ($query) use ($request) {
-                return $query->where('name', 'like', '%' . $request->search . '%');
+                return $query->whereHas('vehicle', function ($query) use ($request) {
+                    return $query->where('plate_number', 'like', '%' . $request->search . '%')
+                        ->orWhereHas('customer', function ($query) use ($request) {
+                            return $query->where('name', 'like', '%' . $request->search . '%');
+                        });
+                });
             })
             ->latest()->paginate($perPage);
 
