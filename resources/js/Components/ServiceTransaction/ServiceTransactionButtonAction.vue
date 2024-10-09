@@ -37,11 +37,7 @@ const serviceCheckingVehicle = () => {
       v-if="service.status === 'waiting'"
       @click="serviceCheckingVehicle"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"
@@ -64,15 +60,12 @@ const serviceCheckingVehicle = () => {
       <span v-else>Cek Kendaraan</span>
     </Button>
     <a
+      v-if="service.status !== 'waiting'"
       :href="route('backoffice.service.receipt', props.service.id)"
       target="_blank"
       class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"
@@ -95,17 +88,14 @@ const serviceCheckingVehicle = () => {
       <QrCode class="size-4 text-blue-500" v-else />
     </a>
     <Button
+      v-if="service.status !== 'waiting'"
       type="button"
       variant="outline"
       size="icon"
       @click="() => router.get(route('backoffice.service.edit', service.id))"
       :disabled="deleteForm.processing"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"
@@ -131,12 +121,9 @@ const serviceCheckingVehicle = () => {
       :href="route('backoffice.service.invoice', props.service.id)"
       target="_blank"
       class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9"
+      v-if="service.status === 'finish'"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"
@@ -165,11 +152,7 @@ const serviceCheckingVehicle = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"

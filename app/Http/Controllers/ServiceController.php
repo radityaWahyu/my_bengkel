@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 
+use App\Models\Jurnal;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Traits\Settings;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ServiceRepair;
@@ -19,7 +21,6 @@ use App\Http\Resources\ServiceResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ServiceDetailResource;
 use App\Http\Resources\ServiceReceiptResource;
-use App\Traits\Settings;
 
 class ServiceController extends Controller
 {
@@ -104,33 +105,57 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
+        try {
+            switch ($request->status) {
+                case 'finish':
 
-        switch ($request->status) {
-            case 'finish':
-                $service->update([
-                    'payment_id' => $request->payment_id,
-                    'extra_pay' => $request->extra_pay,
-                    'paid' => $request->paid,
-                    'status' => 'finish',
-                    'notes' => $request->notes,
-                    'finished_date' => Carbon::now(),
-                ]);
+                    DB::transaction(function () use ($service, $request) {
+                        $jurnal_count = Jurnal::whereDate('created_at', Carbon::today())->count();
+                        $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
 
-                return redirect()->back()->with('success', 'Transaksi Service telah telah selesai di bayar');
-                break;
 
-            case 'pending':
-                $service->update([
-                    'status' => 'pending',
-                    'notes' => $request->notes,
-                ]);
 
-                return to_route('backoffice.service.index')->with('success', 'Transaksi berhasil di simpan');
+                        $service->update([
+                            'payment_id' => $request->payment_id,
+                            'extra_pay' => $request->extra_pay,
+                            'paid' => $request->paid,
+                            'status' => 'finish',
+                            'notes' => $request->notes,
+                            'finished_date' => Carbon::now(),
+                        ]);
 
-                break;
-            default:
-                return to_route('backoffice.service.index');
-                break;
+                        $service->jurnals()->create([
+                            'jurnal_code' => $jurnal_code,
+                            'income' => $service->total + $request->extra_pay,
+                            'expense' => 0,
+                            'description' => 'Pembayaran Transaksi service dengan kode' . $service->service_code . 'oleh pelanggan' . $service->vehicle->customer->name,
+                            'transaction_date' => $service->created_at,
+                            'user_id' => $request->user()->id,
+                        ]);
+
+
+                        return redirect()->back()->with('success', 'Transaksi Service telah telah selesai di bayar');
+                    });
+
+                    break;
+
+                case 'pending':
+                    $service->update([
+                        'status' => 'pending',
+                        'notes' => $request->notes,
+                    ]);
+
+                    return to_route('backoffice.service.index')->with('success', 'Transaksi berhasil di simpan');
+
+                    break;
+                default:
+                    return to_route('backoffice.service.index');
+                    break;
+            }
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
         }
     }
 
