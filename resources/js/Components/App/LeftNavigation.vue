@@ -199,7 +199,14 @@ onMounted(() => {
                 >
                   Service Kendaraan
                 </SubMenuNavigation>
-                <SubMenuNavigation> Penjualan </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/transaksi/penjualan', 1)
+                  "
+                  :to="route('backoffice.sale.index')"
+                >
+                  Penjualan
+                </SubMenuNavigation>
                 <SubMenuNavigation> Pembelian </SubMenuNavigation>
               </div>
             </CollapsibleContent>

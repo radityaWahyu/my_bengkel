@@ -6,7 +6,7 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { reactive, ref, computed } from "vue";
+import { reactive, ref, computed, defineAsyncComponent } from "vue";
 import {
   Head,
   usePage,
@@ -38,7 +38,11 @@ import {
 } from "lucide-vue-next";
 
 import type { IVehicle } from "@/types/response";
-import VehicleList from "@/Components/Vehicle/VehicleList.vue";
+// import VehicleList from "@/Components/Vehicle/VehicleList.vue";
+
+const VehicleList = defineAsyncComponent(
+  () => import("@/Components/Vehicle/VehicleList.vue")
+);
 
 const vehicle = reactive({
   id: "",
@@ -288,6 +292,6 @@ const onSubmit = form.handleSubmit(() => {
         </form>
       </CardContent>
     </Card>
-    <VehicleList v-model="vehicleDialogOpen" @selected="onVehicleSelected" />
+    <VehicleList v-if="vehicleDialogOpen" @selected="onVehicleSelected" />
   </div>
 </template>

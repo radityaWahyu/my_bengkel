@@ -183,3 +183,15 @@ export interface ICustomerPay {
     total_payment: number;
     payment_charge: number;
 }
+
+export interface ISale {
+    id: string;
+    sale_code: string;
+    payment_type: string;
+    product_count: number;
+    status: string;
+    total: number;
+    extra_pay: number;
+    created_at: string;
+}
+

@@ -17,7 +17,7 @@ import type { ColumnDef } from "@tanstack/vue-table";
 import ProductNameBox from "./ProductNameBox.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 
-const formOpen = defineModel<boolean>();
+const formOpen = ref<boolean>(true);
 
 const emits = defineEmits<{
   (e: "selected", value: IProduct): void;
@@ -37,7 +37,11 @@ const columns: ColumnDef<IProduct>[] = [
     accessorKey: "product",
     enableResizing: false,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "Daftar Barang"),
+      h(
+        "div",
+        { class: "gap-2 flex items-center font-semibold" },
+        "Daftar Barang"
+      ),
     cell: ({ row }) =>
       h(ProductNameBox, {
         product: row.original,
@@ -55,12 +59,15 @@ const getProducts = async (page: number) => {
   if (search.value !== null) Object.assign(url.value, { search });
 
   isLoading.value = true;
-  const response = await httpService.get(route("backoffice.product.list", url.value));
+  const response = await httpService.get(
+    route("backoffice.product.list", url.value)
+  );
   products.value = response.data;
   pagination.value = response.meta;
   isLoading.value = false;
 };
 const onClose = () => {
+  formOpen.value = false;
   search.value = "";
   emits("closed", true);
 };
@@ -101,6 +108,7 @@ watchDebounced(
       </SheetHeader>
       <div>
         <DataTableDialog
+          v-if="products && pagination"
           class="py-4"
           ref="brandTable"
           :columns="columns"
@@ -118,7 +126,9 @@ watchDebounced(
                 placeholder="Cari data..."
                 class="pl-10 w-full bg-white"
               />
-              <span class="absolute inset-y-0 flex items-center justify-center px-2">
+              <span
+                class="absolute inset-y-0 flex items-center justify-center px-2"
+              >
                 <Search class="size-4 text-muted-foreground" />
               </span>
               <span
@@ -132,7 +142,13 @@ watchDebounced(
         </DataTableDialog>
       </div>
       <SheetFooter>
-        <Button type="button" variant="default" size="lg" @click="onClose" class="w-full">
+        <Button
+          type="button"
+          variant="default"
+          size="lg"
+          @click="onClose"
+          class="w-full"
+        >
           Tutup
         </Button>
       </SheetFooter>

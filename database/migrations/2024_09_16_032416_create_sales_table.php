@@ -1,8 +1,5 @@
 <?php
 
-use App\Models\User;
-use App\Models\Payment;
-use App\Models\Customer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -16,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('sale_code', 50);
+            $table->string('sale_code', 50)->nullable();
             $table->foreignUuid('user_id')->nullable();
-            $table->foreignUuid('customer_id');
+            $table->foreignUuid('customer_id')->nullable();
             $table->foreignUuid('payment_id')->nullable();
             $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
             $table->foreign('customer_id')->on('customers')->references('id')->onDelete('restrict');

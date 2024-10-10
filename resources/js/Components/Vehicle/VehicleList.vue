@@ -17,7 +17,7 @@ import type { ColumnDef } from "@tanstack/vue-table";
 import VehicleNameBox from "./VehicleNameBox.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 
-const formOpen = defineModel<boolean>();
+const formOpen = ref<boolean>(true);
 
 const emits = defineEmits<{
   (e: "selected", value: IVehicle): void;
@@ -96,6 +96,7 @@ watchDebounced(
       </SheetHeader>
       <div>
         <DataTableDialog
+          v-if="vehicles !== undefined && pagination !== undefined"
           class="py-4"
           ref="brandTable"
           :columns="columns"

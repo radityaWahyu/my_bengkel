@@ -17,7 +17,7 @@ import type { ColumnDef } from "@tanstack/vue-table";
 import EmployeeListNameBox from "./EmployeeListNameBox.vue";
 import { useHttpService } from "@/Services/useHttpServices";
 
-const formOpen = defineModel<boolean>();
+const formOpen = ref<boolean>(true);
 
 const props = defineProps<{
   role: "mekanik" | "opeartor";
@@ -41,7 +41,11 @@ const columns: ColumnDef<IUser>[] = [
     accessorKey: "repair",
     enableResizing: false,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "Daftar Mekanik"),
+      h(
+        "div",
+        { class: "gap-2 flex items-center font-semibold" },
+        "Daftar Mekanik"
+      ),
     cell: ({ row }) =>
       h(EmployeeListNameBox, {
         user: row.original,
@@ -58,7 +62,9 @@ const getEmployees = async (page: number) => {
 
   if (search.value !== null) Object.assign(url.value, { search });
 
-  const response = await httpService.get(route("backoffice.employee.list", url.value));
+  const response = await httpService.get(
+    route("backoffice.employee.list", url.value)
+  );
   employees.value = response.data;
   pagination.value = response.meta;
 };
@@ -95,6 +101,7 @@ watchDebounced(
       </SheetHeader>
       <div>
         <DataTableDialog
+          v-if="employees && pagination"
           class="py-4"
           :columns="columns"
           :data="employees"
@@ -111,7 +118,9 @@ watchDebounced(
                 placeholder="Cari data..."
                 class="pl-10 w-full bg-white"
               />
-              <span class="absolute inset-y-0 flex items-center justify-center px-2">
+              <span
+                class="absolute inset-y-0 flex items-center justify-center px-2"
+              >
                 <Search class="size-4 text-muted-foreground" />
               </span>
               <span
@@ -125,7 +134,13 @@ watchDebounced(
         </DataTableDialog>
       </div>
       <SheetFooter>
-        <Button type="button" variant="default" size="lg" @click="onClose" class="w-full">
+        <Button
+          type="button"
+          variant="default"
+          size="lg"
+          @click="onClose"
+          class="w-full"
+        >
           Tutup
         </Button>
       </SheetFooter>

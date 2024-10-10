@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RackController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\RepairController;
@@ -157,6 +158,15 @@ Route::middleware('auth.backoffice')->group(
                     Route::delete('/{service}', 'destroy')->name('backoffice.service.delete');
                     Route::put('/{service}', 'update')->name('backoffice.service.update');
                     Route::put('/approved/{service}', 'approvedService')->name('backoffice.service.approved');
+                });
+
+                Route::prefix('penjualan')->controller(SaleController::class)->group(function () {
+                    Route::get('/', 'index')->name('backoffice.sale.index');
+                    Route::get('/create', 'create')->name('backoffice.sale.create');
+                    Route::get('/create/{sale}', 'createInvoice')->name('backoffice.sale.create-invoice');
+                    Route::post('/', 'store')->name('backoffice.sale.store');
+                    Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');
+                    Route::delete('/{sale}', 'destroy')->name('backoffice.sale.delete');
                 });
             });
 

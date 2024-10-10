@@ -91,7 +91,7 @@ class ServiceController extends Controller
     public function store(ServiceRequest $request)
     {
         try {
-            $field_validated = $request->validated() + ['status' => 'waiting'];
+            $field_validated = $request->validated() + ['status' => 'waiting', 'user_id' => $request->user()->id];
             Service::create($field_validated);
 
             return to_route('backoffice.service.index')->with('success', 'Transaksi Servis berhasil disimpan');
