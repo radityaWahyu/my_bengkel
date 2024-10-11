@@ -28,11 +28,12 @@ const onDelete = () => {
 <template>
   <div class="flex items-center justify-center gap-1 w-full">
     <Button
-      v-if="sale.status !== 'waiting'"
+      v-if="sale.status === 'create'"
       type="button"
-      variant="outline"
-      size="icon"
-      @click="() => router.get(route('backoffice.sale.edit', sale.id))"
+      variant="default"
+      @click="
+        () => router.get(route('backoffice.sale.create-invoice', sale.id))
+      "
       :disabled="deleteForm.processing"
     >
       <svg
@@ -59,7 +60,7 @@ const onDelete = () => {
           r="40"
         />
       </svg>
-      <FilePenLine class="size-4 text-blue-500" v-else />
+      <span>Lanjutkan</span>
     </Button>
     <a
       :href="route('backoffice.sale.invoice', props.sale.id)"

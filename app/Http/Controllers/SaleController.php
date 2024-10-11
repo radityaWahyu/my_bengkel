@@ -67,7 +67,10 @@ class SaleController extends Controller
     }
 
 
-    public function createInvoice(Sale $sale) {}
+    public function createInvoice(Sale $sale)
+    {
+        return inertia('SaleTransaction/SaleTransactionForm');
+    }
 
     /**
      * Store a newly created resource in storage.
