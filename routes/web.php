@@ -164,8 +164,11 @@ Route::middleware('auth.backoffice')->group(
                     Route::get('/', 'index')->name('backoffice.sale.index');
                     Route::get('/create', 'create')->name('backoffice.sale.create');
                     Route::get('/create/{sale}', 'createInvoice')->name('backoffice.sale.create-invoice');
-                    Route::post('/', 'store')->name('backoffice.sale.store');
+                    Route::post('/{sale}', 'store')->name('backoffice.sale.store');
                     Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');
+                    Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');
+                    Route::post('/update-qty/{sale_product}', 'updateQtyProduct')->name('backoffice.sale.update-qty-product');
+                    Route::delete('delete-product/{sale_product}', 'deleteServiceProduct')->name('backoffice.sale.delete-product');
                     Route::delete('/{sale}', 'destroy')->name('backoffice.sale.delete');
                 });
             });

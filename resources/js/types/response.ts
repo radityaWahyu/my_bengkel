@@ -195,3 +195,10 @@ export interface ISale {
     created_at: string;
 }
 
+export interface ITransactionProduct {
+    id: string;
+    name: string;
+    qty: number;
+    price: number;
+    total: number;
+}

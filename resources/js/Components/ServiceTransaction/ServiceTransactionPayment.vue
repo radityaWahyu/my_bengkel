@@ -35,6 +35,7 @@ import { usePrice } from "@/Plugin/useNumber";
 import { useHttpService } from "@/Services/useHttpServices";
 import { ICustomerPay, IPayment } from "@/types/response";
 
+const dialogOpen = ref<boolean>(true);
 const httpService = useHttpService();
 const paymentList = ref<IPayment[]>();
 const paymentSelected = ref<string>("");
@@ -100,6 +101,7 @@ onMounted(() => {
 });
 
 const onSubmit = form.handleSubmit(() => {
+  dialogOpen.value = false;
   emits("selected", {
     payment_id: paymentSelected.value,
     extra_pay: extraPay.value,
@@ -112,7 +114,7 @@ const onSubmit = form.handleSubmit(() => {
 </script>
 
 <template>
-  <Sheet default-open>
+  <Sheet :open="dialogOpen">
     <SheetContent @interact-outside="(e) => e.preventDefault()">
       <SheetHeader>
         <SheetTitle class="py-4 text-muted-foreground flex items-center gap-2">
