@@ -18,7 +18,8 @@ const props = defineProps<{
 }>();
 
 const price = usePrice();
-const payCharge = computed(() => props.sale.paid - props.sale.total);
+const totalPayment = computed(() => props.sale.total + props.sale.extra_pay);
+const payCharge = computed(() => props.sale.paid - totalPayment.value);
 </script>
 <template>
   <Head title="Cetak Invoice Penjualan" />
@@ -94,7 +95,7 @@ const payCharge = computed(() => props.sale.paid - props.sale.total);
                   Total Invoice
                 </TableCell>
                 <TableCell class="text-right">{{
-                  price.convertToRupiah(sale.total + sale.extra_pay)
+                  price.convertToRupiah(totalPayment)
                 }}</TableCell>
               </TableRow>
               <TableRow class="border border-gray-500 divide-x divide-gray-500">
@@ -118,8 +119,8 @@ const payCharge = computed(() => props.sale.paid - props.sale.total);
           <div class="grow space-y-2">
             <p class="text-xs">
               <strong class="block capitalize">Keterangan :</strong>
-              Garansi sale diberikan selama 1 minggu setelah perbaikan, dengan
-              cara menunjukan lembar invoice ini.
+              Barang telah di beli tidak dapat di tukar kembali, silahkan cek
+              barang anda sebelum pembelian selesai.
             </p>
           </div>
         </div>

@@ -18,16 +18,12 @@ class SaleDetailResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'service_code' => $this->service_code,
-            'vehicle' => new VehicleResource($this->vehicle),
+            'sale_code' => $this->sale_code,
             'status' => $this->status,
             'total' => $this->total,
             'payment_type' => empty($this->payment_id) ? null : $this->payment->name,
             'extra_pay' => $this->extra_pay,
-            'products' => ServiceProductResource::collection($this->service_products),
-            'repairs' => ServiceRepairResource::collection($this->service_repairs),
-            'description' => $this->description,
-            'notes' => $this->notes,
+            'products' => SaleProductResource::collection($this->sale_products),
             'paid' => $this->paid,
             'created_at' => $this->created_at->format('d/m/Y')
         ];

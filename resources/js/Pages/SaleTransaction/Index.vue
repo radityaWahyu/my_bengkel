@@ -162,12 +162,38 @@ const columns: ColumnDef<ISale>[] = [
       h("div", { class: "text-center" }, row.original.created_at),
   },
   {
+    accessorKey: "product_count",
+    enableResizing: false,
+    size: 150,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 text-center font-semibold" }, "Jumlah Barang"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize font-semibold text-center" },
+        row.original.product_count
+      ),
+  },
+  {
     accessorKey: "status",
     enableResizing: false,
     size: 250,
     header: ({ column }) =>
       h("div", { class: "gap-2 flex items-center font-semibold" }, "Status"),
     cell: ({ row }) => h(SaleTransactionStatusBox, { sale: row.original }),
+  },
+  {
+    accessorKey: "employee",
+    enableResizing: false,
+    size: 150,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 text-center font-semibold" }, "Pegawai"),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "capitalize font-semibold text-center" },
+        row.original.employee
+      ),
   },
   {
     accessorKey: "total",

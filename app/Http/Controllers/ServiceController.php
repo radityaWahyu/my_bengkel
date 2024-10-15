@@ -210,11 +210,41 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function destroy(Service $service)
+    public function destroy(Request $request, Service $service)
     {
         try {
-            $service->delete();
-            return redirect()->back()->with('success', 'Transaksi Servis berhasil dihapus.');
+            DB::transaction(function () use ($service, $request) {
+                $jurnal_count = Jurnal::whereDate('created_at', Carbon::today())->count();
+                $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
+
+                $service_products = $service->sale_products;
+
+                // dd($service_products->count());
+                if ($service_products->count() > 0) {
+                    foreach ($service_products as $product) {
+                        $product_data = Product::find($product->product_id);
+                        $old_stock = $product_data->stock;
+                        $product_data->update([
+                            'stock' => $old_stock + $product->qty,
+                        ]);
+                    }
+                }
+
+                $service->jurnals()->create([
+                    'jurnal_code' => $jurnal_code,
+                    'payment_id' => $service->payment_id,
+                    'income' => 0,
+                    'expense' => $service->total + $service->extra_pay,
+                    'description' => 'Penghapusan Transaksi Service dengan kode' . $service->service_code,
+                    'transaction_date' => Carbon::now(),
+                    'user_id' => $request->user()->id,
+                ]);
+
+
+                $service->delete();
+
+                return redirect()->back()->with('success', 'Transaksi Service berhasil dihapus.');
+            });
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

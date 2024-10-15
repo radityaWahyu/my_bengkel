@@ -13,9 +13,11 @@ use App\Http\Resources\SaleResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\SaleDetailResource;
 use App\Http\Resources\SaleProductResource;
+use App\Traits\Settings;
 
 class SaleController extends Controller
 {
+    use Settings;
     /**
      * Display a listing of the resource.
      */
@@ -229,9 +231,11 @@ class SaleController extends Controller
                     'payment_id' => $request->payment_id,
                     'extra_pay' => $request->extra_pay,
                     'paid' => $request->paid,
+                    'total' => $request->total,
                     'status' => 'finish',
                     'created_at' => $finished_at,
                     'updated_at' => $finished_at,
+                    'user_id' => $request->user()->id,
                 ]);
 
                 $sale->jurnals()->create([
@@ -266,11 +270,41 @@ class SaleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Sale $sale)
+    public function destroy(Request $request, Sale $sale)
     {
         try {
-            $sale->delete();
-            return redirect()->back()->with('success', 'Transaksi Servis berhasil dihapus.');
+            DB::transaction(function () use ($sale, $request) {
+                $jurnal_count = Jurnal::whereDate('created_at', Carbon::today())->count();
+                $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
+
+                $sale_products = $sale->sale_products;
+
+                // dd($sale_products->count());
+                if ($sale_products->count() > 0) {
+                    foreach ($sale_products as $product) {
+                        $product_data = Product::find($product->product_id);
+                        $old_stock = $product_data->stock;
+                        $product_data->update([
+                            'stock' => $old_stock + $product->qty,
+                        ]);
+                    }
+                }
+
+                $sale->jurnals()->create([
+                    'jurnal_code' => $jurnal_code,
+                    'payment_id' => $sale->payment_id,
+                    'income' => 0,
+                    'expense' => $sale->total + $sale->extra_pay,
+                    'description' => 'Penghapusan Transaksi Penjualan dengan kode' . $sale->sale_code,
+                    'transaction_date' => Carbon::now(),
+                    'user_id' => $request->user()->id,
+                ]);
+
+
+                $sale->delete();
+            });
+
+            return redirect()->back()->with('success', 'Transaksi Penjualan berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

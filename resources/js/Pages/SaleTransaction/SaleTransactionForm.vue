@@ -139,12 +139,13 @@ const onSubmit = () => {
 };
 
 const onPaymentSelected = (payment: ICustomerPay) => {
-  router.put(
-    route("backoffice.service.update", props.sale.id),
+  router.post(
+    route("backoffice.sale.store", props.sale.id),
     {
       payment_id: payment.payment_id,
       extra_pay: payment.extra_pay,
       paid: payment.paid,
+      total: payment.total_payment,
     },
     {
       onError: (error) => console.log(error),

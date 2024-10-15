@@ -193,6 +193,7 @@ export interface ISale {
     total: number;
     extra_pay: number;
     created_at: string;
+    employee: string;
 }
 
 export interface ISaleDetail {
