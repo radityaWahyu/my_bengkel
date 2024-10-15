@@ -39,6 +39,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import { Skeleton } from "@/shadcn/ui/skeleton";
 import { usePrice } from "@/Plugin/useNumber";
+import SaleTransactionFinishDialog from "@/Components/SaleTransaction/SaleTransactionFinishDialog.vue";
 
 const AlertDialog = defineAsyncComponent(
   () => import("@/Components/App/AlertDialog.vue")
@@ -64,6 +65,7 @@ const productsLoading = ref<boolean>(false);
 const saleProductsLoading = ref<boolean>(false);
 const showAlertDialog = ref<boolean>(false);
 const paymentDialogOpen = ref<boolean>(false);
+const finishDialogOpen = ref<boolean>(false);
 const search = ref("");
 
 const total = computed(() => {
@@ -137,13 +139,21 @@ const onSubmit = () => {
 };
 
 const onPaymentSelected = (payment: ICustomerPay) => {
-  router.put(route("backoffice.service.update", props.sale.id), {
-    onError: (error) => console.log(error),
-    onSuccess: () => {
-      paymentDialogOpen.value = false;
-      finishDialogOpen.value = true;
+  router.put(
+    route("backoffice.service.update", props.sale.id),
+    {
+      payment_id: payment.payment_id,
+      extra_pay: payment.extra_pay,
+      paid: payment.paid,
     },
-  });
+    {
+      onError: (error) => console.log(error),
+      onSuccess: () => {
+        paymentDialogOpen.value = false;
+        finishDialogOpen.value = true;
+      },
+    }
+  );
 };
 
 const getProducts = (page: number) => {
@@ -445,5 +455,6 @@ watchDebounced(
       @selected="onPaymentSelected"
       @closed="paymentDialogOpen = false"
     />
+    <SaleTransactionFinishDialog :sale-id="sale.id" v-if="finishDialogOpen" />
   </div>
 </template>

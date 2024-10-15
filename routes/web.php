@@ -164,6 +164,7 @@ Route::middleware('auth.backoffice')->group(
                     Route::get('/', 'index')->name('backoffice.sale.index');
                     Route::get('/create', 'create')->name('backoffice.sale.create');
                     Route::get('/create/{sale}', 'createInvoice')->name('backoffice.sale.create-invoice');
+                    Route::get('/invoice/{sale}', 'printInvoice')->name('backoffice.sale.invoice');
                     Route::post('/{sale}', 'store')->name('backoffice.sale.store');
                     Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');
                     Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\SaleResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\SaleDetailResource;
 use App\Http\Resources\SaleProductResource;
 
 class SaleController extends Controller
@@ -235,6 +236,7 @@ class SaleController extends Controller
 
                 $sale->jurnals()->create([
                     'jurnal_code' => $jurnal_code,
+                    'payment_id' => $request->payment_id,
                     'income' => $sale->total + $request->extra_pay,
                     'expense' => 0,
                     'description' => 'Pembayaran Transaksi Penjualan dengan kode' . $sale->sale_code,
@@ -243,7 +245,7 @@ class SaleController extends Controller
                 ]);
 
 
-                return redirect()->back()->with('success', 'Transaksi Service telah telah selesai di bayar');
+                return redirect()->back()->with('success', 'Transaksi Penjualan telah telah selesai di bayar');
             });
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
@@ -252,36 +254,26 @@ class SaleController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Sale $sale)
+    public function printInvoice(Sale $sale)
     {
-        //
+        return inertia('SaleTransaction/SaleTransactionInvoice', [
+            'setting' => fn() => $this->getSetting(),
+            'sale' => fn() => new SaleDetailResource($sale)
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Sale $sale)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Sale $sale)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Sale $sale)
     {
-        //
+        try {
+            $sale->delete();
+            return redirect()->back()->with('success', 'Transaksi Servis berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
     }
 
     public function productList(Request $request)

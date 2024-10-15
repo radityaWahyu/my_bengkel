@@ -195,6 +195,18 @@ export interface ISale {
     created_at: string;
 }
 
+export interface ISaleDetail {
+    id: string;
+    sale_code: string;
+    status: string;
+    total: number;
+    payment_type: string;
+    extra_pay: number;
+    paid: number;
+    created_at: string;
+    products: ITransactionProduct[];
+}
+
 export interface ITransactionProduct {
     id: string;
     name: string;
