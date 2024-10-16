@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/shadcn/ui/dialog";
 import { Check } from "lucide-vue-next";
 
 const props = defineProps<{
-  saleId: string;
+  purchaseId: string;
 }>();
 
 const dialogOpen = ref<boolean>(true);
 
 const printInvoice = () => {
-  window.open(route("backoffice.sale.invoice", props.saleId))?.focus();
+  window.open(route("backoffice.sale.invoice", props.purchaseId))?.focus();
   dialogOpen.value = false;
   backToSaleIndex();
 };

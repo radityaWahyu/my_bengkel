@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { ISale } from "@/types/response";
+import type { IPurchase } from "@/types/response";
 
 defineProps<{
-  sale: ISale;
+  purchase: IPurchase;
 }>();
 </script>
 <template>
-  <div class="inline-flex font-semibold">
+  <div class="inline-flex font-semibold text-center">
     <span
-      v-if="sale.status === 'create'"
+      v-if="purchase.status === 'create'"
       class="bg-yellow-100 px-2 py-1 text-yellow-800"
     >
       Proses Transaksi...
     </span>
     <span
-      v-if="sale.status === 'finish'"
+      v-if="purchase.status === 'finish'"
       class="bg-green-100 text-green-500 px-2 py-1"
     >
       Transaksi Selesai

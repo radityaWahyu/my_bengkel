@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
 import { FilePenLine, Trash2, QrCode, Printer } from "lucide-vue-next";
-import type { ISale } from "@/types/response";
+import type { IPurchase } from "@/types/response";
 import ConfirmDialog from "../App/ConfirmDialog.vue";
 
 const emits = defineEmits<{
@@ -12,20 +12,20 @@ const emits = defineEmits<{
 }>();
 
 const props = defineProps<{
-  sale: ISale;
+  purchase: IPurchase;
 }>();
 
 const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
-  if (props.sale.status !== "finish") {
-    deleteForm.delete(route("backoffice.sale.cancel", props.sale.id), {
+  if (props.purchase.status !== "finish") {
+    deleteForm.delete(route("backoffice.purchase.cancel", props.purchase.id), {
       onError: (error) => console.log(error),
       onSuccess: () => emits("deleted", true),
     });
   } else {
-    deleteForm.delete(route("backoffice.sale.delete", props.sale.id), {
+    deleteForm.delete(route("backoffice.purchase.delete", props.purchase.id), {
       onError: (error) => console.log(error),
       onSuccess: () => emits("deleted", true),
     });
@@ -35,11 +35,12 @@ const onDelete = () => {
 <template>
   <div class="flex items-center justify-center gap-1 w-full">
     <Button
-      v-if="sale.status === 'create'"
+      v-if="purchase.status === 'create'"
       type="button"
       variant="default"
       @click="
-        () => router.get(route('backoffice.sale.create-invoice', sale.id))
+        () =>
+          router.get(route('backoffice.purchase.create-invoice', purchase.id))
       "
       :disabled="deleteForm.processing"
     >
@@ -70,10 +71,10 @@ const onDelete = () => {
       <span>Lanjutkan</span>
     </Button>
     <a
-      :href="route('backoffice.sale.invoice', props.sale.id)"
+      :href="route('backoffice.purchase.invoice', props.purchase.id)"
       target="_blank"
       class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9"
-      v-if="sale.status === 'finish'"
+      v-if="purchase.status === 'finish'"
     >
       <svg
         class="size-4 animate-spin"

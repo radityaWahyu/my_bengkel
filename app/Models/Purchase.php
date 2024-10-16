@@ -13,9 +13,13 @@ class Purchase extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'transaction_date' => 'date',
+    ];
+
     public function purchase_products()
     {
-        return $this->hasMany(SaleProduct::class,);
+        return $this->hasMany(PurchaseProduct::class,);
     }
 
     public function jurnals()

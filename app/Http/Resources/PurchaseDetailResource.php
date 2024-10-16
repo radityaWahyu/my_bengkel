@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PurchaseResource extends JsonResource
+class PurchaseDetailResource extends JsonResource
 {
 
     public static $wrap = null;
@@ -18,16 +18,16 @@ class PurchaseResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'supplier' => empty($this->supplier->name) ? 'Proses Transaksi...' : $this->supplier->name,
-            'invoice_number' => $this->invoice_number,
+            'supplier' => $this->supplier_id,
             'purchase_code' => $this->purchase_code,
-            'product_count' => $this->purchase_products_count,
             'status' => $this->status,
             'total' => $this->total,
+            'payment_type' => empty($this->payment_id) ? null : $this->payment->name,
             'extra_pay' => $this->extra_pay,
-            'transaction_date' => empty($this->transaction_date) ? 'Proses Transaksi...' : $this->transaction_date->format('d/m/Y'),
-            'created_at' => $this->created_at->format('d/m/Y'),
-            'employee' => $this->user->employee->name,
+            'products' => PurchaseProductResource::collection($this->purchase_products),
+            'paid' => $this->paid,
+            'transaction_date' => $this->transaction_date,
+            'created_at' => $this->created_at->format('d/m/Y')
         ];
     }
 }

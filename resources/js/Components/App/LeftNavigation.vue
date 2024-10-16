@@ -207,7 +207,14 @@ onMounted(() => {
                 >
                   Penjualan
                 </SubMenuNavigation>
-                <SubMenuNavigation> Pembelian </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/transaksi/pembelian', 1)
+                  "
+                  :to="route('backoffice.purchase.index')"
+                >
+                  Pembelian
+                </SubMenuNavigation>
               </div>
             </CollapsibleContent>
           </Collapsible>

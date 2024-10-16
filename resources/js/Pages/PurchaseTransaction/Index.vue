@@ -5,13 +5,14 @@ export default {
   layout: Backoffice,
 };
 </script>
+
 <script setup lang="ts">
 import { ref, h } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { router, Head } from "@inertiajs/vue3";
 import {
   Plus,
-  ShoppingCart,
+  ShoppingBasket,
   ArrowUpDown,
   ArrowDownUp,
   Search,
@@ -21,17 +22,18 @@ import {
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import type { ColumnDef } from "@tanstack/vue-table";
-import type { IPaginationMeta, ISale } from "@/types/response";
+import type { IPaginationMeta, IPurchase } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
 import { usePrice } from "@/Plugin/useNumber";
 import ConfirmDialog from "@/Components/App/ConfirmDialog.vue";
 import LinkButton from "@/Components/App/LinkButton.vue";
-import SaleTransactionStatusBox from "@/Components/SaleTransaction/SaleTransactionStatusBox.vue";
-import SaleTransactionButtonAction from "@/Components/SaleTransaction/SaleTransactionButtonAction.vue";
+import PurchaseTransactionStatusBox from "@/Components/PurchaseTransaction/PurchaseTransactionStatusBox.vue";
+import PurchaseTransactionButtonAction from "@/Components/PurchaseTransaction/PurchaseTransactionButtonAction.vue";
+import PurchaseTransactionSupplierBox from "@/Components/PurchaseTransaction/PurchaseTransactionSupplierBox.vue";
 
 const props = defineProps<{
-  sales: { data: ISale[]; meta: IPaginationMeta };
+  purchases: { data: IPurchase[]; meta: IPaginationMeta };
   params: {
     sortName: string;
     sortType: string;
@@ -42,73 +44,20 @@ const props = defineProps<{
 const price = usePrice();
 const openDeleteConfirm = ref<boolean>(false);
 const search = ref(props.params?.search);
-const perPage = ref(props.sales.meta.per_page);
+const perPage = ref(props.purchases.meta.per_page);
 const isLoading = ref<boolean>(false);
 const selectedId = ref<string[]>([]);
-const serviceTable = ref<InstanceType<typeof DataTable> | null>(null);
-const columns: ColumnDef<ISale>[] = [
-  // {
-  //   id: "select",
-  //   size: 50,
-  //   header: ({ table }) =>
-  //     h(
-  //       "div",
-  //       {
-  //         class: "text-center flex items-center justify-center h-full",
-  //       },
-  //       h(Checkbox, {
-  //         checked:
-  //           table.getIsAllPageRowsSelected() ||
-  //           (table.getIsSomePageRowsSelected() && "indeterminate"),
-  //         "onUpdate:checked": (value: any) => {
-  //           console.log(value);
-  //           if (!value) {
-  //             selectedId.value = [];
-  //             table.resetRowSelection();
-  //           } else {
-  //             const row = table.getRowModel();
-  //             row.rows.forEach((rowData) => {
-  //               selectedId.value.push(rowData.original.id);
-  //             });
-  //           }
-  //           table.toggleAllPageRowsSelected(!!value);
-  //         },
-  //         ariaLabel: "Select all",
-  //       })
-  //     ),
-  //   cell: ({ row }) =>
-  //     h(
-  //       "div",
-  //       { class: "text-center flex items-center justify-center h-full" },
-  //       h(Checkbox, {
-  //         id: "check",
-  //         checked: row.getIsSelected(),
-  //         "onUpdate:checked": (value: any) => {
-  //           if (value) {
-  //             selectedId.value.push(row.original.id);
-  //           } else {
-  //             selectedId.value = selectedId.value.filter(
-  //               (id) => id !== row.original.id
-  //             );
-  //           }
-
-  //           row.toggleSelected(!!value);
-  //         },
-  //         ariaLabel: "Select row",
-  //       })
-  //     ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+const purchaseTable = ref<InstanceType<typeof DataTable> | null>(null);
+const columns: ColumnDef<IPurchase>[] = [
   {
-    accessorKey: "service_code",
+    accessorKey: "purchase_code",
     enableResizing: false,
     size: 200,
     header: ({ column }) =>
       h(
         "div",
         { class: "gap-2 flex items-center font-semibold" },
-        "Kode Penjualan"
+        "Kode Pembelian"
       ),
     cell: ({ row }) =>
       h(
@@ -121,13 +70,22 @@ const columns: ColumnDef<ISale>[] = [
             },
           ],
         },
-        row.original.sale_code === null
+        row.original.purchase_code === null
           ? "Proses Transaksi..."
-          : row.original.sale_code
+          : row.original.purchase_code
       ),
   },
   {
-    accessorKey: "created_at",
+    accessorKey: "supplier",
+    enableResizing: false,
+    size: 200,
+    header: ({ column }) =>
+      h("div", { class: "gap-2 flex items-center font-semibold" }, "Pemasok"),
+    cell: ({ row }) =>
+      h(PurchaseTransactionSupplierBox, { purchase: row.original }),
+  },
+  {
+    accessorKey: "transaction_date",
     enableResizing: false,
     size: 250,
     header: ({ column }) => {
@@ -136,14 +94,14 @@ const columns: ColumnDef<ISale>[] = [
         {
           variant: "ghost",
           onClick: () => {
-            props.params.sortName = "created_at";
+            props.params.sortName = "transaction_date";
             if (props.params.sortType == "asc") {
               props.params.sortType = "desc";
             } else {
               props.params.sortType = "asc";
             }
 
-            getsales(props.sales.meta.current_page);
+            getPurchases(props.purchases.meta.current_page);
           },
           class: "w-full flex items-center text-center px-0",
         },
@@ -159,7 +117,7 @@ const columns: ColumnDef<ISale>[] = [
       );
     },
     cell: ({ row }) =>
-      h("div", { class: "text-center" }, row.original.created_at),
+      h("div", { class: "text-center" }, row.original.transaction_date),
   },
   {
     accessorKey: "product_count",
@@ -179,8 +137,9 @@ const columns: ColumnDef<ISale>[] = [
     enableResizing: false,
     size: 250,
     header: ({ column }) =>
-      h("div", { class: "gap-2 flex items-center font-semibold" }, "Status"),
-    cell: ({ row }) => h(SaleTransactionStatusBox, { sale: row.original }),
+      h("div", { class: "gap-2 text-center font-semibold" }, "Status"),
+    cell: ({ row }) =>
+      h(PurchaseTransactionStatusBox, { purchase: row.original }),
   },
   {
     accessorKey: "employee",
@@ -213,19 +172,19 @@ const columns: ColumnDef<ISale>[] = [
     enableHiding: false,
     size: 350,
     cell: ({ row }) =>
-      h(SaleTransactionButtonAction, {
-        sale: row.original,
-        onDeleted: () => getsales(props.sales.meta.current_page),
+      h(PurchaseTransactionButtonAction, {
+        purchase: row.original,
+        onDeleted: () => getPurchases(props.purchases.meta.current_page),
       }),
   },
 ];
 
 const changeLimit = (limit: number) => {
   perPage.value = limit;
-  getsales(props.sales.meta.current_page);
+  getPurchases(props.purchases.meta.current_page);
 };
 // function get category data from database
-const getsales = (page: number) => {
+const getPurchases = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
 
   if (props.params.sortName !== null && props.params.sortType !== null) {
@@ -237,7 +196,7 @@ const getsales = (page: number) => {
   if (search.value !== null) Object.assign(url.value, { search });
 
   router.get(route("backoffice.service.index"), url.value, {
-    only: ["sales", "params"],
+    only: ["purchases", "params"],
     preserveState: true,
     preserveScroll: true,
     onError: (error) => console.log(error),
@@ -248,7 +207,7 @@ const getsales = (page: number) => {
 
 const onSaved = (value: boolean) => {
   // alert(value);
-  getsales(props.sales.meta.current_page);
+  getPurchases(props.purchases.meta.current_page);
 };
 
 const deleteAll = () => {
@@ -265,85 +224,34 @@ const deleteAll = () => {
       onFinish: () => {
         isLoading.value = false;
         selectedId.value = [];
-        serviceTable.value?.resetTable();
+        purchaseTable.value?.resetTable();
       },
     }
   );
 };
 const cancelDeleteAll = () => {
   selectedId.value = [];
-  serviceTable.value?.resetTable();
+  purchaseTable.value?.resetTable();
 };
 
 watchDebounced(
   search,
   () => {
-    getsales(props.sales.meta.current_page);
+    getPurchases(props.purchases.meta.current_page);
   },
   { debounce: 500, maxWait: 1000 }
 );
 </script>
 <template>
-  <Head title="Transaksi Penjualan" />
+  <Head title="Transaksi Pembelian" />
   <div class="flex flex-1 flex-col gap-4 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <ShoppingCart class="size-10" />
-        <h1 class="text-lg font-semibold">Transaksi Penjualan</h1>
+        <ShoppingBasket class="size-10" />
+        <h1 class="text-lg font-semibold">Transaksi Pembelian</h1>
       </div>
-
       <div class="px-4">
-        <div class="flex items-center gap-1" v-if="selectedId.length > 0">
-          <Button
-            class="space-x-2"
-            type="button"
-            variant="outline"
-            :disabled="isLoading"
-            @click="cancelDeleteAll"
-          >
-            <span>Batalkan</span>
-          </Button>
-          <Button
-            class="-tracking-wider space-x-2"
-            type="button"
-            variant="destructive"
-            :disabled="isLoading"
-            @click="openDeleteConfirm = true"
-          >
-            <svg
-              class="size-4 animate-spin"
-              viewBox="0 0 100 100"
-              v-if="isLoading"
-            >
-              <circle
-                fill="none"
-                stroke-width="12"
-                class="stroke-white"
-                cx="50"
-                cy="50"
-                r="40"
-              />
-              <circle
-                fill="none"
-                stroke-width="12"
-                class="stroke-blue-500"
-                stroke-dasharray="250"
-                stroke-dashoffset="210"
-                cx="50"
-                cy="50"
-                r="40"
-              />
-            </svg>
-            <Trash2 class="size-4" v-else />
-            <span v-if="isLoading">Menghapus data</span>
-            <span v-else>Hapus data</span>
-          </Button>
-        </div>
-        <LinkButton
-          :to="route('backoffice.sale.create')"
-          v-else
-          class="space-x-2"
-        >
+        <LinkButton :to="route('backoffice.purchase.create')" class="space-x-2">
           <Plus class="w-4 h-4" />
           <span>Tambah Transaksi</span>
         </LinkButton>
@@ -356,13 +264,13 @@ watchDebounced(
     </HeaderInformation>
     <div>
       <DataTable
-        ref="serviceTable"
+        ref="purchaseTable"
         :columns="columns"
-        :data="sales.data"
-        :pagination="sales.meta"
+        :data="purchases.data"
+        :pagination="purchases.meta"
         :loading="isLoading"
         @change-limit="changeLimit"
-        @change-page="getsales"
+        @change-page="getPurchases"
       >
         <template #filter>
           <div class="relative w-1/2 items-center">

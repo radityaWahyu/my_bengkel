@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Jurnal;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Traits\Settings;
-use App\Models\PurchaseProduct;
 use Illuminate\Http\Request;
+use App\Models\PurchaseProduct;
 use Illuminate\Support\Facades\DB;
-use App\Http\Resources\PurchaseResource;
+use App\Http\Resources\PaymentResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\SaleDetailResource;
 use App\Http\Resources\PurchaseProductResource;
 
@@ -47,11 +49,10 @@ class PurchaseController extends Controller
                 return $query->orderBy($request->sortName, $request->sortType);
             })
             ->when($request->has('search'), function ($query) use ($request) {
-                return $query->where('sale_code', 'like', '%' . $request->search . '%');
+                return $query->where('purchase_code', 'like', '%' . $request->search . '%');
             })
-            ->latest()->paginate($perPage);
-
-
+            ->latest()
+            ->paginate($perPage);
 
         return inertia('PurchaseTransaction/Index', [
             'purchases' => fn() => PurchaseResource::collection($purchases),
@@ -77,11 +78,11 @@ class PurchaseController extends Controller
     }
 
 
-    public function createInvoice(Request $request, Purchase $purchase)
+    public function createInvoice(Purchase $purchase)
     {
         return inertia('PurchaseTransaction/PurchaseTransactionForm', [
-            'purchases' => fn() => new PurchaseResource($purchase),
-            'products' => fn() => ProductResource::collection($this->productList($request)),
+            'payments' => fn() => PaymentResource::collection(Payment::query()->get()),
+            'purchase' => fn() => new PurchaseResource($purchase),
             'purchase_product' => fn() => PurchaseProductResource::collection($purchase->purchase_products)
         ]);
     }

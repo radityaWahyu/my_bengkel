@@ -20,6 +20,7 @@ class PurchaseProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->product->name,
             'qty' => $this->qty,
+            'old_price' => $this->old_price,
             'price' => $this->price,
             'total' => $this->total,
         ];

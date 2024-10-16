@@ -215,3 +215,35 @@ export interface ITransactionProduct {
     price: number;
     total: number;
 }
+
+export interface IPurchase {
+    id: string;
+    supplier: string;
+    invoice_number: string;
+    purchase_code: string;
+    payment_type: string;
+    product_count: number;
+    status: string;
+    total: number;
+    extra_pay: number;
+    created_at: string;
+    transaction_date: string;
+    employee: string;
+}
+
+export interface IPurchaseProduct extends ITransactionProduct {
+    old_price: number;
+}
+
+export interface IPurchaseDetail {
+    id: string;
+    sale_code: string;
+    status: string;
+    total: number;
+    payment_type: string;
+    extra_pay: number;
+    paid: number;
+    created_at: string;
+    products: IPurchaseProduct[];
+}
+
