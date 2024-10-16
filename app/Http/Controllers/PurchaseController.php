@@ -79,8 +79,6 @@ class PurchaseController extends Controller
 
     public function createInvoice(Request $request, Purchase $purchase)
     {
-
-
         return inertia('PurchaseTransaction/PurchaseTransactionForm', [
             'purchases' => fn() => new PurchaseResource($purchase),
             'products' => fn() => ProductResource::collection($this->productList($request)),
@@ -175,13 +173,24 @@ class PurchaseController extends Controller
 
                 $finished_at = Carbon::now();
 
+                foreach ($purchase->purchase_products as $purchase_product) {
+                    $product = Product::find($purchase_product);
+                    $old_stock = $product->stock;
+
+                    $product->update([
+                        'stock' => $purchase->qty + $old_stock,
+                        'sale_price' => $purchase->price
+                    ]);
+                }
+
                 $purchase->update([
-                    'sale_code' => $purchase_code,
+                    'purchase_code' => $purchase_code,
                     'payment_id' => $request->payment_id,
                     'extra_pay' => $request->extra_pay,
                     'paid' => $request->paid,
                     'total' => $request->total,
                     'status' => 'finish',
+                    'transaction_date' => $request->transaction_date,
                     'created_at' => $finished_at,
                     'updated_at' => $finished_at,
                     'user_id' => $request->user()->id,
@@ -192,7 +201,7 @@ class PurchaseController extends Controller
                     'payment_id' => $request->payment_id,
                     'income' => $purchase->total + $request->extra_pay,
                     'expense' => 0,
-                    'description' => 'Pembayaran Transaksi Penjualan dengan kode' . $purchase->sale_code,
+                    'description' => 'Pembayaran Transaksi service dengan kode' . $purchase->sale_code . 'dari supplier' . $purchase->supplier->name,
                     'transaction_date' => $finished_at,
                     'user_id' => $request->user()->id,
                 ]);
@@ -211,7 +220,7 @@ class PurchaseController extends Controller
     {
         return inertia('PurchaseTransaction/PurchaseTransactionInvoice', [
             'setting' => fn() => $this->getSetting(),
-            'sale' => fn() => new SaleDetailResource($purchase)
+            'purchase' => fn() => new SaleDetailResource($purchase)
         ]);
     }
 
@@ -219,10 +228,10 @@ class PurchaseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Purchase $purchase)
+    public function destroy(Purchase $purchase)
     {
         try {
-            DB::transaction(function () use ($purchase, $request) {
+            DB::transaction(function () use ($purchase) {
 
 
                 $purchase_products = $purchase->purchase_products;
@@ -249,7 +258,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function cancelSale(Purchase  $purchase)
+    public function cancelPurchase(Purchase  $purchase)
     {
         try {
             DB::transaction(function () use ($purchase) {
@@ -274,43 +283,5 @@ class PurchaseController extends Controller
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }
-    }
-
-    public function productList(Request $request)
-    {
-        $perPage = 10;
-        $params = [];
-
-        if ($request->has('sortName') && $request->has('sortType')) {
-            $params += ['sortName' => $request->sortName, 'sortType' => $request->sortType];
-        } else {
-            $params += ['sortName' => null, 'sortType' => null];
-        }
-
-        if ($request->has('search')) {
-            $params += ['search' => $request->search];
-        } else {
-            $params += ['search' => null];
-        }
-
-        if ($request->has('perPage')) $perPage = $request->perPage;
-
-        $products = Product::query()
-            ->with(['category', 'rack'])
-            ->when($request->has('sortName'), function ($query) use ($request) {
-                if ($request->sortName == 'category')
-                    return $query->orderBy('category_id', $request->sortType);
-
-                if ($request->sortName == 'rack')
-                    return $query->orderBy('rack_id', $request->sortType);
-
-                return $query->orderBy($request->sortName, $request->sortType);
-            })
-            ->when($request->has('search'), function ($query) use ($request) {
-                return $query->where('name', 'like', '%' . $request->search . '%');
-            })
-            ->latest()->paginate($perPage);
-
-        return $products;
     }
 }

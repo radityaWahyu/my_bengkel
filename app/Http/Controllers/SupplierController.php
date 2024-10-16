@@ -116,4 +116,19 @@ class SupplierController extends Controller
             return redirect()->back()->with('error', $exception);
         }
     }
+
+    public function getSupplierLists(Request $request)
+    {
+        $perPage = 10;
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $suppliers = Supplier::query()
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%' . $request->search . '%');
+            })
+            ->latest()->paginate($perPage);
+
+        return SupplierResource::collection($suppliers);
+    }
 }

@@ -109,6 +109,7 @@ Route::middleware('auth.backoffice')->group(
 
             Route::prefix('pemasok')->controller(SupplierController::class)->group(function () {
                 Route::get('/', 'index')->name('backoffice.supplier.index');
+                Route::get('/list', 'getSupplierLists')->name('backoffice.supplier.list');
                 Route::get('/create', 'create')->name('backoffice.supplier.create');
                 Route::get('/{supplier}', 'edit')->name('backoffice.supplier.edit');
                 Route::post('/', 'store')->name('backoffice.supplier.store');
