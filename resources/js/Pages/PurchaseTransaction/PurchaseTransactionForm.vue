@@ -138,12 +138,6 @@ const onSubmit = () => {
   }
 };
 
-const cancelPurchase = () => {
-  router.delete(route("backoffice.sale.cancel", props.sale.id), {
-    onError: (error) => console.log(error),
-  });
-};
-
 const onPaymentSelected = (payment: ICustomerPay) => {
   router.post(
     route("backoffice.sale.store", props.sale.id),
@@ -437,7 +431,6 @@ watchDebounced(
           size="lg"
           class="grow font-semibold text-md h-12"
           variant="outline"
-          @click="cancelPurchase"
         >
           Batalkan
         </Button>

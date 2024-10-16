@@ -15,6 +15,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
 
 /*
@@ -170,7 +171,22 @@ Route::middleware('auth.backoffice')->group(
                     Route::post('/add-product/{sale}', 'addProduct')->name('backoffice.sale.add-product');
                     Route::post('/update-qty/{sale_product}', 'updateQtyProduct')->name('backoffice.sale.update-qty-product');
                     Route::delete('delete-product/{sale_product}', 'deleteServiceProduct')->name('backoffice.sale.delete-product');
+                    Route::delete('/cancel/{sale}', 'cancelSale')->name('backoffice.sale.cancel');
                     Route::delete('/{sale}', 'destroy')->name('backoffice.sale.delete');
+                });
+
+                Route::prefix('pembelian')->controller(PurchaseController::class)->group(function () {
+                    Route::get('/', 'index')->name('backoffice.purchase.index');
+                    Route::get('/create', 'create')->name('backoffice.purchase.create');
+                    Route::get('/create/{purchase}', 'createInvoice')->name('backoffice.purchase.create-invoice');
+                    Route::get('/invoice/{purchase}', 'printInvoice')->name('backoffice.purchase.invoice');
+                    Route::post('/{purchase}', 'store')->name('backoffice.sale.store');
+                    Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
+                    Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
+                    Route::post('/update-qty/{purchase}', 'updateQtyProduct')->name('backoffice.purchase.update-qty-product');
+                    Route::delete('delete-product/{purchase}', 'deleteServiceProduct')->name('backoffice.purchase.delete-product');
+                    Route::delete('/cancel/{purchase}', 'cancelPurchase')->name('backoffice.purchase.cancel');
+                    Route::delete('/{purchase}', 'destroy')->name('backoffice.purchase.delete');
                 });
             });
 

@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
-use App\Models\Sale;
 use App\Models\Jurnal;
 use App\Models\Product;
-use App\Models\SaleProduct;
+use App\Models\Purchase;
+use App\Traits\Settings;
+use App\Models\PurchaseProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Resources\SaleResource;
+use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\SaleDetailResource;
-use App\Http\Resources\SaleProductResource;
-use App\Traits\Settings;
+use App\Http\Resources\PurchaseProductResource;
 
-class SaleController extends Controller
+class PurchaseController extends Controller
 {
     use Settings;
     /**
@@ -40,9 +40,9 @@ class SaleController extends Controller
 
         if ($request->has('perPage')) $perPage = $request->perPage;
 
-        $sales = Sale::query()
-            ->with(['sale_products' => ['product']])
-            ->withCount(['sale_products'])
+        $purchases = Purchase::query()
+            ->with(['purchase_products' => ['product'], 'supplier'])
+            ->withCount(['purchase_products'])
             ->when($request->has('sortName'), function ($query) use ($request) {
                 return $query->orderBy($request->sortName, $request->sortType);
             })
@@ -53,8 +53,8 @@ class SaleController extends Controller
 
 
 
-        return inertia('SaleTransaction/Index', [
-            'sales' => fn() => SaleResource::collection($sales),
+        return inertia('PurchaseTransaction/Index', [
+            'purchases' => fn() => PurchaseResource::collection($purchases),
             'params' => fn() => (object)$params,
         ]);
     }
@@ -65,59 +65,53 @@ class SaleController extends Controller
     public function create(Request $request)
     {
         try {
-            $sale = Sale::create([
+            $purchase = Purchase::create([
                 'status' => 'create',
                 'user_id' => $request->user()->id,
             ]);
 
-            return to_route('backoffice.sale.create-invoice', $sale->id);
+            return to_route('backoffice.purchase.create-invoice', $purchase->id);
         } catch (\Illuminate\Database\QueryException $exception) {
-            return to_route('backoffice.sale.index')->with('error', $exception->errorInfo);
+            return to_route('backoffice.purchase.index')->with('error', $exception->errorInfo);
         }
     }
 
 
-    public function createInvoice(Request $request, Sale $sale)
+    public function createInvoice(Request $request, Purchase $purchase)
     {
 
 
-        return inertia('SaleTransaction/SaleTransactionForm', [
-            'sale' => fn() => new SaleResource($sale),
+        return inertia('PurchaseTransaction/PurchaseTransactionForm', [
+            'purchases' => fn() => new PurchaseResource($purchase),
             'products' => fn() => ProductResource::collection($this->productList($request)),
-            'sale_product' => fn() => SaleProductResource::collection($sale->sale_products)
+            'purchase_product' => fn() => PurchaseProductResource::collection($purchase->purchase_products)
         ]);
     }
 
 
-    public function addProduct(Request $request, Sale $sale)
+    public function addProduct(Request $request, Purchase $purchase)
     {
         try {
-            $product = Product::find($request->product_id);
 
-            $productStock = $product->stock;
+            DB::transaction(function () use ($purchase, $request) {
 
-            if ($product->stock < $request->qty)
-                return redirect()->back()->with('error', 'Stok Barang tidak mencukupi silahkan tambah stok terlebih dahulu.');
-
-            DB::transaction(function () use ($sale, $request, $productStock, $product) {
-
-                $sale_product = $sale->sale_products()
+                $purchase_product = $purchase->purchase_products()
                     ->where('product_id', $request->product_id)->first();
 
                 $qty = 0;
 
-                if ($sale_product) {
-                    $qty = $sale_product->qty + $request->qty;
+                if ($purchase_product) {
+                    $qty = $purchase_product->qty + $request->qty;
 
-                    $sale->sale_products()
-                        ->where('id', $sale_product->id)
+                    $purchase->purchase_products()
+                        ->where('id', $purchase_product->id)
                         ->update([
                             'qty' => $qty,
                             'total' => $qty * $request->price
                         ]);
                 } else {
                     $qty = $request->qty;
-                    $sale->sale_products()->create(
+                    $purchase->purchase_products()->create(
                         [
                             'product_id' => $request->product_id,
                             'qty' => $qty,
@@ -126,10 +120,6 @@ class SaleController extends Controller
                         ]
                     );
                 }
-
-                $product->update([
-                    'stock' => $productStock - $request->qty,
-                ]);
 
                 return redirect()->back()->with('success', 'Barang berhasil di masukkan.');
             });
@@ -140,48 +130,16 @@ class SaleController extends Controller
         }
     }
 
-    public function updateQtyProduct(Request $request, SaleProduct $sale_product)
+    public function updateQtyProduct(Request $request, PurchaseProduct $purchase_product)
     {
         try {
 
-            $product = Product::find($sale_product->product_id);
+            $purchase_product->update([
+                'qty' => $request->qty,
+                'total' => $purchase_product->price * $request->qty,
+            ]);
 
-
-            DB::transaction(function () use ($request, $sale_product, $product) {
-                $productStock = $product->stock;
-                $saleProductQty = $sale_product->qty;
-
-                if ($saleProductQty > $request->qty) {
-                    $deviation = $saleProductQty - $request->qty;
-
-
-
-                    $sale_product->update([
-                        'qty' => $request->qty,
-                        'total' => $sale_product->price * $request->qty,
-                    ]);
-
-                    $product->update([
-                        'stock' => $productStock + $deviation,
-                    ]);
-                } else {
-                    $deviation =  $request->qty - $saleProductQty;
-
-                    if ($product->stock < $deviation)
-                        return redirect()->back()->with('error', 'Stok Barang tidak mencukupi silahkan tambah stok terlebih dahulu.');
-
-                    $sale_product->update([
-                        'qty' => $request->qty,
-                        'total' => $sale_product->price * $request->qty,
-                    ]);
-
-                    $product->update([
-                        'stock' => $productStock - $deviation,
-                    ]);
-                }
-
-                return redirect()->back()->with('success', 'Jumlah berhasil di rubah.');
-            });
+            return redirect()->back()->with('success', 'Jumlah berhasil di rubah.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         } catch (\Exception $exception) {
@@ -189,21 +147,12 @@ class SaleController extends Controller
         }
     }
 
-    public function deleteServiceProduct(SaleProduct $sale_product)
+    public function deleteServiceProduct(PurchaseProduct $purchase_product)
     {
         try {
-            $product = Product::find($sale_product->product_id);
-            $productStock = $product->stock;
 
-            DB::transaction(function () use ($sale_product, $product, $productStock) {
-                $sale_product->delete();
-
-                $product->update([
-                    'stock' => $productStock + $sale_product->qty,
-                ]);
-
-                return redirect()->back()->with('success', 'Barang berhasil di hapus.');
-            });
+            $purchase_product->delete();
+            return redirect()->back()->with('success', 'Barang berhasil di hapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         } catch (\Exception $exception) {
@@ -214,20 +163,20 @@ class SaleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Sale $sale)
+    public function store(Request $request, Purchase $purchase)
     {
         try {
-            DB::transaction(function () use ($sale, $request) {
+            DB::transaction(function () use ($purchase, $request) {
                 $jurnal_count = Jurnal::whereDate('created_at', Carbon::today())->count();
                 $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
 
-                $sale_count = Sale::whereDate('created_at', Carbon::today())->count();
-                $sale_code = 'INVOICE/SLS/' . Carbon::today()->format('dmY') . '/' . str_pad($sale_count + 1, 3, '0', STR_PAD_LEFT);
+                $purchase_count = Purchase::whereDate('created_at', Carbon::today())->count();
+                $purchase_code = 'INVOICE/SLS/' . Carbon::today()->format('dmY') . '/' . str_pad($purchase_count + 1, 3, '0', STR_PAD_LEFT);
 
                 $finished_at = Carbon::now();
 
-                $sale->update([
-                    'sale_code' => $sale_code,
+                $purchase->update([
+                    'sale_code' => $purchase_code,
                     'payment_id' => $request->payment_id,
                     'extra_pay' => $request->extra_pay,
                     'paid' => $request->paid,
@@ -238,12 +187,12 @@ class SaleController extends Controller
                     'user_id' => $request->user()->id,
                 ]);
 
-                $sale->jurnals()->create([
+                $purchase->jurnals()->create([
                     'jurnal_code' => $jurnal_code,
                     'payment_id' => $request->payment_id,
-                    'income' => $sale->total + $request->extra_pay,
+                    'income' => $purchase->total + $request->extra_pay,
                     'expense' => 0,
-                    'description' => 'Pembayaran Transaksi Penjualan dengan kode' . $sale->sale_code,
+                    'description' => 'Pembayaran Transaksi Penjualan dengan kode' . $purchase->sale_code,
                     'transaction_date' => $finished_at,
                     'user_id' => $request->user()->id,
                 ]);
@@ -258,11 +207,11 @@ class SaleController extends Controller
         }
     }
 
-    public function printInvoice(Sale $sale)
+    public function printInvoice(Purchase $purchase)
     {
-        return inertia('SaleTransaction/SaleTransactionInvoice', [
+        return inertia('PurchaseTransaction/PurchaseTransactionInvoice', [
             'setting' => fn() => $this->getSetting(),
-            'sale' => fn() => new SaleDetailResource($sale)
+            'sale' => fn() => new SaleDetailResource($purchase)
         ]);
     }
 
@@ -270,17 +219,17 @@ class SaleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Sale $sale)
+    public function destroy(Request $request, Purchase $purchase)
     {
         try {
-            DB::transaction(function () use ($sale, $request) {
+            DB::transaction(function () use ($purchase, $request) {
 
 
-                $sale_products = $sale->sale_products;
+                $purchase_products = $purchase->purchase_products;
 
-                // dd($sale_products->count());
-                if ($sale_products->count() > 0) {
-                    foreach ($sale_products as $product) {
+                // dd($purchase_products->count());
+                if ($purchase_products->count() > 0) {
+                    foreach ($purchase_products as $product) {
                         $product_data = Product::find($product->product_id);
                         $old_stock = $product_data->stock;
                         $product_data->update([
@@ -289,9 +238,9 @@ class SaleController extends Controller
                     }
                 }
 
-                $sale->jurnals()->where('transactable_id', $sale->id)->delete();
+                $purchase->jurnals()->where('transactable_id', $purchase->id)->delete();
 
-                $sale->delete();
+                $purchase->delete();
             });
 
             return redirect()->back()->with('success', 'Transaksi Penjualan berhasil dihapus.');
@@ -300,15 +249,15 @@ class SaleController extends Controller
         }
     }
 
-    public function cancelSale(Sale $sale)
+    public function cancelSale(Purchase  $purchase)
     {
         try {
-            DB::transaction(function () use ($sale) {
+            DB::transaction(function () use ($purchase) {
 
-                $sale_products = $sale->sale_products;
+                $purchase_products = $purchase->purchase_products;
 
-                if ($sale_products->count() > 0) {
-                    foreach ($sale_products as $product) {
+                if ($purchase_products->count() > 0) {
+                    foreach ($purchase_products as $product) {
                         $product_data = Product::find($product->product_id);
                         $old_stock = $product_data->stock;
                         $product_data->update([
@@ -318,10 +267,10 @@ class SaleController extends Controller
                 }
 
 
-                $sale->delete();
+                $purchase->delete();
             });
 
-            return to_route('backoffice.sale.index')->with('success', 'Transaksi Penjualan berhasil dihapus.');
+            return redirect()->back()->with('success', 'Transaksi Penjualan berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

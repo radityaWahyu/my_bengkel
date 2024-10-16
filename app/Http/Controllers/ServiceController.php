@@ -214,8 +214,6 @@ class ServiceController extends Controller
     {
         try {
             DB::transaction(function () use ($service, $request) {
-                $jurnal_count = Jurnal::whereDate('created_at', Carbon::today())->count();
-                $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
 
                 $service_products = $service->sale_products;
 
@@ -230,16 +228,7 @@ class ServiceController extends Controller
                     }
                 }
 
-                $service->jurnals()->create([
-                    'jurnal_code' => $jurnal_code,
-                    'payment_id' => $service->payment_id,
-                    'income' => 0,
-                    'expense' => $service->total + $service->extra_pay,
-                    'description' => 'Penghapusan Transaksi Service dengan kode' . $service->service_code,
-                    'transaction_date' => Carbon::now(),
-                    'user_id' => $request->user()->id,
-                ]);
-
+                $service->jurnals()->where('transactable_id', $service->id)->delete();
 
                 $service->delete();
 

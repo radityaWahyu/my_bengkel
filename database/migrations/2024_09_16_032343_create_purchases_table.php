@@ -17,8 +17,8 @@ return new class extends Migration
         Schema::create('purchases', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('purchase_code', 50);
-            $table->foreignUuid('user_id')->nullable();
-            $table->foreignUuid('supplier_id');
+            $table->foreignUuid('user_id');
+            $table->foreignUuid('supplier_id')->nullable();
             $table->foreignUuid('payment_id')->nullable();
             $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
             $table->foreign('supplier_id')->on('suppliers')->references('id')->onDelete('cascade');
