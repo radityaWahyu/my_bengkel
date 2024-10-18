@@ -180,7 +180,7 @@ Route::middleware('auth.backoffice')->group(
                     Route::get('/', 'index')->name('backoffice.purchase.index');
                     Route::get('/create', 'create')->name('backoffice.purchase.create');
                     Route::get('/create/{purchase}', 'createInvoice')->name('backoffice.purchase.create-invoice');
-                    Route::get('/invoice/{purchase}', 'printInvoice')->name('backoffice.purchase.invoice');
+                    Route::get('/detail/{purchase}', 'show')->name('backoffice.purchase.detail');
                     Route::post('/{purchase}', 'store')->name('backoffice.purchase.store');
                     Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
                     Route::post('/update-qty/{purchase_product}', 'updateQtyProduct')->name('backoffice.purchase.update-qty-product');

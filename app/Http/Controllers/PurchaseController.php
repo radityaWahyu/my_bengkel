@@ -14,6 +14,7 @@ use App\Models\PurchaseProduct;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PaymentResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\PurchaseDetailResource;
 use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\SaleDetailResource;
 use App\Http\Resources\PurchaseProductResource;
@@ -76,6 +77,14 @@ class PurchaseController extends Controller
         } catch (\Illuminate\Database\QueryException $exception) {
             return to_route('backoffice.purchase.index')->with('error', $exception->errorInfo);
         }
+    }
+
+    public function show(Purchase $purchase)
+    {
+
+        return inertia('PurchaseTransaction/PurchaseTransactionDetail', [
+            'purchase' => fn() => new PurchaseDetailResource($purchase),
+        ]);
     }
 
 

@@ -237,13 +237,19 @@ export interface IPurchaseProduct extends ITransactionProduct {
 
 export interface IPurchaseDetail {
     id: string;
-    sale_code: string;
+    purchase_code: string;
+    invoice_number: string;
+    supplier: ISupplier;
     status: string;
     total: number;
     payment_type: string;
     extra_pay: number;
     paid: number;
+    transaction_date: string;
     created_at: string;
-    products: IPurchaseProduct[];
+    purchase_products: IPurchaseProduct[];
+    user: IUser;
 }
+
+
 
