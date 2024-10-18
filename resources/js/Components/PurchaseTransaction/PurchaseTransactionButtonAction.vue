@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
-import { FilePenLine, Trash2, QrCode, Printer } from "lucide-vue-next";
+import { FilePenLine, Trash2, FileText, Printer } from "lucide-vue-next";
 import type { IPurchase } from "@/types/response";
 import ConfirmDialog from "../App/ConfirmDialog.vue";
 
@@ -19,17 +19,10 @@ const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
-  if (props.purchase.status !== "finish") {
-    deleteForm.delete(route("backoffice.purchase.cancel", props.purchase.id), {
-      onError: (error) => console.log(error),
-      onSuccess: () => emits("deleted", true),
-    });
-  } else {
-    deleteForm.delete(route("backoffice.purchase.delete", props.purchase.id), {
-      onError: (error) => console.log(error),
-      onSuccess: () => emits("deleted", true),
-    });
-  }
+
+  deleteForm.delete(route("backoffice.purchase.delete", props.purchase.id), {
+    onError: (error) => console.log(error),
+  });
 };
 </script>
 <template>
@@ -100,7 +93,7 @@ const onDelete = () => {
           r="40"
         />
       </svg>
-      <Printer class="size-4 text-blue-500" v-else />
+      <FileText class="size-4 text-blue-500" v-else />
     </a>
     <Button
       type="button"

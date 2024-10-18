@@ -7,6 +7,7 @@ use App\Models\Jurnal;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Supplier;
 use App\Traits\Settings;
 use Illuminate\Http\Request;
 use App\Models\PurchaseProduct;
@@ -147,6 +148,24 @@ class PurchaseController extends Controller
         }
     }
 
+    public function updatePriceProduct(Request $request, PurchaseProduct $purchase_product)
+    {
+        try {
+
+
+            $purchase_product->update([
+                'price' => $request->price,
+                'total' => $request->price * $purchase_product->qty,
+            ]);
+
+            return redirect()->back()->with('success', 'Harga berhasil di rubah.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception);
+        }
+    }
+
     public function deletePurchaseProduct(PurchaseProduct $purchase_product)
     {
         try {
@@ -171,46 +190,50 @@ class PurchaseController extends Controller
                 $jurnal_code = 'JRNL' . Carbon::today()->format('dmY') . '' . str_pad($jurnal_count + 1, 3, '0', STR_PAD_LEFT);
 
                 $purchase_count = Purchase::whereDate('created_at', Carbon::today())->count();
-                $purchase_code = 'INVOICE/SLS/' . Carbon::today()->format('dmY') . '/' . str_pad($purchase_count + 1, 3, '0', STR_PAD_LEFT);
+                $purchase_code = 'INVOICE/PCS/' . Carbon::today()->format('dmY') . '/' . str_pad($purchase_count + 1, 3, '0', STR_PAD_LEFT);
+
+                $supplier = Supplier::find($request->supplier_id);
 
                 $finished_at = Carbon::now();
 
                 foreach ($purchase->purchase_products as $purchase_product) {
-                    $product = Product::find($purchase_product);
+                    $product = Product::find($purchase_product->product_id);
                     $old_stock = $product->stock;
 
                     $product->update([
-                        'stock' => $purchase->qty + $old_stock,
-                        'sale_price' => $purchase->price
+                        'stock' => $purchase_product->qty + $old_stock,
+                        'buy_price' => $purchase_product->price
                     ]);
                 }
 
+
                 $purchase->update([
                     'purchase_code' => $purchase_code,
+                    'supplier_id' => $request->supplier_id,
                     'payment_id' => $request->payment_id,
                     'extra_pay' => $request->extra_pay,
-                    'paid' => $request->paid,
                     'total' => $request->total,
                     'status' => 'finish',
-                    'transaction_date' => $request->transaction_date,
+                    'invoice_number' => $request->invoice_number,
+                    'transaction_date' => $request->date('transaction_date'),
                     'created_at' => $finished_at,
                     'updated_at' => $finished_at,
                     'user_id' => $request->user()->id,
                 ]);
 
+                // dd('row1');
                 $purchase->jurnals()->create([
                     'jurnal_code' => $jurnal_code,
                     'payment_id' => $request->payment_id,
                     'income' => $purchase->total + $request->extra_pay,
                     'expense' => 0,
-                    'description' => 'Pembayaran Transaksi service dengan kode' . $purchase->sale_code . 'dari supplier' . $purchase->supplier->name,
+                    'description' => 'Pembayaran Transaksi Pembelian dengan kode' . $purchase->purchase_code . 'dari supplier' . $supplier->name . 'pada tanggal ' . $request->transaction_date,
                     'transaction_date' => $finished_at,
                     'user_id' => $request->user()->id,
                 ]);
-
-
-                return redirect()->back()->with('success', 'Transaksi Penjualan telah telah selesai di bayar');
             });
+
+            return redirect()->route('backoffice.purchase.index')->with('success', 'Transaksi Penjualan telah telah selesai di bayar');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         } catch (\Exception $exception) {
@@ -233,55 +256,34 @@ class PurchaseController extends Controller
     public function destroy(Purchase $purchase)
     {
         try {
+
+            $status = $purchase->status;
+
             DB::transaction(function () use ($purchase) {
 
+                if ($purchase->status == 'finish') {
+                    $purchase_products = $purchase->purchase_products;
 
-                $purchase_products = $purchase->purchase_products;
-
-                // dd($purchase_products->count());
-                if ($purchase_products->count() > 0) {
-                    foreach ($purchase_products as $product) {
-                        $product_data = Product::find($product->product_id);
-                        $old_stock = $product_data->stock;
-                        $product_data->update([
-                            'stock' => $old_stock + $product->qty,
-                        ]);
+                    // dd($purchase_products->count());
+                    if ($purchase_products->count() > 0) {
+                        foreach ($purchase_products as $product) {
+                            $product_data = Product::find($product->product_id);
+                            $old_stock = $product_data->stock;
+                            $product_data->update([
+                                'stock' => $old_stock - $product->qty,
+                            ]);
+                        }
                     }
-                }
 
-                $purchase->jurnals()->where('transactable_id', $purchase->id)->delete();
+                    $purchase->jurnals()->where('transactable_id', $purchase->id)->delete();
+
+                    $purchase->delete();
+                }
 
                 $purchase->delete();
             });
 
-            return redirect()->back()->with('success', 'Transaksi Penjualan berhasil dihapus.');
-        } catch (\Illuminate\Database\QueryException $exception) {
-            return redirect()->back()->with('error', $exception->errorInfo);
-        }
-    }
-
-    public function cancelPurchase(Purchase  $purchase)
-    {
-        try {
-            DB::transaction(function () use ($purchase) {
-
-                $purchase_products = $purchase->purchase_products;
-
-                if ($purchase_products->count() > 0) {
-                    foreach ($purchase_products as $product) {
-                        $product_data = Product::find($product->product_id);
-                        $old_stock = $product_data->stock;
-                        $product_data->update([
-                            'stock' => $old_stock + $product->qty,
-                        ]);
-                    }
-                }
-
-
-                $purchase->delete();
-            });
-
-            return redirect()->back()->with('success', 'Transaksi Penjualan berhasil dihapus.');
+            return to_route('backoffice.purchase.index')->with('success', 'Transaksi Penjualan berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $exception) {
             return redirect()->back()->with('error', $exception->errorInfo);
         }

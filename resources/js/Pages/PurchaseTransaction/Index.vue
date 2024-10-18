@@ -52,7 +52,7 @@ const columns: ColumnDef<IPurchase>[] = [
   {
     accessorKey: "purchase_code",
     enableResizing: false,
-    size: 200,
+    size: 250,
     header: ({ column }) =>
       h(
         "div",
@@ -64,7 +64,7 @@ const columns: ColumnDef<IPurchase>[] = [
         "div",
         {
           class: [
-            "capitalize font-semibold px-2 py-1 inline-flex",
+            "capitalize font-semibold px-2 py-1 inline-flex w-full",
             {
               "bg-yellow-100 text-yellow-800": row.original.status === "create",
             },
@@ -82,7 +82,9 @@ const columns: ColumnDef<IPurchase>[] = [
     header: ({ column }) =>
       h("div", { class: "gap-2 flex items-center font-semibold" }, "Pemasok"),
     cell: ({ row }) =>
-      h(PurchaseTransactionSupplierBox, { purchase: row.original }),
+      h(PurchaseTransactionSupplierBox, {
+        purchase: row.original,
+      }),
   },
   {
     accessorKey: "transaction_date",
@@ -135,7 +137,7 @@ const columns: ColumnDef<IPurchase>[] = [
   {
     accessorKey: "status",
     enableResizing: false,
-    size: 250,
+    size: 180,
     header: ({ column }) =>
       h("div", { class: "gap-2 text-center font-semibold" }, "Status"),
     cell: ({ row }) =>

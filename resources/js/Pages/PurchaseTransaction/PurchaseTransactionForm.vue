@@ -7,7 +7,12 @@ export default {
 </script>
 <script setup lang="ts">
 import { reactive, ref, computed, defineAsyncComponent } from "vue";
-import { Head, router } from "@inertiajs/vue3";
+import {
+  Head,
+  router,
+  usePage,
+  useForm as useInertiaForm,
+} from "@inertiajs/vue3";
 import {
   Table,
   TableBody,
@@ -23,6 +28,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/shadcn/ui/form";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as zod from "zod";
+import validator from "validator";
 import { ScrollArea } from "@/shadcn/ui/scroll-area";
 import {
   Select,
@@ -84,12 +93,41 @@ const PurchaseProductsLoading = ref<boolean>(false);
 const showAlertDialog = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
 const supplierDialogOpen = ref<boolean>(false);
+const supplierData = reactive({
+  name: "",
+  contactName: "",
+  whatsappNumber: "",
+});
 
-const total = computed(() => {
-  return props.purchase_product.data.reduce(
-    (accumulator, current) => accumulator + current.total,
-    0
+const page = usePage();
+
+const purchaseSchema = () => {
+  return toTypedSchema(
+    zod.object({
+      supplier_name: zod
+        .string({ message: "Pemasok harus diisi" })
+        .min(1, { message: "Pemasok harus diisi." }),
+      invoice_number: zod
+        .string({ message: "No Nota harus diisi" })
+        .min(1, { message: "No Nota harus diisi." }),
+      payment_id: zod.string({ message: "Jenis bayar harus dipilih." }),
+      transaction_date: zod.string({
+        message: "Tanggal transaksi harus diisi.",
+      }),
+    })
   );
+};
+const validationSchema = purchaseSchema();
+const form = useForm({
+  validationSchema,
+});
+
+const purchaseForm = useInertiaForm({
+  _token: page.props.csrf_token,
+  supplier_id: "",
+  invoice_number: "",
+  payment_id: "",
+  transaction_date: "",
 });
 
 const selectedProduct = (product: IProduct) => {
@@ -119,6 +157,11 @@ const selectedProduct = (product: IProduct) => {
 
 const selectedSupplier = (supplier: ISupplier) => {
   supplierDialogOpen.value = false;
+  purchaseForm.supplier_id = supplier.id;
+  supplierData.name = supplier.name;
+  supplierData.contactName = supplier.contact_name;
+  supplierData.whatsappNumber = supplier.whatsapp;
+  form.setFieldValue("supplier_name", supplier.name);
 };
 
 const updateQtyProduct = (PurchaseProduct: IPurchaseProduct) => {
@@ -141,50 +184,90 @@ const updateQtyProduct = (PurchaseProduct: IPurchaseProduct) => {
   }
 };
 
-const updatePrice = (PurchaseProduct: IPurchaseProduct) => {
+const updatePriceProduct = (PurchaseProduct: IPurchaseProduct) => {
   if (props.purchase.status === "finish") return true;
-};
 
-const deletePurchaseProduct = (PurchaseProductId: string) => {
-  router.delete(route("backoffice.purchase.delete-product", PurchaseProductId), {
-    preserveScroll: false,
-    onStart: () => (PurchaseProductsLoading.value = true),
-    onError: (error) => console.log("error"),
-    onSuccess: () => {
-      router.reload();
-    },
-    onFinish: () => (PurchaseProductsLoading.value = false),
-  });
-};
-
-const onSubmit = () => {
-  if (props.purchase_product.data.length > 0) {
-  } else {
-    showAlertDialog.value = true;
-  }
-};
-
-const onPaymentSelected = (payment: ICustomerPay) => {
   router.post(
-    route("backoffice.purchase.store", props.purchase.id),
+    route("backoffice.purchase.update-price-product", PurchaseProduct.id),
     {
-      payment_id: payment.payment_id,
-      extra_pay: payment.extra_pay,
-      paid: payment.paid,
-      total: payment.total_payment,
+      price: PurchaseProduct.price,
     },
     {
-      onError: (error) => console.log(error),
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload();
+      },
     }
   );
 };
+
+const deletePurchaseProduct = (PurchaseProductId: string) => {
+  router.delete(
+    route("backoffice.purchase.delete-product", PurchaseProductId),
+    {
+      preserveScroll: false,
+      onStart: () => (PurchaseProductsLoading.value = true),
+      onError: (error) => console.log("error"),
+      onSuccess: () => {
+        router.reload();
+      },
+      onFinish: () => (PurchaseProductsLoading.value = false),
+    }
+  );
+};
+
+const extraPay = computed(() => {
+  let tax = 0;
+  props.payments.data.forEach((value) => {
+    if (value.id === purchaseForm.payment_id) tax = value.tax;
+  });
+
+  return tax;
+});
+
+const total = computed(() => {
+  return props.purchase_product.data.reduce(
+    (accumulator, current) => accumulator + current.total,
+    0
+  );
+});
+
+const totalInvoice = computed(() => {
+  return total.value + extraPay.value;
+});
+
+const cancelPurchase = () => {
+  router.delete(route("backoffice.purchase.delete", props.purchase.id), {
+    onError: (error) => console.log(error),
+  });
+};
+
+const onSubmit = form.handleSubmit(() => {
+  if (props.purchase_product.data.length === 0) {
+    showAlertDialog.value = true;
+  } else {
+    purchaseForm
+      .transform((formData) => ({
+        ...formData,
+        extra_pay: extraPay.value,
+        total: total.value,
+      }))
+      .post(route("backoffice.purchase.store", props.purchase.id), {
+        onError: (error) => console.log(error),
+      });
+  }
+});
 </script>
 <template>
   <Head title="Form Transaksi Pembelian" />
-  <div class="grid grid-cols-[40%_60%] divide-x divide-gray-200 h-[calc(100vh-3.5rem)]">
+  <div
+    class="grid grid-cols-[40%_60%] divide-x divide-gray-200 h-[calc(100vh-3.5rem)]"
+  >
     <!-- ---------left content -->
     <div class="">
-      <div class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2">
+      <div
+        class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
+      >
         <div>
           <ShoppingBasket class="size-8 text-blue-400" />
         </div>
@@ -196,44 +279,90 @@ const onPaymentSelected = (payment: ICustomerPay) => {
         </div>
       </div>
       <div class="px-4 py-1 space-y-2">
-        <div class="space-y-1 grow">
-          <Label>Data Pemasok</Label>
-          <div class="flex items-center">
-            <Input type="text" readonly class="bg-white rounded-r-none" />
-            <Button
-              variant="outline"
-              class="border-l-0 rounded-r rounded-l-none"
-              @click="supplierDialogOpen = true"
-            >
-              <Contact class="size-5" />
-            </Button>
-          </div>
-        </div>
-
+        <FormField v-slot="{ componentField }" name="supplier_name">
+          <FormItem>
+            <FormLabel>
+              <FormRequiredLabel>Data Pemasok</FormRequiredLabel>
+            </FormLabel>
+            <FormControl>
+              <div class="flex items-center">
+                <Input
+                  type="text"
+                  readonly
+                  class="bg-white rounded-r-none"
+                  v-bind="componentField"
+                  v-model="supplierData.name"
+                />
+                <Button
+                  variant="outline"
+                  class="border-l-0 rounded-r rounded-l-none"
+                  @click="supplierDialogOpen = true"
+                >
+                  <Contact class="size-5" />
+                </Button>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <Label>Nama Kontak</Label>
-            <Input type="number" readonly class="bg-white" />
+            <Input
+              type="text"
+              readonly
+              class="bg-white"
+              v-model="supplierData.contactName"
+            />
           </div>
           <div>
             <Label>No Whatsapp</Label>
-            <Input type="text" readonly class="bg-white" />
+            <Input
+              type="text"
+              readonly
+              class="bg-white"
+              v-model="supplierData.whatsappNumber"
+            />
           </div>
         </div>
-        <div class="">
-          <Label>No. Nota</Label>
-          <Input type="text" readonly class="bg-white" />
-        </div>
-        <div class="space-y-1">
-          <Label>Tanggal Transaksi</Label>
-          <Input type="date" class="bg-white block" />
-        </div>
-        <FormField v-slot="{ componentField }" name="payment_type">
+        <FormField v-slot="{ componentField }" name="invoice_number">
+          <FormItem>
+            <FormLabel>
+              <FormRequiredLabel>No Nota</FormRequiredLabel>
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="text"
+                class="bg-white block"
+                v-bind="componentField"
+                v-model="purchaseForm.invoice_number"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="transaction_date">
+          <FormItem>
+            <FormLabel>
+              <FormRequiredLabel>Tanggal Transaksi</FormRequiredLabel>
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="date"
+                class="bg-white block"
+                v-bind="componentField"
+                v-model="purchaseForm.transaction_date"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="payment_id">
           <FormItem>
             <FormLabel>
               <FormRequiredLabel>Jenis Bayar</FormRequiredLabel>
             </FormLabel>
-            <Select v-bind="componentField">
+            <Select v-bind="componentField" v-model="purchaseForm.payment_id">
               <FormControl>
                 <SelectTrigger class="bg-white">
                   <SelectValue placeholder="Pilih Jenis Pembayaran" />
@@ -257,11 +386,16 @@ const onPaymentSelected = (payment: ICustomerPay) => {
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
             <Label>Biaya Ekstra</Label>
-            <Input type="number" readonly class="bg-white" />
+            <Input type="number" readonly class="bg-white" v-model="extraPay" />
           </div>
           <div class="space-y-1">
             <Label>Total Pembayaran</Label>
-            <Input type="text" readonly class="bg-white" />
+            <Input
+              type="text"
+              readonly
+              class="bg-white"
+              v-model="totalInvoice"
+            />
           </div>
         </div>
         <div class="flex">
@@ -283,7 +417,9 @@ const onPaymentSelected = (payment: ICustomerPay) => {
     <!-- ----------right content -->
     <div class="divide-y divide-gray-200">
       <div class="bg-gray-50">
-        <h3 class="py-3 px-3 text-sm font-medium flex items-center gap-2 text-primary">
+        <h3
+          class="py-3 px-3 text-sm font-medium flex items-center gap-2 text-primary"
+        >
           <span><Package2 class="size-5" /></span>
           <span>Daftar Barang</span>
         </h3>
@@ -332,7 +468,10 @@ const onPaymentSelected = (payment: ICustomerPay) => {
                   </TableRow>
                 </template>
                 <template
-                  v-if="purchase_product.data.length === 0 && !PurchaseProductsLoading"
+                  v-if="
+                    purchase_product.data.length === 0 &&
+                    !PurchaseProductsLoading
+                  "
                 >
                   <TableRow>
                     <TableCell colspan="4">
@@ -340,14 +479,17 @@ const onPaymentSelected = (payment: ICustomerPay) => {
                         <BadgeInfo class="size-6" />
                         <AlertTitle class="ml-2">Keterangan</AlertTitle>
                         <AlertDescription class="ml-2">
-                          Tidak terdapat data barang silahkan menambahkan terlebih dahulu
+                          Tidak terdapat data barang silahkan menambahkan
+                          terlebih dahulu
                         </AlertDescription>
                       </Alert>
                     </TableCell>
                   </TableRow>
                 </template>
                 <template
-                  v-if="purchase_product.data.length > 0 && !PurchaseProductsLoading"
+                  v-if="
+                    purchase_product.data.length > 0 && !PurchaseProductsLoading
+                  "
                 >
                   <TableRow
                     v-for="(PurchaseProduct, index) in purchase_product.data"
@@ -364,7 +506,7 @@ const onPaymentSelected = (payment: ICustomerPay) => {
                       <Input
                         type="number"
                         class="text-left block px-2"
-                        @change="updatePrice(PurchaseProduct)"
+                        @change="updatePriceProduct(PurchaseProduct)"
                         v-model="PurchaseProduct.price"
                       />
                     </TableCell>
@@ -404,6 +546,7 @@ const onPaymentSelected = (payment: ICustomerPay) => {
           size="lg"
           class="grow font-semibold text-md h-12"
           variant="outline"
+          @click="cancelPurchase"
         >
           Batalkan
         </Button>

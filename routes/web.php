@@ -181,12 +181,11 @@ Route::middleware('auth.backoffice')->group(
                     Route::get('/create', 'create')->name('backoffice.purchase.create');
                     Route::get('/create/{purchase}', 'createInvoice')->name('backoffice.purchase.create-invoice');
                     Route::get('/invoice/{purchase}', 'printInvoice')->name('backoffice.purchase.invoice');
-                    Route::post('/{purchase}', 'store')->name('backoffice.sale.store');
+                    Route::post('/{purchase}', 'store')->name('backoffice.purchase.store');
                     Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
-                    Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
-                    Route::post('/update-qty/{purchase}', 'updateQtyProduct')->name('backoffice.purchase.update-qty-product');
+                    Route::post('/update-qty/{purchase_product}', 'updateQtyProduct')->name('backoffice.purchase.update-qty-product');
+                    Route::post('/update-price/{purchase_product}', 'updatePriceProduct')->name('backoffice.purchase.update-price-product');
                     Route::delete('delete-product/{purchase_product}', 'deletePurchaseProduct')->name('backoffice.purchase.delete-product');
-                    Route::delete('/cancel/{purchase}', 'cancelPurchase')->name('backoffice.purchase.cancel');
                     Route::delete('/{purchase}', 'destroy')->name('backoffice.purchase.delete');
                 });
             });
