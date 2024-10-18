@@ -115,6 +115,7 @@ class PurchaseController extends Controller
                             'product_id' => $request->product_id,
                             'qty' => $qty,
                             'price' => $request->price,
+                            'old_price' => $request->old_price,
                             'total' => $request->price * $request->qty
                         ]
                     );
@@ -146,7 +147,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function deleteServiceProduct(PurchaseProduct $purchase_product)
+    public function deletePurchaseProduct(PurchaseProduct $purchase_product)
     {
         try {
 

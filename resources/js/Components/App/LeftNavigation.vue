@@ -53,18 +53,12 @@ onMounted(() => {
     currentUrl.value = fullUrl[2].split("?");
   } else if (fullUrl.length === 4) {
     currentUrl.value = fullUrl[2].split("?");
-    if (
-      currentUrl.value[0] === "pengaturan" ||
-      currentUrl.value[0] === "transaksi"
-    )
+    if (currentUrl.value[0] === "pengaturan" || currentUrl.value[0] === "transaksi")
       currentUrl.value = fullUrl[3].split("?");
   } else if (fullUrl.length >= 5) {
     currentUrl.value = fullUrl[2].split("?");
 
-    if (
-      currentUrl.value[0] === "pengaturan" ||
-      currentUrl.value[0] === "transaksi"
-    )
+    if (currentUrl.value[0] === "pengaturan" || currentUrl.value[0] === "transaksi")
       currentUrl.value = fullUrl[3].split("?");
   }
 
@@ -192,25 +186,19 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation
-                  :active="
-                    page.url.startsWith('backoffice/transaksi/service', 1)
-                  "
+                  :active="page.url.startsWith('backoffice/transaksi/service', 1)"
                   :to="route('backoffice.service.index')"
                 >
                   Service Kendaraan
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="
-                    page.url.startsWith('backoffice/transaksi/penjualan', 1)
-                  "
+                  :active="page.url.startsWith('backoffice/transaksi/penjualan', 1)"
                   :to="route('backoffice.sale.index')"
                 >
                   Penjualan
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="
-                    page.url.startsWith('backoffice/transaksi/pembelian', 1)
-                  "
+                  :active="page.url.startsWith('backoffice/transaksi/pembelian', 1)"
                   :to="route('backoffice.purchase.index')"
                 >
                   Pembelian
@@ -242,9 +230,7 @@ onMounted(() => {
             <CollapsibleContent>
               <div class="">
                 <SubMenuNavigation> Laporan Barang </SubMenuNavigation>
-                <SubMenuNavigation>
-                  Laporan Transaksi Service
-                </SubMenuNavigation>
+                <SubMenuNavigation> Laporan Transaksi Service </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
                 <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
               </div>
@@ -284,17 +270,13 @@ onMounted(() => {
                   User
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="
-                    page.url.startsWith('backoffice/pengaturan/sistem', 1)
-                  "
+                  :active="page.url.startsWith('backoffice/pengaturan/sistem', 1)"
                   :to="route('backoffice.setting.index')"
                 >
                   Sistem
                 </SubMenuNavigation>
                 <SubMenuNavigation
-                  :active="
-                    page.url.startsWith('backoffice/pengaturan/pembayaran', 1)
-                  "
+                  :active="page.url.startsWith('backoffice/pengaturan/pembayaran', 1)"
                   :to="route('backoffice.payment.index')"
                 >
                   Jenis Pembayaran

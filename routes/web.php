@@ -185,7 +185,7 @@ Route::middleware('auth.backoffice')->group(
                     Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
                     Route::post('/add-product/{purchase}', 'addProduct')->name('backoffice.purchase.add-product');
                     Route::post('/update-qty/{purchase}', 'updateQtyProduct')->name('backoffice.purchase.update-qty-product');
-                    Route::delete('delete-product/{purchase}', 'deleteServiceProduct')->name('backoffice.purchase.delete-product');
+                    Route::delete('delete-product/{purchase_product}', 'deletePurchaseProduct')->name('backoffice.purchase.delete-product');
                     Route::delete('/cancel/{purchase}', 'cancelPurchase')->name('backoffice.purchase.cancel');
                     Route::delete('/{purchase}', 'destroy')->name('backoffice.purchase.delete');
                 });

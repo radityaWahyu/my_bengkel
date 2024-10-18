@@ -7,7 +7,6 @@ export default {
 </script>
 <script setup lang="ts">
 import { reactive, ref, computed, defineAsyncComponent } from "vue";
-import { watchDebounced } from "@vueuse/core";
 import { Head, router } from "@inertiajs/vue3";
 import {
   Table,
@@ -17,7 +16,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/shadcn/ui/table";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shadcn/ui/form";
 import { ScrollArea } from "@/shadcn/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 import { Input } from "@/shadcn/ui/input";
 import { Label } from "@/shadcn/ui/label";
 import { Button } from "@/shadcn/ui/button";
@@ -27,6 +41,7 @@ import {
   Trash2,
   BadgeInfo,
   MoveRight,
+  Contact,
 } from "lucide-vue-next";
 import {
   IPaginationMeta,
@@ -34,11 +49,13 @@ import {
   IPurchase,
   ICustomerPay,
   IPurchaseProduct,
+  IPayment,
+  ISupplier,
 } from "@/types/response";
 import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import { Skeleton } from "@/shadcn/ui/skeleton";
 import { usePrice } from "@/Plugin/useNumber";
-import PurchaseTransactionFinishDialog from "@/Components/PurchaseTransaction/PurchaseTransactionFinishDialog.vue";
+import FormRequiredLabel from "@/Components/App/FormRequiredLabel.vue";
 
 const AlertDialog = defineAsyncComponent(
   () => import("@/Components/App/AlertDialog.vue")
@@ -48,11 +65,14 @@ const ProductListTwo = defineAsyncComponent(
   () => import("@/Components/Product/ProductListTwo.vue")
 );
 
+const SupplierList = defineAsyncComponent(
+  () => import("@/Components/Supplier/SupplierList.vue")
+);
+
 const props = defineProps<{
   purchase: IPurchase;
-  products: {
-    data: IProduct[];
-    meta: IPaginationMeta;
+  payments: {
+    data: IPayment[];
   };
   purchase_product: {
     data: IPurchaseProduct[];
@@ -60,12 +80,10 @@ const props = defineProps<{
 }>();
 
 const price = usePrice();
-const productsLoading = ref<boolean>(false);
 const PurchaseProductsLoading = ref<boolean>(false);
 const showAlertDialog = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
-const finishDialogOpen = ref<boolean>(false);
-const search = ref("");
+const supplierDialogOpen = ref<boolean>(false);
 
 const total = computed(() => {
   return props.purchase_product.data.reduce(
@@ -75,6 +93,7 @@ const total = computed(() => {
 });
 
 const selectedProduct = (product: IProduct) => {
+  productDialogOpen.value = false;
   router.post(
     route("backoffice.purchase.add-product", props.purchase.id),
     {
@@ -98,6 +117,10 @@ const selectedProduct = (product: IProduct) => {
   );
 };
 
+const selectedSupplier = (supplier: ISupplier) => {
+  supplierDialogOpen.value = false;
+};
+
 const updateQtyProduct = (PurchaseProduct: IPurchaseProduct) => {
   if (props.purchase.status === "finish") return true;
   if (PurchaseProduct.qty <= 0) {
@@ -118,19 +141,20 @@ const updateQtyProduct = (PurchaseProduct: IPurchaseProduct) => {
   }
 };
 
+const updatePrice = (PurchaseProduct: IPurchaseProduct) => {
+  if (props.purchase.status === "finish") return true;
+};
+
 const deletePurchaseProduct = (PurchaseProductId: string) => {
-  router.delete(
-    route("backoffice.purchase.delete-product", PurchaseProductId),
-    {
-      preserveScroll: false,
-      onStart: () => (PurchaseProductsLoading.value = true),
-      onError: (error) => console.log("error"),
-      onSuccess: () => {
-        router.reload();
-      },
-      onFinish: () => (PurchaseProductsLoading.value = false),
-    }
-  );
+  router.delete(route("backoffice.purchase.delete-product", PurchaseProductId), {
+    preserveScroll: false,
+    onStart: () => (PurchaseProductsLoading.value = true),
+    onError: (error) => console.log("error"),
+    onSuccess: () => {
+      router.reload();
+    },
+    onFinish: () => (PurchaseProductsLoading.value = false),
+  });
 };
 
 const onSubmit = () => {
@@ -151,50 +175,16 @@ const onPaymentSelected = (payment: ICustomerPay) => {
     },
     {
       onError: (error) => console.log(error),
-      onSuccess: () => {
-        finishDialogOpen.value = true;
-      },
     }
   );
 };
-
-const getProducts = (page: number) => {
-  const url = ref({ page: page });
-
-  if (search.value !== "") Object.assign(url.value, { search });
-
-  router.get(
-    route("backoffice.purchase.create-invoice", props.purchase.id),
-    url.value,
-    {
-      only: ["products"],
-      preserveState: true,
-      preserveScroll: true,
-      onError: (error) => console.log(error),
-      onStart: () => (productsLoading.value = true),
-      onFinish: () => (productsLoading.value = false),
-    }
-  );
-};
-
-watchDebounced(
-  search,
-  () => {
-    getProducts(props.products.meta.current_page);
-  },
-  { debounce: 500, maxWait: 1000 }
-);
 </script>
 <template>
-  <Head title="Form Transaksi Penjualan" />
-  <div
-    class="grid grid-cols-[40%_60%] divide-x divide-gray-200 h-[calc(100vh-3.5rem)]"
-  >
+  <Head title="Form Transaksi Pembelian" />
+  <div class="grid grid-cols-[40%_60%] divide-x divide-gray-200 h-[calc(100vh-3.5rem)]">
     <!-- ---------left content -->
     <div class="">
-      <div
-        class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2"
-      >
+      <div class="flex items-center gap-4 border-b border-dashed border-b-gray-200 p-2">
         <div>
           <ShoppingBasket class="size-8 text-blue-400" />
         </div>
@@ -206,36 +196,73 @@ watchDebounced(
         </div>
       </div>
       <div class="px-4 py-1 space-y-2">
-        <div class="space-y-1">
+        <div class="space-y-1 grow">
           <Label>Data Pemasok</Label>
-          <Input type="text" readonly />
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div class="space-y-1">
-            <Label>CC Mesin</Label>
-            <Input type="number" readonly />
+          <div class="flex items-center">
+            <Input type="text" readonly class="bg-white rounded-r-none" />
+            <Button
+              variant="outline"
+              class="border-l-0 rounded-r rounded-l-none"
+              @click="supplierDialogOpen = true"
+            >
+              <Contact class="size-5" />
+            </Button>
           </div>
-          <div class="space-y-1">
-            <Label>Tipe Mesin</Label>
-            <Input type="text" readonly />
-          </div>
-        </div>
-        <div class="space-y-1">
-          <Label>No. Nota</Label>
-          <Input type="text" readonly />
         </div>
 
-        <div class="space-y-1">
-          <Label>Jenis Pembayaran</Label>
-          <Input type="text" readonly />
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <Label>Nama Kontak</Label>
+            <Input type="number" readonly class="bg-white" />
+          </div>
+          <div>
+            <Label>No Whatsapp</Label>
+            <Input type="text" readonly class="bg-white" />
+          </div>
+        </div>
+        <div class="">
+          <Label>No. Nota</Label>
+          <Input type="text" readonly class="bg-white" />
         </div>
         <div class="space-y-1">
-          <Label>Biaya Extra</Label>
-          <Input type="text" readonly />
+          <Label>Tanggal Transaksi</Label>
+          <Input type="date" class="bg-white block" />
         </div>
-        <div class="space-y-1">
-          <Label>Total Pembayaran</Label>
-          <Input type="text" readonly />
+        <FormField v-slot="{ componentField }" name="payment_type">
+          <FormItem>
+            <FormLabel>
+              <FormRequiredLabel>Jenis Bayar</FormRequiredLabel>
+            </FormLabel>
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger class="bg-white">
+                  <SelectValue placeholder="Pilih Jenis Pembayaran" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    :value="payment.id"
+                    v-for="payment in payments.data"
+                    :key="payment.id"
+                  >
+                    {{ payment.name }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1">
+            <Label>Biaya Ekstra</Label>
+            <Input type="number" readonly class="bg-white" />
+          </div>
+          <div class="space-y-1">
+            <Label>Total Pembayaran</Label>
+            <Input type="text" readonly class="bg-white" />
+          </div>
         </div>
         <div class="flex">
           <Button
@@ -256,9 +283,7 @@ watchDebounced(
     <!-- ----------right content -->
     <div class="divide-y divide-gray-200">
       <div class="bg-gray-50">
-        <h3
-          class="py-3 px-3 text-sm font-medium flex items-center gap-2 text-primary"
-        >
+        <h3 class="py-3 px-3 text-sm font-medium flex items-center gap-2 text-primary">
           <span><Package2 class="size-5" /></span>
           <span>Daftar Barang</span>
         </h3>
@@ -307,10 +332,7 @@ watchDebounced(
                   </TableRow>
                 </template>
                 <template
-                  v-if="
-                    purchase_product.data.length === 0 &&
-                    !PurchaseProductsLoading
-                  "
+                  v-if="purchase_product.data.length === 0 && !PurchaseProductsLoading"
                 >
                   <TableRow>
                     <TableCell colspan="4">
@@ -318,32 +340,38 @@ watchDebounced(
                         <BadgeInfo class="size-6" />
                         <AlertTitle class="ml-2">Keterangan</AlertTitle>
                         <AlertDescription class="ml-2">
-                          Tidak terdapat data barang silahkan menambahkan
-                          terlebih dahulu
+                          Tidak terdapat data barang silahkan menambahkan terlebih dahulu
                         </AlertDescription>
                       </Alert>
                     </TableCell>
                   </TableRow>
                 </template>
                 <template
-                  v-if="
-                    purchase_product.data.length > 0 && !PurchaseProductsLoading
-                  "
+                  v-if="purchase_product.data.length > 0 && !PurchaseProductsLoading"
                 >
                   <TableRow
                     v-for="(PurchaseProduct, index) in purchase_product.data"
                     :key="index"
                   >
                     <TableCell class="font-medium w-[250px]">
-                      {{ PurchaseProduct.name }}
+                      <h3 class="font-medium">{{ PurchaseProduct.name }}</h3>
+                      <p class="text-xs text-muted-foreground">
+                        Harga lama :
+                        {{ price.convertToRupiah(PurchaseProduct.old_price) }}
+                      </p>
                     </TableCell>
-                    <TableCell class="w-[200px]">{{
-                      price.convertToRupiah(PurchaseProduct.price)
-                    }}</TableCell>
+                    <TableCell class="w-[200px] text-center">
+                      <Input
+                        type="number"
+                        class="text-left block px-2"
+                        @change="updatePrice(PurchaseProduct)"
+                        v-model="PurchaseProduct.price"
+                      />
+                    </TableCell>
                     <TableCell class="w-24 text-center">
                       <Input
                         type="number"
-                        class="text-center"
+                        class="text-right px-2"
                         @change="updateQtyProduct(PurchaseProduct)"
                         v-model="PurchaseProduct.qty"
                       />
@@ -400,9 +428,11 @@ watchDebounced(
       @selected="selectedProduct"
       @closed="() => (productDialogOpen = false)"
     />
-    <PurchaseTransactionFinishDialog
-      :purchase-id="purchase.id"
-      v-if="finishDialogOpen"
+
+    <SupplierList
+      v-if="supplierDialogOpen"
+      @selected="selectedSupplier"
+      @closed="() => (supplierDialogOpen = false)"
     />
   </div>
 </template>
