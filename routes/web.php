@@ -7,6 +7,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\RepairController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
@@ -188,6 +189,11 @@ Route::middleware('auth.backoffice')->group(
                     Route::delete('delete-product/{purchase_product}', 'deletePurchaseProduct')->name('backoffice.purchase.delete-product');
                     Route::delete('/{purchase}', 'destroy')->name('backoffice.purchase.delete');
                 });
+            });
+
+            Route::prefix('laporan')->controller(ReportController::class)->group(function () {
+                Route::get('/lservice', 'serviceReport')->name('backoffice.report.service');
+                Route::get('/lservice/cetak', 'printServiceReport')->name('backoffice.report.service-print');
             });
 
             Route::prefix('pengaturan')->group(function () {
