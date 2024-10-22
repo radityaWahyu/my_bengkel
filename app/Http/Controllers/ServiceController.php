@@ -108,6 +108,14 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function show(Service $service)
+    {
+        return inertia('ServiceTransaction/ServiceTransactionDetail', [
+            'setting' => fn() => $this->getSetting(),
+            'service' => fn() => new ServiceDetailResource($service)
+        ]);
+    }
+
     public function update(Request $request, Service $service)
     {
         try {

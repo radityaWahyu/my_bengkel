@@ -24,6 +24,8 @@ import type { IPaginationMeta, IService } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
 import { usePrice } from "@/Plugin/useNumber";
+import { useHttpService } from "@/Services/useHttpServices";
+import ReportServiceCodeBox from "@/Components/Report/ReportServiceCodeBox.vue";
 
 const props = defineProps<{
   services: { data: IService[]; meta: IPaginationMeta };
@@ -37,6 +39,7 @@ const props = defineProps<{
 }>();
 
 const price = usePrice();
+const http = useHttpService();
 const perPage = ref(props.services.meta.per_page);
 const isLoading = ref<boolean>(false);
 const serviceTable = ref<InstanceType<typeof DataTable> | null>(null);
@@ -47,22 +50,7 @@ const columns: ColumnDef<IService>[] = [
     size: 200,
     header: ({ column }) =>
       h("div", { class: "px-2 font-semibold" }, "Kode Service"),
-    cell: ({ row }) =>
-      h(
-        "div",
-        {
-          class: [
-            "capitalize font-semibold px-2 py-1 inline-flex",
-            {
-              "bg-yellow-100 text-yellow-800":
-                row.original.status === "waiting",
-            },
-          ],
-        },
-        row.original.service_code === null
-          ? "Menunggu Pengecekan..."
-          : row.original.service_code
-      ),
+    cell: ({ row }) => h(ReportServiceCodeBox, { service: row.original }),
   },
   {
     accessorKey: "created_at",
@@ -211,6 +199,23 @@ const printTransaction = () => {
   });
 };
 
+const exportTransaction = () => {
+  const url2 = ref({});
+  if (
+    dateFilter.value.startDate !== null &&
+    dateFilter.value.endDate !== null &&
+    dateFilter.value.startDate.length > 0 &&
+    dateFilter.value.endDate.length > 0
+  ) {
+    window.open(
+      route("backoffice.report.service-export") +
+        `?start_date=${dateFilter.value.startDate}&&end_date=${dateFilter.value.endDate}`
+    );
+  } else {
+    window.open(route("backoffice.report.service-export"));
+  }
+};
+
 const resetDateFilter = () => {
   dateFilter.value.startDate = "";
   dateFilter.value.endDate = "";
@@ -284,15 +289,13 @@ const resetDateFilter = () => {
               </div>
             </div>
             <div class="space-x-1">
-              <Button variant="secondary" @click="resetDateFilter"
-                >Reset</Button
-              >
-              <Button variant="default" @click="getServices"
+              <Button variant="outline" @click="resetDateFilter">Reset</Button>
+              <Button variant="default" @click="getServices(1)"
                 >Cari Transaksi</Button
               >
             </div>
             <div class="space-x-1">
-              <Button variant="outline" size="icon" @click="">
+              <Button variant="outline" size="icon" @click="exportTransaction">
                 <HardDriveDownload class="size-4 text-primary" />
               </Button>
               <Button variant="outline" size="icon" @click="printTransaction">

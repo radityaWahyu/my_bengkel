@@ -145,6 +145,7 @@ Route::middleware('auth.backoffice')->group(
                 Route::prefix('service')->controller(ServiceController::class)->group(function () {
                     Route::get('/', 'index')->name('backoffice.service.index');
                     Route::get('/create', 'create')->name('backoffice.service.create');
+                    Route::get('/detail/{service}', 'show')->name('backoffice.service.detail');
                     Route::get('/create-invoice/{service}', 'createInvoice')->name('backoffice.service.create-invoice');
                     Route::get('/receipt/{service}', 'printReceipt')->name('backoffice.service.receipt');
                     Route::get('/invoice/{service}', 'printInvoice')->name('backoffice.service.invoice');
@@ -194,6 +195,7 @@ Route::middleware('auth.backoffice')->group(
             Route::prefix('laporan')->controller(ReportController::class)->group(function () {
                 Route::get('/lservice', 'serviceReport')->name('backoffice.report.service');
                 Route::get('/lservice/cetak', 'printServiceReport')->name('backoffice.report.service-print');
+                Route::get('/lservice/export', 'exportServiceReport')->name('backoffice.report.service-export');
             });
 
             Route::prefix('pengaturan')->group(function () {

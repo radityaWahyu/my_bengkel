@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReportServiceTransactionExport;
 use Carbon\Carbon;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -75,5 +76,14 @@ class ReportController extends Controller
             'setting' => fn() => $this->getSetting(),
             'params' => fn() => (object)$response['params'],
         ]);
+    }
+
+    public function exportServiceReport(Request $request)
+    {
+        if ($request->has('start_date') && $request->has('end_date')) {
+            return (new ReportServiceTransactionExport($request->start_date, $request->end_date))->download('laporan_service.xlsx');
+        }
+
+        return (new ReportServiceTransactionExport())->download('laporan_service.xlsx');
     }
 }
