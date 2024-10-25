@@ -191,6 +191,7 @@ export interface ISale {
     product_count: number;
     status: string;
     total: number;
+    total_invoice: number;
     extra_pay: number;
     created_at: string;
     employee: string;

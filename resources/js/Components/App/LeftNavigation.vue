@@ -250,8 +250,22 @@ onMounted(() => {
                 >
                   Laporan Transaksi Service
                 </SubMenuNavigation>
-                <SubMenuNavigation> Laporan Penjualan </SubMenuNavigation>
-                <SubMenuNavigation> Laporan Pembelian </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/laporan/lpenjualan', 1)
+                  "
+                  :to="route('backoffice.report.sale')"
+                >
+                  Laporan Penjualan
+                </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/laporan/lpembelian', 1)
+                  "
+                  :to="route('backoffice.report.purchase')"
+                >
+                  Laporan Pembelian
+                </SubMenuNavigation>
               </div>
             </CollapsibleContent>
           </Collapsible>

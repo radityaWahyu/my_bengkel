@@ -196,6 +196,12 @@ Route::middleware('auth.backoffice')->group(
                 Route::get('/lservice', 'serviceReport')->name('backoffice.report.service');
                 Route::get('/lservice/cetak', 'printServiceReport')->name('backoffice.report.service-print');
                 Route::get('/lservice/export', 'exportServiceReport')->name('backoffice.report.service-export');
+                Route::get('/lpenjualan', 'saleReport')->name('backoffice.report.sale');
+                Route::get('/lpenjualan/cetak', 'printSaleReport')->name('backoffice.report.sale-print');
+                Route::get('/lpenjualan/export', 'exportSaleReport')->name('backoffice.report.sale-export');
+                Route::get('/lpembelian', 'purchaseReport')->name('backoffice.report.purchase');
+                Route::get('/lpembelian/cetak', 'printPurchaseReport')->name('backoffice.report.purchase-print');
+                Route::get('/lpembelian/export', 'exportPurchaseReport')->name('backoffice.report.purchase-export');
             });
 
             Route::prefix('pengaturan')->group(function () {

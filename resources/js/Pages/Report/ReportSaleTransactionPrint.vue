@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { IService, ISettingData } from "@/types/response";
+import { ISale, ISettingData } from "@/types/response";
 import { Head } from "@inertiajs/vue3";
 import {
   Table,
@@ -13,20 +13,20 @@ import {
 import { usePrice } from "@/Plugin/useNumber";
 
 const props = defineProps<{
-  services: { data: IService[] };
+  sales: { data: ISale[] };
   setting: ISettingData;
 }>();
 
 const price = usePrice();
-const totalServiceTransaction = computed(() =>
-  props.services.data.reduce(
+const totalSaleTransaction = computed(() =>
+  props.sales.data.reduce(
     (oldValue, newValue) => oldValue + newValue.total + newValue.extra_pay,
     0
   )
 );
 </script>
 <template>
-  <Head title="Cetak Laporan Service" />
+  <Head title="Cetak Laporan Penjualan" />
   <div class="sheet-outer">
     <div class="sheet text-wrap space-y-6">
       <div class="flex items-center gap-3">
@@ -42,7 +42,7 @@ const totalServiceTransaction = computed(() =>
         <h2
           class="scroll-m-20 border-b text-xl font-semibold tracking-tight transition-colors first:mt-0 text-center"
         >
-          LAPORAN TRANSAKSI SERVICE
+          LAPORAN TRANSAKSI PENJUALAN
         </h2>
       </div>
       <div>
@@ -50,39 +50,40 @@ const totalServiceTransaction = computed(() =>
           <TableHeader>
             <TableRow class="border border-gray-400 divide-x divide-gray-400">
               <TableHead class="w-[20px] text-center">No.</TableHead>
-              <TableHead class="w-[200px]">Kode Service</TableHead>
+              <TableHead class="w-[200px]">Kode Penjualan</TableHead>
               <TableHead class="text-center">Tanggal</TableHead>
-              <TableHead>Pelanggan</TableHead>
-              <TableHead>Kendaraan</TableHead>
+              <TableHead>Jenis Bayar</TableHead>
+              <TableHead class="text-right">Biaya Ekstra</TableHead>
+              <TableHead class="text-right">Sub Total</TableHead>
               <TableHead class="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow
-              v-for="(service, index) in services.data"
-              :key="service.id"
+              v-for="(sale, index) in sales.data"
+              :key="sale.id"
               class="border border-gray-400 divide-x divide-gray-400"
             >
               <TableCell class="text-center"> {{ index + 1 }}. </TableCell>
-              <TableCell>{{ service.service_code }}</TableCell>
-              <TableCell class="text-center">{{
-                service.created_at
-              }}</TableCell>
-              <TableCell> {{ service.customer_name }} </TableCell>
-              <TableCell>
-                <p>{{ service.vehicle_plate_number }}</p>
-                <p class="text-xs">{{ service.vehicle_name }}</p>
+              <TableCell>{{ sale.sale_code }}</TableCell>
+              <TableCell class="text-center">{{ sale.created_at }}</TableCell>
+              <TableCell class="text-center">{{ sale.payment_type }}</TableCell>
+              <TableCell class="text-right">
+                {{ price.convertToRupiah(sale.extra_pay) }}
               </TableCell>
               <TableCell class="text-right">
-                {{ price.convertToRupiah(service.total) }}
+                {{ price.convertToRupiah(sale.total) }}
+              </TableCell>
+              <TableCell class="text-right">
+                {{ price.convertToRupiah(sale.total + sale.extra_pay) }}
               </TableCell>
             </TableRow>
             <TableRow class="border border-gray-400 divide-x divide-gray-400">
-              <TableCell colspan="5" class="text-right font-semibold">
+              <TableCell colspan="6" class="text-right font-semibold">
                 Total Transaksi Service
               </TableCell>
               <TableCell class="text-right">{{
-                price.convertToRupiah(totalServiceTransaction)
+                price.convertToRupiah(totalSaleTransaction)
               }}</TableCell>
             </TableRow>
           </TableBody>

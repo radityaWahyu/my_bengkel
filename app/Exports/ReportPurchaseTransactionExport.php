@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
-use App\Models\Service;
+use App\Models\Sale;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ReportServiceTransactionExport implements FromQuery, WithHeadings, WithMapping, WithEvents
+class ReportPurchaseTransactionExport implements FromQuery, WithHeadings, WithMapping, WithEvents
 {
     use Exportable;
 
@@ -31,18 +31,18 @@ class ReportServiceTransactionExport implements FromQuery, WithHeadings, WithMap
      */
     public function query()
     {
-        $service =  Service::query()
-            ->with(['user' => ['employee'], 'vehicle' => ['customer']])
-            ->withCount(['service_repairs', 'service_products']);
+        $sale = Sale::query()
+            ->with(['sale_products' => ['product']])
+            ->withCount(['sale_products']);
 
         if ($this->start_date !== null && $this->end_date !== null) {
-            $service = $service->whereDate('finished_date', '>=', $this->start_date)
-                ->whereDate('finished_date', '<=', $this->end_date);
+            $sale = $sale->whereDate('created_at', '>=', $this->start_date)
+                ->whereDate('created_at', '<=', $this->end_date);
         } else {
-            $service = $service->whereMonth('finished_date', Carbon::today()->format('m'));
+            $sale = $sale->whereMonth('created_at', Carbon::today()->format('m'));
         };
 
-        return $service->where('status', 'finish');
+        return $sale->where('status', 'finish');
     }
 
     public function headings(): array
@@ -50,28 +50,22 @@ class ReportServiceTransactionExport implements FromQuery, WithHeadings, WithMap
         return [
             'KODE TRANSAKSI',
             'TANGGAL TRANSAKSI',
-            'NAMA PELANGGAN',
-            'PLAT NOMOR',
-            'NAMA KENDARAAN',
             'JENIS BAYAR',
             'TAMBAHAN BIAYA',
-            'TOTAL SERVICE',
+            'SUB TOTAL',
             'TOTAL INVOICE'
         ];
     }
 
-    public function map($service): array
+    public function map($sale): array
     {
         return [
-            $service->service_code,
-            $service->created_at->format('d/m/Y'),
-            $service->vehicle->customer->name,
-            $service->vehicle->plate_number,
-            $service->vehicle->name,
-            $service->payment->name,
-            $service->extra_pay,
-            $service->total,
-            $service->extra_pay + $service->total
+            $sale->sale_code,
+            $sale->created_at->format('d/m/Y'),
+            $sale->payment->name,
+            $sale->extra_pay,
+            $sale->total,
+            $sale->extra_pay + $sale->total
         ];
     }
 
@@ -85,8 +79,6 @@ class ReportServiceTransactionExport implements FromQuery, WithHeadings, WithMap
                 $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(15);
                 $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(30);
                 $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(15);
-                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(15);
-                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(15);
             },
 
         ];

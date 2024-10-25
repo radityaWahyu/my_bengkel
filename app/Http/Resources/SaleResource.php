@@ -22,6 +22,8 @@ class SaleResource extends JsonResource
             'product_count' => $this->sale_products_count,
             'status' => $this->status,
             'total' => $this->total,
+            'total_invoice' => $this->total + $this->extra_pay,
+            'payment_type' => $this->payment->name,
             'extra_pay' => $this->extra_pay,
             'created_at' => $this->created_at->format('d/m/Y'),
             'employee' => $this->user->employee->name,

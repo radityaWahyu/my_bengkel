@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { IService, ISettingData } from "@/types/response";
+import { IPurchase, ISettingData } from "@/types/response";
 import { Head } from "@inertiajs/vue3";
 import {
   Table,
@@ -13,20 +13,20 @@ import {
 import { usePrice } from "@/Plugin/useNumber";
 
 const props = defineProps<{
-  services: { data: IService[] };
+  purchases: { data: IPurchase[] };
   setting: ISettingData;
 }>();
 
 const price = usePrice();
-const totalServiceTransaction = computed(() =>
-  props.services.data.reduce(
+const totalPurchaseTransaction = computed(() =>
+  props.purchases.data.reduce(
     (oldValue, newValue) => oldValue + newValue.total + newValue.extra_pay,
     0
   )
 );
 </script>
 <template>
-  <Head title="Cetak Laporan Service" />
+  <Head title="Cetak Laporan Pembelian" />
   <div class="sheet-outer">
     <div class="sheet text-wrap space-y-6">
       <div class="flex items-center gap-3">
@@ -42,7 +42,7 @@ const totalServiceTransaction = computed(() =>
         <h2
           class="scroll-m-20 border-b text-xl font-semibold tracking-tight transition-colors first:mt-0 text-center"
         >
-          LAPORAN TRANSAKSI SERVICE
+          LAPORAN TRANSAKSI PEMBELIAN BARANG
         </h2>
       </div>
       <div>
@@ -50,39 +50,51 @@ const totalServiceTransaction = computed(() =>
           <TableHeader>
             <TableRow class="border border-gray-400 divide-x divide-gray-400">
               <TableHead class="w-[20px] text-center">No.</TableHead>
-              <TableHead class="w-[200px]">Kode Service</TableHead>
+              <TableHead class="w-[150px]">Kode Pembelian</TableHead>
+              <TableHead class="w-[100px]">Pemasok</TableHead>
               <TableHead class="text-center">Tanggal</TableHead>
-              <TableHead>Pelanggan</TableHead>
-              <TableHead>Kendaraan</TableHead>
+              <TableHead class="text-center">Jenis Bayar</TableHead>
+              <TableHead class="text-right">Biaya Ekstra</TableHead>
+              <TableHead class="text-right">Sub Total</TableHead>
               <TableHead class="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow
-              v-for="(service, index) in services.data"
-              :key="service.id"
+              v-for="(purchase, index) in purchases.data"
+              :key="purchase.id"
               class="border border-gray-400 divide-x divide-gray-400"
             >
               <TableCell class="text-center"> {{ index + 1 }}. </TableCell>
-              <TableCell>{{ service.service_code }}</TableCell>
-              <TableCell class="text-center">{{
-                service.created_at
-              }}</TableCell>
-              <TableCell> {{ service.customer_name }} </TableCell>
               <TableCell>
-                <p>{{ service.vehicle_plate_number }}</p>
-                <p class="text-xs">{{ service.vehicle_name }}</p>
+                {{ purchase.purchase_code }}
+                <span class="block text-xs"
+                  >No.Nota: {{ purchase.invoice_number }}</span
+                >
+              </TableCell>
+              <TableCell>{{ purchase.supplier }}</TableCell>
+              <TableCell class="text-center">{{
+                purchase.created_at
+              }}</TableCell>
+              <TableCell class="text-center">{{
+                purchase.payment_type
+              }}</TableCell>
+              <TableCell class="text-right">
+                {{ price.convertToRupiah(purchase.extra_pay) }}
               </TableCell>
               <TableCell class="text-right">
-                {{ price.convertToRupiah(service.total) }}
+                {{ price.convertToRupiah(purchase.total) }}
+              </TableCell>
+              <TableCell class="text-right">
+                {{ price.convertToRupiah(purchase.total + purchase.extra_pay) }}
               </TableCell>
             </TableRow>
             <TableRow class="border border-gray-400 divide-x divide-gray-400">
-              <TableCell colspan="5" class="text-right font-semibold">
-                Total Transaksi Service
+              <TableCell colspan="7" class="text-right font-semibold">
+                Total Transaksi Pembelian
               </TableCell>
               <TableCell class="text-right">{{
-                price.convertToRupiah(totalServiceTransaction)
+                price.convertToRupiah(totalPurchaseTransaction)
               }}</TableCell>
             </TableRow>
           </TableBody>

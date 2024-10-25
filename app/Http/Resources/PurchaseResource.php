@@ -25,6 +25,7 @@ class PurchaseResource extends JsonResource
             'status' => $this->status,
             'total' => $this->total,
             'extra_pay' => $this->extra_pay,
+            'payment_type' => $this->payment->name,
             'transaction_date' => empty($this->transaction_date) ? null : $this->transaction_date->format('d/m/Y'),
             'created_at' => $this->created_at->format('d/m/Y'),
             'employee' => $this->user->employee->name,
