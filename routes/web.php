@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StockCorrection;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RackController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\StockCorrectionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -204,8 +206,14 @@ Route::middleware('auth.backoffice')->group(
                 Route::get('/lpembelian/export', 'exportPurchaseReport')->name('backoffice.report.purchase-export');
             });
 
-            Route::prefix('pengaturan')->group(function () {
+            Route::prefix('stok-opname')->controller(StockCorrectionController::class)->group(function () {
+                Route::get('/', 'index')->name('backoffice.stock-correction.index');
+                Route::get('/create', 'create')->name('backoffice.stock-correction.create');
+                Route::post('/', 'store')->name('backoffice.stock-correction.store');
+                Route::delete('/{stock_correction}', 'destroy')->name('backoffice.stock-correction.delete');
+            });
 
+            Route::prefix('pengaturan')->group(function () {
                 Route::prefix('user')->controller(UserController::class)->group(function () {
                     Route::get('/', 'index')->name('backoffice.user.index');
                     Route::get('/create', 'create')->name('backoffice.user.create');

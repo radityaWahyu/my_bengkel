@@ -252,5 +252,16 @@ export interface IPurchaseDetail {
     user: IUser;
 }
 
+export interface IStockCorrection {
+    id: string;
+    product_name: string;
+    old_stock: number;
+    new_stock: number;
+    description: string;
+    employee: string;
+    created_at: string;
+}
+
+
 
 

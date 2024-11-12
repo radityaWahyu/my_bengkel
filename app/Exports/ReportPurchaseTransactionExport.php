@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\Sale;
+use App\Models\Purchase;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -31,18 +32,18 @@ class ReportPurchaseTransactionExport implements FromQuery, WithHeadings, WithMa
      */
     public function query()
     {
-        $sale = Sale::query()
-            ->with(['sale_products' => ['product']])
-            ->withCount(['sale_products']);
+        $purchase = Purchase::query()
+            ->with(['purchase_products' => ['product'], 'supplier'])
+            ->withCount(['purchase_products']);
 
         if ($this->start_date !== null && $this->end_date !== null) {
-            $sale = $sale->whereDate('created_at', '>=', $this->start_date)
+            $purchase = $purchase->whereDate('created_at', '>=', $this->start_date)
                 ->whereDate('created_at', '<=', $this->end_date);
         } else {
-            $sale = $sale->whereMonth('created_at', Carbon::today()->format('m'));
+            $purchase = $purchase->whereMonth('created_at', Carbon::today()->format('m'));
         };
 
-        return $sale->where('status', 'finish');
+        return $purchase->where('status', 'finish');
     }
 
     public function headings(): array
@@ -50,6 +51,8 @@ class ReportPurchaseTransactionExport implements FromQuery, WithHeadings, WithMa
         return [
             'KODE TRANSAKSI',
             'TANGGAL TRANSAKSI',
+            'PEMASOK',
+            'NO NOTA',
             'JENIS BAYAR',
             'TAMBAHAN BIAYA',
             'SUB TOTAL',
@@ -57,15 +60,17 @@ class ReportPurchaseTransactionExport implements FromQuery, WithHeadings, WithMa
         ];
     }
 
-    public function map($sale): array
+    public function map($purchase): array
     {
         return [
-            $sale->sale_code,
-            $sale->created_at->format('d/m/Y'),
-            $sale->payment->name,
-            $sale->extra_pay,
-            $sale->total,
-            $sale->extra_pay + $sale->total
+            $purchase->purchase_code,
+            $purchase->created_at->format('d/m/Y'),
+            $purchase->supplier->name,
+            $purchase->invoice_number,
+            $purchase->payment->name,
+            $purchase->extra_pay,
+            $purchase->total,
+            $purchase->extra_pay + $purchase->total
         ];
     }
 
@@ -77,8 +82,10 @@ class ReportPurchaseTransactionExport implements FromQuery, WithHeadings, WithMa
                 $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(15);
                 $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(35);
                 $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(15);
-                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(30);
+                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(35);
                 $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(15);
+                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(30);
+                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(15);
             },
 
         ];

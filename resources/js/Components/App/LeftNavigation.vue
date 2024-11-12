@@ -55,7 +55,8 @@ onMounted(() => {
     currentUrl.value = fullUrl[2].split("?");
     if (
       currentUrl.value[0] === "pengaturan" ||
-      currentUrl.value[0] === "transaksi"
+      currentUrl.value[0] === "transaksi" ||
+      currentUrl.value[0] === "laporan"
     )
       currentUrl.value = fullUrl[3].split("?");
   } else if (fullUrl.length >= 5) {
@@ -269,7 +270,10 @@ onMounted(() => {
               </div>
             </CollapsibleContent>
           </Collapsible>
-          <MenuNavigation>
+          <MenuNavigation
+            :active="page.url.startsWith('backoffice/stok-opname', 1)"
+            :to="route('backoffice.stock-correction.index')"
+          >
             <ClipboardPenLine class="size-5" />
             Stok Opname
           </MenuNavigation>

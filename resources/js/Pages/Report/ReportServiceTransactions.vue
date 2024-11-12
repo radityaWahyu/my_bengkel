@@ -39,7 +39,6 @@ const props = defineProps<{
 }>();
 
 const price = usePrice();
-const http = useHttpService();
 const perPage = ref(props.services.meta.per_page);
 const isLoading = ref<boolean>(false);
 const serviceTable = ref<InstanceType<typeof DataTable> | null>(null);
