@@ -7,6 +7,7 @@ use App\Http\Controllers\RackController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
@@ -211,6 +212,15 @@ Route::middleware('auth.backoffice')->group(
                 Route::get('/create', 'create')->name('backoffice.stock-correction.create');
                 Route::post('/', 'store')->name('backoffice.stock-correction.store');
                 Route::delete('/{stock_correction}', 'destroy')->name('backoffice.stock-correction.delete');
+            });
+
+            Route::prefix('jurnal')->controller(JurnalController::class)->group(function () {
+                Route::get('/', 'index')->name('backoffice.jurnal.index');
+                Route::get('/create', 'create')->name('backoffice.jurnal.create');
+                Route::get('/{jurnal}', 'edit')->name('backoffice.jurnal.edit');
+                Route::post('/', 'store')->name('backoffice.jurnal.store');
+                Route::delete('/{jurnal}', 'destroy')->name('backoffice.jurnal.delete');
+                Route::put('/{jurnal}', 'update')->name('backoffice.jurnal.update');
             });
 
             Route::prefix('pengaturan')->group(function () {

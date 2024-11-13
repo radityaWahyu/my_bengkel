@@ -262,6 +262,31 @@ export interface IStockCorrection {
     created_at: string;
 }
 
+export interface IJurnal {
+    id: string;
+    jurnal_code: string;
+    income: number;
+    expense: number;
+    transaction_id: string;
+    transaction_type: string;
+    transaction_code: string;
+    transaction_date: string;
+    payment: string;
+    description: string;
+    employee: string;
+}
+
+export interface IJurnalForm {
+    id: string;
+    income: number;
+    expense: number;
+    transaction_date: string;
+    payment: string;
+    description: string;
+}
+
+
+
 
 
 

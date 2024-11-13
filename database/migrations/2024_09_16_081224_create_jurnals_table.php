@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('expense')->default(0);
             $table->string('description');
             $table->date('transaction_date');
-            $table->uuid('transactable_id');
-            $table->string('transactable_type');
+            $table->uuid('transactable_id')->nullable();
+            $table->string('transactable_type')->nullable();
             $table->foreignUuid('user_id')->nullable();
             $table->foreign('user_id')->on('users')->references('id')->onDelete('set null');
             $table->timestamps();
