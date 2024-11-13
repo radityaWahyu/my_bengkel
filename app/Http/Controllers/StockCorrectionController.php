@@ -81,9 +81,10 @@ class StockCorrectionController extends Controller
                 $fieldValues = $request->validated() +  ['user_id' => $request->user()->id];
                 StockCorrection::create($fieldValues);
 
-                $product = Product::find($request->product_id);
-                $product->stock = $request->new_stock;
-                $product->save();
+                Product::find($request->product_id)
+                    ->update([
+                        'stock' => $request->new_stock,
+                    ]);
             });
 
             return to_route('backoffice.stock-correction.index')
@@ -96,34 +97,16 @@ class StockCorrectionController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(StockCorrection $stockCorrection)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(StockCorrection $stockCorrection)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, StockCorrection $stockCorrection)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StockCorrection $stockCorrection)
+    public function destroy(StockCorrection $stock_correction)
     {
-        //
+        try {
+            $stock_correction->delete();
+
+            return redirect()->back()->with('success', 'Data berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $exception) {
+            return redirect()->back()->with('error', $exception->errorInfo);
+        }
     }
 }

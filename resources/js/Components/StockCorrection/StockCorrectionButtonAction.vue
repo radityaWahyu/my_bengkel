@@ -20,7 +20,7 @@ const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
   deleteForm.delete(
-    route("backoffice.product.delete", props.stockCorrection.id),
+    route("backoffice.stock-correction.delete", props.stockCorrection.id),
     {
       onError: (error) => console.log(error),
       onSuccess: () => emits("deleted", true),
@@ -29,10 +29,7 @@ const onDelete = () => {
 };
 const stockCorrectionCheckingVehicle = () => {
   router.get(
-    route(
-      "backoffice.stock-correction.create-invoice",
-      props.stockCorrection.id
-    )
+    route("backoffice.stock-correction.create-invoice", props.stockCorrection.id)
   );
 };
 </script>
@@ -45,11 +42,7 @@ const stockCorrectionCheckingVehicle = () => {
       @click="openConfirmDialog = true"
       :disabled="deleteForm.processing"
     >
-      <svg
-        class="size-4 animate-spin"
-        viewBox="0 0 100 100"
-        v-if="deleteForm.processing"
-      >
+      <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="deleteForm.processing">
         <circle
           fill="none"
           stroke-width="12"
