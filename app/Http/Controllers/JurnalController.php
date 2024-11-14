@@ -46,12 +46,12 @@ class JurnalController extends Controller
                         ->whereDate('created_at', '<=', $request->end_date);
                 }
             )
-            // ->when(
-            //     $request->missing('start_date') && $request->missing('end_date'),
-            //     function ($query) use ($request) {
-            //         return $query->whereMonth('transaction_date', Carbon::today()->format('m'));
-            //     }
-            // )
+            ->when(
+                $request->missing('start_date') && $request->missing('end_date'),
+                function ($query) use ($request) {
+                    return $query->whereMonth('transaction_date', Carbon::today()->format('m'));
+                }
+            )
             ->latest('id')->paginate($perPage);
 
         return inertia('Jurnal/Index', [
