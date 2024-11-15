@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JurnalController;
@@ -248,6 +249,15 @@ Route::middleware('auth.backoffice')->group(
                     Route::post('/delete_all', 'deleteAll')->name('backoffice.payment.delete-all');
                     Route::delete('/{payment}', 'destroy')->name('backoffice.payment.delete');
                     Route::put('/{payment}', 'update')->name('backoffice.payment.update');
+                });
+
+                Route::prefix('satuan')->controller(UnitController::class)->group(function () {
+                    Route::get('/', 'index')->name('backoffice.unit.index');
+                    Route::get('/{unit}', 'edit')->name('backoffice.unit.edit');
+                    Route::post('/', 'store')->name('backoffice.unit.store');
+                    Route::post('/delete_all', 'deleteAll')->name('backoffice.unit.delete-all');
+                    Route::delete('/{unit}', 'destroy')->name('backoffice.unit.delete');
+                    Route::put('/{unit}', 'update')->name('backoffice.unit.update');
                 });
             });
         });

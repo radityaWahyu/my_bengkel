@@ -42,7 +42,7 @@ const transaksiMenu = ref(["service", "penjualan", "pembelian"]);
 
 const laporanMenu = ref(["lbarangs", "lservice", "lpenjualan", "lpembelian"]);
 
-const pengaturanMenu = ref(["user", "sistem", "pembayaran"]);
+const pengaturanMenu = ref(["user", "sistem", "pembayaran", "satuan"]);
 
 onMounted(() => {
   const fullUrl = page.url.split("/");
@@ -325,7 +325,14 @@ onMounted(() => {
                 >
                   Jenis Pembayaran
                 </SubMenuNavigation>
-                <SubMenuNavigation> Satuan </SubMenuNavigation>
+                <SubMenuNavigation
+                  :active="
+                    page.url.startsWith('backoffice/pengaturan/satuan', 1)
+                  "
+                  :to="route('backoffice.unit.index')"
+                >
+                  Satuan
+                </SubMenuNavigation>
               </div>
             </CollapsibleContent>
           </Collapsible>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('stock_corrections', function (Blueprint $table) {
             $table->string('description')->after('new_stock');
-            $table->uuid('user_id')->after('description');
+            $table->uuid('user_id')->nullable()->after('description');
             $table->foreign('user_id')->on('users')->references('id')->noActionOnDelete();
         });
     }

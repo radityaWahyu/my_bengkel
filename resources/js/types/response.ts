@@ -11,6 +11,7 @@ export interface IPaginationMeta {
 }
 
 export interface ICategory extends IBaseResponse { };
+export interface IUnit extends IBaseResponse { };
 export interface IRack extends IBaseResponse { }
 export interface IBrand extends IBaseResponse { }
 export interface IRepair extends IBaseResponse {
