@@ -8,9 +8,20 @@ export default {
 </script>
 <script setup lang="ts">
 import { reactive, watch } from "vue";
-import { Head, usePage, useForm as useInertiaForm, router, Link } from "@inertiajs/vue3";
+import {
+  Head,
+  usePage,
+  useForm as useInertiaForm,
+  router,
+  Link,
+} from "@inertiajs/vue3";
 import { ClipboardPen, ClipboardPenLine } from "lucide-vue-next";
-import { Card, CardContent, CardDescription, CardHeader } from "@/shadcn/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/shadcn/ui/card";
 import {
   Select,
   SelectContent,
@@ -31,7 +42,7 @@ import { Input } from "@/shadcn/ui/input";
 import { Button } from "@/shadcn/ui/button";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import type { ICategory, IRack, IProductForm } from "@/types/response";
+import type { ICategory, IRack, IUnit, IProductForm } from "@/types/response";
 import * as zod from "zod";
 import FormAlertInfo from "@/Components/App/FormAlertiInfo.vue";
 import FormRequiredLabel from "@/Components/App/FormRequiredLabel.vue";
@@ -41,6 +52,7 @@ import RackForm from "@/Components/Rack/RackForm.vue";
 const props = defineProps<{
   categories: { data: ICategory[] };
   racks: { data: IRack[] };
+  units: { data: IUnit[] };
   product?: IProductForm;
 }>();
 
@@ -59,6 +71,9 @@ const userSchema = () => {
         rack_id: zod
           .string({ message: "Rak harus diisi" })
           .min(1, { message: "Rak harus diisi." }),
+        unit_id: zod
+          .string({ message: "Satuan harus diisi" })
+          .min(1, { message: "Satuan harus diisi." }),
         buy_price: zod.number({ message: "Harga beli Produk harus diisi" }),
         sale_price: zod.number({ message: "Harga jual Produk harus diisi" }),
       })
@@ -75,6 +90,9 @@ const userSchema = () => {
       rack_id: zod
         .string({ message: "Rak harus diisi" })
         .min(1, { message: "Rak harus diisi." }),
+      unit_id: zod
+        .string({ message: "Satuan harus diisi" })
+        .min(1, { message: "Satuan harus diisi." }),
       stock: zod.number({ message: "Stok awal Produk harus diisi" }),
       buy_price: zod.number({ message: "Harga beli Produk harus diisi" }),
       sale_price: zod.number({ message: "Harga jual Produk harus diisi" }),
@@ -104,6 +122,7 @@ const productForm = useInertiaForm({
   name: "",
   category_id: "",
   rack_id: "",
+  unit_id: "",
   stock: 0,
   buy_price: 0,
   sale_price: 0,
@@ -116,11 +135,13 @@ watch(
       productForm.name = product.name;
       productForm.category_id = product.category_id;
       productForm.rack_id = product.rack_id;
+      productForm.unit_id = product.unit_id;
       productForm.buy_price = product.buy_price;
       productForm.sale_price = product.sale_price;
       form.setFieldValue("name", product.name);
       form.setFieldValue("category_id", product.category_id);
       form.setFieldValue("rack_id", product.rack_id);
+      form.setFieldValue("unit_id", product.unit_id);
       form.setFieldValue("buy_price", product.buy_price);
       form.setFieldValue("sale_price", product.sale_price);
     }
@@ -187,14 +208,14 @@ const onSubmit = form.handleSubmit(() => {
       <CardHeader>
         <CardDescription>
           <FormAlertInfo v-if="!product">
-            Form barang dipergunakan untuk menambah data barang yang akan dijual pada
-            pelanggan. Silahkan mengisi data sesuai dengan format yang diberikan oleh form
-            ini tombol
+            Form barang dipergunakan untuk menambah data barang yang akan dijual
+            pada pelanggan. Silahkan mengisi data sesuai dengan format yang
+            diberikan oleh form ini tombol
           </FormAlertInfo>
           <FormAlertInfo v-else>
-            Form barang dipergunakan untuk mengubah data barang yang akan dijual pada
-            pelanggan. Silahkan mengisi data sesuai dengan format yang diberikan oleh form
-            ini tombol
+            Form barang dipergunakan untuk mengubah data barang yang akan dijual
+            pada pelanggan. Silahkan mengisi data sesuai dengan format yang
+            diberikan oleh form ini tombol
           </FormAlertInfo>
         </CardDescription>
       </CardHeader>
@@ -229,7 +250,7 @@ const onSubmit = form.handleSubmit(() => {
               <FormMessage v-else />
             </FormItem>
           </FormField>
-          <div class="grid grid-cols-2 items-center gap-2">
+          <div class="grid grid-cols-3 items-center gap-2">
             <div class="flex items-end gap-1">
               <div class="grow w-full">
                 <FormField v-slot="{ componentField }" name="category_id">
@@ -268,8 +289,15 @@ const onSubmit = form.handleSubmit(() => {
                       class="bg-sky-100 flex items-center gap-2 px-2 py-2 text-sky-600 h-9 rounded"
                     >
                       <div>
-                        <BadgeInfo class="size-5" v-if="!categoryFormState.loading" />
-                        <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-else>
+                        <BadgeInfo
+                          class="size-5"
+                          v-if="!categoryFormState.loading"
+                        />
+                        <svg
+                          class="size-4 animate-spin"
+                          viewBox="0 0 100 100"
+                          v-else
+                        >
                           <circle
                             fill="none"
                             stroke-width="12"
@@ -353,8 +381,15 @@ const onSubmit = form.handleSubmit(() => {
                       class="bg-sky-100 flex items-center gap-2 px-2 py-2 text-sky-600 h-9 rounded"
                     >
                       <div>
-                        <BadgeInfo class="size-5" v-if="!rackFormState.loading" />
-                        <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-else>
+                        <BadgeInfo
+                          class="size-5"
+                          v-if="!rackFormState.loading"
+                        />
+                        <svg
+                          class="size-4 animate-spin"
+                          viewBox="0 0 100 100"
+                          v-else
+                        >
                           <circle
                             fill="none"
                             stroke-width="12"
@@ -375,7 +410,9 @@ const onSubmit = form.handleSubmit(() => {
                           />
                         </svg>
                       </div>
-                      <p class="text-xs" v-if="!rackFormState.loading">Data Rak kosong</p>
+                      <p class="text-xs" v-if="!rackFormState.loading">
+                        Data Rak kosong
+                      </p>
                       <p class="text-xs" v-else>Ambil data Rak...</p>
                     </div>
                     <div
@@ -397,6 +434,98 @@ const onSubmit = form.handleSubmit(() => {
               >
                 <Plus class="size-4" />
               </Button>
+            </div>
+            <div class="flex items-end gap-1">
+              <div class="grow w-full">
+                <FormField v-slot="{ componentField }" name="unit_id">
+                  <FormItem>
+                    <FormLabel
+                      :class="{
+                        'text-red-500': productForm.errors.unit_id,
+                      }"
+                    >
+                      <FormRequiredLabel>Satuan Barang</FormRequiredLabel>
+                    </FormLabel>
+                    <Select
+                      v-bind="componentField"
+                      v-model="productForm.unit_id"
+                      v-if="units.data.length > 0"
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Satuan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem
+                            :value="unit.id"
+                            v-for="(unit, index) in units.data"
+                            :key="index"
+                          >
+                            {{ unit.name }}
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <div
+                      v-else
+                      class="bg-sky-100 flex items-center gap-2 px-2 py-2 text-sky-600 h-9 rounded"
+                    >
+                      <div>
+                        <BadgeInfo
+                          class="size-5"
+                          v-if="!categoryFormState.loading"
+                        />
+                        <svg
+                          class="size-4 animate-spin"
+                          viewBox="0 0 100 100"
+                          v-else
+                        >
+                          <circle
+                            fill="none"
+                            stroke-width="12"
+                            class="stroke-current opacity-40"
+                            cx="50"
+                            cy="50"
+                            r="40"
+                          />
+                          <circle
+                            fill="none"
+                            stroke-width="12"
+                            class="stroke-blue-500"
+                            stroke-dasharray="250"
+                            stroke-dashoffset="210"
+                            cx="50"
+                            cy="50"
+                            r="40"
+                          />
+                        </svg>
+                      </div>
+                      <p class="text-xs" v-if="!categoryFormState.loading">
+                        Data Satuan kosong
+                      </p>
+                      <p class="text-xs" v-else>Ambil data satuan...</p>
+                    </div>
+                    <div
+                      class="text-xs text-red-500 font-medium"
+                      v-if="productForm.errors.unit_id"
+                    >
+                      {{ productForm.errors.unit_id }}
+                    </div>
+                    <FormMessage v-else />
+                  </FormItem>
+                </FormField>
+              </div>
+              <!-- <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                class="mb-[2px]"
+                @click="categoryFormState.open = true"
+              >
+                <Plus class="size-4" />
+              </Button> -->
             </div>
           </div>
           <div class="flex items-center gap-2">

@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rack;
+use App\Models\Unit;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Resources\RackResource;
+use App\Http\Resources\UnitResource;
 use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductEditResource;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class ProductController extends Controller
 {
@@ -39,7 +41,7 @@ class ProductController extends Controller
         if ($request->has('perPage')) $perPage = $request->perPage;
 
         $products = Product::query()
-            ->with(['category', 'rack'])
+            ->with(['category', 'rack', 'unit'])
             ->when($request->has('sortName'), function ($query) use ($request) {
                 if ($request->sortName == 'category')
                     return $query->orderBy('category_id', $request->sortType);
@@ -52,7 +54,7 @@ class ProductController extends Controller
             ->when($request->has('search'), function ($query) use ($request) {
                 return $query->where('name', 'like', '%' . $request->search . '%');
             })
-            ->latest()->paginate($perPage);
+            ->latest('id')->paginate($perPage);
 
         return inertia('Product/Index', [
             'products' => fn() => ProductResource::collection($products),
@@ -66,12 +68,14 @@ class ProductController extends Controller
     public function create()
     {
 
-        $categories = Category::get();
-        $racks = Rack::get();
+        $categories = Category::get(['id', 'name']);
+        $racks = Rack::get(['id', 'name']);
+        $units = Unit::get(['id', 'name']);
 
         return inertia('Product/ProductForm', [
             'categories' => fn() => CategoryResource::collection($categories),
             'racks' => fn() => RackResource::collection($racks),
+            'units' => fn() => UnitResource::collection($units),
         ]);
     }
 
@@ -93,12 +97,14 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $categories = Category::get();
-        $racks = Rack::get();
+        $categories = Category::get(['id', 'name']);
+        $racks = Rack::get(['id', 'name']);
+        $units = Unit::get(['id', 'name']);
 
         return inertia('Product/ProductForm', [
             'categories' => fn() => CategoryResource::collection($categories),
             'racks' => fn() => RackResource::collection($racks),
+            'units' => fn() => UnitResource::collection($units),
             'product' => fn() => new ProductEditResource($product)
         ]);
     }
@@ -147,7 +153,7 @@ class ProductController extends Controller
         if ($request->has('perPage')) $perPage = $request->perPage;
 
         $products = Product::query()
-            ->with(['category', 'rack'])
+            ->with(['category', 'rack', 'unit'])
             ->when($request->has('search'), function ($query) use ($request) {
                 return $query->where('name', 'like', '%' . $request->search . '%');
             })

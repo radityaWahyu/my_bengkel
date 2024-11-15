@@ -10,8 +10,8 @@ export interface IPaginationMeta {
     total: number;
 }
 
-export interface ICategory extends IBaseResponse { };
-export interface IUnit extends IBaseResponse { };
+export interface ICategory extends IBaseResponse { }
+export interface IUnit extends IBaseResponse { }
 export interface IRack extends IBaseResponse { }
 export interface IBrand extends IBaseResponse { }
 export interface IRepair extends IBaseResponse {
@@ -23,6 +23,7 @@ export interface IProduct extends IBaseResponse {
     sale_price: number;
     category: string;
     rack: string;
+    unit: string;
 }
 export interface IProductForm extends IBaseResponse {
     stock: number;
@@ -30,6 +31,7 @@ export interface IProductForm extends IBaseResponse {
     sale_price: number;
     category_id: string;
     rack_id: string;
+    unit_id: string;
 }
 export interface IEmployee extends IBaseResponse {
     gender: string;

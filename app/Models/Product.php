@@ -27,4 +27,9 @@ class Product extends Model
     {
         return $this->belongsTo(Rack::class);
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
 }

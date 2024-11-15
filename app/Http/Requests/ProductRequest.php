@@ -27,6 +27,7 @@ class ProductRequest extends FormRequest
                 'stock' => ['required', 'integer'],
                 'category_id' => ['required'],
                 'rack_id' => ['required'],
+                'unit_id' => ['required'],
                 'buy_price' => ['required', 'integer'],
                 'sale_price' => ['required', 'integer'],
             ];
@@ -35,6 +36,7 @@ class ProductRequest extends FormRequest
                 'name' => ['required'],
                 'category_id' => ['required'],
                 'rack_id' => ['required'],
+                'unit_id' => ['required'],
                 'buy_price' => ['required', 'integer'],
                 'sale_price' => ['required', 'integer'],
             ];
@@ -56,6 +58,7 @@ class ProductRequest extends FormRequest
             'name' => 'Nama Merk',
             'category_id' => 'Kategori',
             'rack_id' => 'Rak',
+            'unit_id' => 'Satuan',
             'buy_price' => 'Harga Beli',
             'sale_price' => 'Harga Jual',
             'stock' => 'Stok Awal',

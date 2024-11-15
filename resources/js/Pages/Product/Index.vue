@@ -89,7 +89,9 @@ const columns: ColumnDef<IProduct>[] = [
             if (value) {
               selectedId.value.push(row.original.id);
             } else {
-              selectedId.value = selectedId.value.filter((id) => id !== row.original.id);
+              selectedId.value = selectedId.value.filter(
+                (id) => id !== row.original.id
+              );
             }
 
             row.toggleSelected(!!value);
@@ -131,7 +133,8 @@ const columns: ColumnDef<IProduct>[] = [
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize font-semibold" }, row.original.name),
+    cell: ({ row }) =>
+      h("div", { class: "capitalize font-semibold" }, row.original.name),
   },
   {
     accessorKey: "category",
@@ -156,7 +159,8 @@ const columns: ColumnDef<IProduct>[] = [
         },
         () => [
           h("div", { class: "gap-2 flex items-center font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "category"
+            props.params?.sortType == "desc" &&
+            props.params?.sortName == "category"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
             "Kategori",
@@ -188,12 +192,17 @@ const columns: ColumnDef<IProduct>[] = [
           class: "w-full flex justify-between text-left px-0",
         },
         () => [
-          h("div", { class: "gap-2 flex items-center text-left font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "rack"
-              ? h(ArrowUpDown, { class: "h-4 w-4" })
-              : h(ArrowDownUp, { class: "h-4 w-4" }),
-            "Rak",
-          ]),
+          h(
+            "div",
+            { class: "gap-2 flex items-center text-left font-semibold" },
+            [
+              props.params?.sortType == "desc" &&
+              props.params?.sortName == "rack"
+                ? h(ArrowUpDown, { class: "h-4 w-4" })
+                : h(ArrowDownUp, { class: "h-4 w-4" }),
+              "Rak",
+            ]
+          ),
         ]
       );
     },
@@ -222,7 +231,8 @@ const columns: ColumnDef<IProduct>[] = [
         },
         () => [
           h("div", { class: "gap-2 flex text-center font-semibold" }, [
-            props.params?.sortType == "desc" && props.params?.sortName == "stock"
+            props.params?.sortType == "desc" &&
+            props.params?.sortName == "stock"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
             "Stok",
@@ -230,7 +240,12 @@ const columns: ColumnDef<IProduct>[] = [
         ]
       );
     },
-    cell: ({ row }) => h("div", { class: "text-center" }, row.original.stock),
+    cell: ({ row }) =>
+      h(
+        "div",
+        { class: "text-center" },
+        row.original.stock + " " + row.original.unit
+      ),
   },
   {
     accessorKey: "buy_price",
@@ -256,10 +271,12 @@ const columns: ColumnDef<IProduct>[] = [
         h(
           "div",
           {
-            class: "gap-2 w-full flex items-center justify-end font-semibold text-right",
+            class:
+              "gap-2 w-full flex items-center justify-end font-semibold text-right",
           },
           [
-            props.params?.sortType == "desc" && props.params?.sortName == "buy_price"
+            props.params?.sortType == "desc" &&
+            props.params?.sortName == "buy_price"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
             "Harga Beli",
@@ -268,7 +285,11 @@ const columns: ColumnDef<IProduct>[] = [
       );
     },
     cell: ({ row }) =>
-      h("div", { class: "text-right" }, price.convertToRupiah(row.original.buy_price)),
+      h(
+        "div",
+        { class: "text-right" },
+        price.convertToRupiah(row.original.buy_price)
+      ),
   },
   {
     accessorKey: "sale_price",
@@ -294,10 +315,12 @@ const columns: ColumnDef<IProduct>[] = [
         h(
           "div",
           {
-            class: "gap-2 w-full flex items-center justify-end font-semibold text-right",
+            class:
+              "gap-2 w-full flex items-center justify-end font-semibold text-right",
           },
           [
-            props.params?.sortType == "desc" && props.params?.sortName == "sale_price"
+            props.params?.sortType == "desc" &&
+            props.params?.sortName == "sale_price"
               ? h(ArrowUpDown, { class: "h-4 w-4" })
               : h(ArrowDownUp, { class: "h-4 w-4" }),
             "Harga Jual",
@@ -306,7 +329,11 @@ const columns: ColumnDef<IProduct>[] = [
       );
     },
     cell: ({ row }) =>
-      h("div", { class: "text-right" }, price.convertToRupiah(row.original.sale_price)),
+      h(
+        "div",
+        { class: "text-right" },
+        price.convertToRupiah(row.original.sale_price)
+      ),
   },
   {
     id: "actions",
@@ -416,7 +443,11 @@ watchDebounced(
             :disabled="isLoading"
             @click="openDeleteConfirm = true"
           >
-            <svg class="size-4 animate-spin" viewBox="0 0 100 100" v-if="isLoading">
+            <svg
+              class="size-4 animate-spin"
+              viewBox="0 0 100 100"
+              v-if="isLoading"
+            >
               <circle
                 fill="none"
                 stroke-width="12"
@@ -452,8 +483,8 @@ watchDebounced(
       </div>
     </div>
     <HeaderInformation>
-      Data barang dipergunakan untuk memanjemen barang yang akan dijual pada pelanggan.
-      Silahkan menambahkan data baru dengan mengklik tombol
+      Data barang dipergunakan untuk memanjemen barang yang akan dijual pada
+      pelanggan. Silahkan menambahkan data baru dengan mengklik tombol
       <strong>Tambah Barang</strong>
     </HeaderInformation>
     <div>
@@ -474,7 +505,9 @@ watchDebounced(
               placeholder="Cari data..."
               class="pl-10 w-full bg-white"
             />
-            <span class="absolute inset-y-0 flex items-center justify-center px-2">
+            <span
+              class="absolute inset-y-0 flex items-center justify-center px-2"
+            >
               <Search class="size-4 text-muted-foreground" />
             </span>
             <span
@@ -497,7 +530,9 @@ watchDebounced(
         <div>Konfirmasi Hapus Data</div>
       </template>
       <template #description>
-        <div>Apakah anda ingin menghapus {{ selectedId.length }} data ini ?</div>
+        <div>
+          Apakah anda ingin menghapus {{ selectedId.length }} data ini ?
+        </div>
       </template>
     </ConfirmDialog>
   </div>
