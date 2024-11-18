@@ -12,6 +12,7 @@ use App\Http\Resources\SaleResource;
 use App\Http\Resources\ServiceResource;
 use App\Http\Resources\PurchaseResource;
 use App\Exports\ReportSaleTransactionExport;
+use App\Http\Resources\ServiceDetailResource;
 use App\Exports\ReportServiceTransactionExport;
 use App\Exports\ReportPurchaseTransactionExport;
 
@@ -237,5 +238,58 @@ class ReportController extends Controller
         }
 
         return (new ReportPurchaseTransactionExport())->download('laporan_pembelian.xlsx');
+    }
+
+    public function serviceHistory(Request $request)
+    {
+
+        $perPage = 10;
+        $params = [];
+
+
+
+        if ($request->has('search')) {
+            $params += ['search' => $request->search];
+        }
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+        $services = Service::query()
+            ->with(['user' => ['employee'], 'vehicle' => ['customer']])
+            ->withCount(['service_repairs', 'service_products'])
+            ->when($request->has('sortName'), function ($query) use ($request) {
+                return $query->orderBy($request->sortName, $request->sortType);
+            })
+            ->when($request->has('search'), function ($query) use ($request) {
+                return $query->whereHas('vehicle', function ($query) use ($request) {
+                    return $query->where('plate_number', 'like', '%' . $request->search . '%')
+                        ->orWhereHas('customer', function ($query) use ($request) {
+                            return $query->where('name', 'like', '%' . $request->search . '%');
+                        });
+                });
+            })
+            ->when($request->missing('search'), function ($query) use ($request) {
+                return $query->whereMonth('finished_date', Carbon::today()->format('m'));
+            })
+            ->where('status', 'finish');
+
+        if ($request->missing('paginate')) {
+            $services = $services->paginate($perPage);
+        } else {
+            $services = $services->get();
+        }
+
+        return inertia('History/HistoryServiceTransactions', [
+            'services' => fn() => ServiceResource::collection($services),
+            'params' => fn() => (object)$params,
+        ]);
+    }
+
+
+    public function serviceDetailHistory(Service $service)
+    {
+        return inertia('History/HistoryServiceTransactionDetail', [
+            'service' => fn() => new ServiceDetailResource($service),
+            'edit' => fn() => true,
+        ]);
     }
 }

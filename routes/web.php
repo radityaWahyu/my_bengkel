@@ -48,6 +48,8 @@ Route::prefix('backoffice/auth')->controller(AuthController::class)->group(
 
 Route::middleware('auth.backoffice')->group(
     function () {
+        Route::post('/logout', [AuthController::class, 'destroy'])->name('backoffice.auth.logout');
+
         Route::prefix('backoffice')->group(function () {
             Route::prefix('auth')->controller(AuthController::class)->group(function () {
                 Route::get('/logout', 'destroy')->name('backoffice.auth.destroy');
@@ -195,6 +197,13 @@ Route::middleware('auth.backoffice')->group(
                     Route::delete('/{purchase}', 'destroy')->name('backoffice.purchase.delete');
                 });
             });
+
+            Route::prefix('history')->controller(ReportController::class)->group(function () {
+                Route::get('/service',  'serviceHistory')->name('backoffice.history.service');
+                Route::get('/service/{service}', 'serviceDetailHistory')->name('backoffice.history.service-detail');
+            });
+
+
 
             Route::prefix('laporan')->controller(ReportController::class)->group(function () {
                 Route::get('/lservice', 'serviceReport')->name('backoffice.report.service');

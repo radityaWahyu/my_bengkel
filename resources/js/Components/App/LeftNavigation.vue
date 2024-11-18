@@ -219,7 +219,10 @@ onMounted(() => {
               </div>
             </CollapsibleContent>
           </Collapsible>
-          <MenuNavigation>
+          <MenuNavigation
+            :active="page.url.startsWith('backoffice/history/service', 1)"
+            :to="route('backoffice.history.service')"
+          >
             <History class="h-5 w-5" />
             History Service
           </MenuNavigation>

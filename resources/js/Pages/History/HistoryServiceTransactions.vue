@@ -15,17 +15,17 @@ import {
   FileSpreadsheet,
   Printer,
   HardDriveDownload,
+  History,
+  Search,
 } from "lucide-vue-next";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
-import { Label } from "@/shadcn/ui/label";
 import type { ColumnDef } from "@tanstack/vue-table";
 import type { IPaginationMeta, IService } from "@/types/response";
 import HeaderInformation from "@/Components/App/HeaderInformation.vue";
 import DataTable from "@/Components/App/DataTable.vue";
 import { usePrice } from "@/Plugin/useNumber";
-import { useHttpService } from "@/Services/useHttpServices";
-import ReportServiceCodeBox from "@/Components/Report/ReportServiceCodeBox.vue";
+import ServiceDetailButton from "@/Components/History/ServiceDetailButton.vue";
 
 const props = defineProps<{
   services: { data: IService[]; meta: IPaginationMeta };
@@ -33,13 +33,12 @@ const props = defineProps<{
     sortName: string;
     sortType: string;
     search: string;
-    start_date: string;
-    end_date: string;
   };
 }>();
 
 const price = usePrice();
 const perPage = ref(props.services.meta.per_page);
+const search = ref(props.params?.search);
 const isLoading = ref<boolean>(false);
 const serviceTable = ref<InstanceType<typeof DataTable> | null>(null);
 const columns: ColumnDef<IService>[] = [
@@ -49,7 +48,7 @@ const columns: ColumnDef<IService>[] = [
     size: 200,
     header: ({ column }) =>
       h("div", { class: "px-2 font-semibold" }, "Kode Service"),
-    cell: ({ row }) => h(ReportServiceCodeBox, { service: row.original }),
+    cell: ({ row }) => h(ServiceDetailButton, { service: row.original }),
   },
   {
     accessorKey: "created_at",
@@ -138,10 +137,6 @@ const changeLimit = (limit: number) => {
   getServices(props.services.meta.current_page);
 };
 
-const dateFilter = ref({
-  startDate: props.params.start_date,
-  endDate: props.params.end_date,
-});
 // function get category data from database
 const getServices = (page: number) => {
   const url = ref({ page: page, perPage: perPage.value });
@@ -152,19 +147,9 @@ const getServices = (page: number) => {
       sortType: props.params.sortType,
     });
   }
-  if (
-    dateFilter.value.startDate !== null &&
-    dateFilter.value.endDate !== null &&
-    dateFilter.value.startDate.length > 0 &&
-    dateFilter.value.endDate.length > 0
-  ) {
-    Object.assign(url.value, {
-      start_date: dateFilter.value.startDate,
-      end_date: dateFilter.value.endDate,
-    });
-  }
+  if (search.value !== null) Object.assign(url.value, { search });
 
-  router.get(route("backoffice.report.service"), url.value, {
+  router.get(route("backoffice.history.service"), url.value, {
     only: ["services", "params"],
     preserveState: true,
     preserveScroll: true,
@@ -174,89 +159,26 @@ const getServices = (page: number) => {
   });
 };
 
-const printTransaction = () => {
-  const url2 = ref({});
-  if (
-    dateFilter.value.startDate !== null &&
-    dateFilter.value.endDate !== null &&
-    dateFilter.value.startDate.length > 0 &&
-    dateFilter.value.endDate.length > 0
-  ) {
-    Object.assign(url2.value, {
-      start_date: dateFilter.value.startDate,
-      end_date: dateFilter.value.endDate,
-    });
-  }
-
-  router.get(route("backoffice.report.service-print"), url2.value, {
-    only: ["services", "params"],
-    preserveState: true,
-    preserveScroll: true,
-    onError: (error) => console.log(error),
-    onStart: () => (isLoading.value = true),
-    onFinish: () => (isLoading.value = false),
-  });
-};
-
-const exportTransaction = () => {
-  const url2 = ref({});
-  if (
-    dateFilter.value.startDate !== null &&
-    dateFilter.value.endDate !== null &&
-    dateFilter.value.startDate.length > 0 &&
-    dateFilter.value.endDate.length > 0
-  ) {
-    window.open(
-      route("backoffice.report.service-export") +
-        `?start_date=${dateFilter.value.startDate}&&end_date=${dateFilter.value.endDate}`
-    );
-  } else {
-    window.open(route("backoffice.report.service-export"));
-  }
-};
-
-const resetDateFilter = () => {
-  dateFilter.value.startDate = "";
-  dateFilter.value.endDate = "";
+const resetFilter = () => {
+  search.value = "";
   getServices(1);
 };
 </script>
 <template>
-  <Head title="Laporan Transaksi Service" />
+  <Head title="History Service" />
   <div>
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <FileSpreadsheet class="size-10" />
-        <h1 class="text-lg font-semibold">Laporan Transaksi Service</h1>
+        <History class="size-10" />
+        <h1 class="text-lg font-semibold">History Service Kendaraan</h1>
       </div>
     </div>
     <HeaderInformation>
-      Halaman ini dipergunakan untuk melihat laporan transaksi service yang
-      masuk dalam bengkel
+      Halaman ini dipergunakan untuk melihat history service yang masuk dalam
+      bengkel.
     </HeaderInformation>
-    <div class="px-2 py-6 inline-flex items-center gap-4 w-full">
-      <div
-        class="rounded border border-gray-200 px-2 py-2 text-center grow bg-gray-100"
-      >
-        <h4 class="text-sm font-medium text-muted-foreground">
-          Jumlah Service
-        </h4>
-        <div class="text-2xl font-bold text-primary">
-          {{ services.data.length }} Data
-        </div>
-      </div>
-      <div
-        class="rounded border border-gray-200 px-2 py-2 text-center grow bg-gray-100"
-      >
-        <h4 class="text-sm font-medium text-muted-foreground">
-          Total Pemasukan Service
-        </h4>
-        <div class="text-2xl font-bold text-primary">
-          {{ price.convertToRupiah(totalMoneyServiceTransaction) }}
-        </div>
-      </div>
-    </div>
-    <div class="bg-gray-100">
+
+    <div class="bg-gray-100 mt-5">
       <DataTable
         ref="serviceTable"
         :columns="columns"
@@ -268,37 +190,23 @@ const resetDateFilter = () => {
       >
         <template #filter>
           <div class="inline-flex items-center gap-2">
-            <div class="space-x-4">
-              <div class="inline-flex items-center gap-2">
-                <Label class="grow">Tanggal Awal</Label>
-                <Input
-                  type="date"
-                  class="bg-white block w-40"
-                  v-model="dateFilter.startDate"
-                />
-              </div>
-              <div class="inline-flex items-center gap-2">
-                <Label class="grow">Tanggal Akhir</Label>
-                <Input
-                  type="date"
-                  class="bg-white block w-40"
-                  v-model="dateFilter.endDate"
-                />
-              </div>
-            </div>
-            <div class="space-x-1">
-              <Button variant="outline" @click="resetDateFilter">Reset</Button>
-              <Button variant="default" @click="getServices(1)"
-                >Cari Transaksi</Button
+            <div class="relative items-center w-[400px]">
+              <Input
+                id="search"
+                type="text"
+                placeholder="Cari no plat / nama pelanggan..."
+                class="pl-7 bg-white"
+                v-model="search"
+              />
+              <span
+                class="absolute start-0 inset-y-0 flex items-center justify-center px-2"
               >
+                <Search class="size-4 text-muted-foreground" />
+              </span>
             </div>
             <div class="space-x-1">
-              <Button variant="outline" size="icon" @click="exportTransaction">
-                <HardDriveDownload class="size-4 text-primary" />
-              </Button>
-              <Button variant="outline" size="icon" @click="printTransaction">
-                <Printer class="size-4 text-primary" />
-              </Button>
+              <Button variant="outline" @click="resetFilter">Reset</Button>
+              <Button variant="default" @click="getServices(1)"> Cari </Button>
             </div>
           </div>
         </template>

@@ -21,13 +21,18 @@ import {
   DropdownMenuTrigger,
 } from "@/shadcn/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/shadcn/ui/sheet";
+import { router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
+
+function logout() {
+  router.post(route("backoffice.auth.logout"), {}, { replace: true });
+}
 </script>
 <template>
   <header
     class="flex h-14 items-center gap-4 border-b bg-white py-4 px-4 lg:px-6"
   >
-    <Sheet>
+    <!-- <Sheet>
       <SheetTrigger as-child>
         <Button variant="outline" size="icon" class="shrink-0 md:hidden">
           <Menu class="h-5 w-5" />
@@ -77,7 +82,7 @@ import { Button } from "@/shadcn/ui/button";
           </a>
         </nav>
       </SheetContent>
-    </Sheet>
+    </Sheet> -->
     <div class="w-full flex-1"></div>
     <div class="flex items-center gap-3 bg-sky-50 px-2 py-1 rounded">
       <div class="text-right text-sky-900">
@@ -103,7 +108,7 @@ import { Button } from "@/shadcn/ui/button";
         <DropdownMenuContent align="end">
           <DropdownMenuItem>Edit Profil</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem @click="logout">Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
