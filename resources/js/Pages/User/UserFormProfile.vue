@@ -146,20 +146,10 @@ onMounted(() => {
       <div class="flex items-center px-4 gap-4 text-primary">
         <UserRoundPen class="size-8" v-if="user" />
         <UserRoundPlus class="size-8" v-else />
-        <h1 class="font-medium tracking-wider" v-if="user">Edit Profil</h1>
-        <h1 class="font-medium tracking-wider" v-else>Tambah User</h1>
+        <h1 class="font-medium tracking-wider">Edit Profil</h1>
       </div>
 
       <div class="space-x-2">
-        <Link
-          :href="route('backoffice.user.index')"
-          as="button"
-          type="button"
-          :disabled="profileForm.processing"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-        >
-          Batal
-        </Link>
         <Button @click="onSubmit">
           <span v-if="profileForm.processing">Meyimpan data...</span>
           <span v-else>Simpan data</span>
@@ -176,7 +166,7 @@ onMounted(() => {
             >
               <Users class="size-8 text-blue-400" />
               <div>
-                <h4 class="font-medium">Data Pegawai</h4>
+                <h4 class="font-medium">Data Uesr</h4>
                 <p class="text-sm text-gray-300">
                   Pastikan data pegawai sudah benar dan sesuai dengan kartu
                   identitas pegawai.
@@ -346,18 +336,7 @@ onMounted(() => {
               </FormItem>
             </FormField>
           </div>
-          <div
-            class="flex items-center gap-4 mb-5 border-b border-dashed border-b-gray-200 p-2"
-          >
-            <UserCircle class="size-8 text-blue-400" />
-            <div>
-              <h4 class="font-medium">Form User</h4>
-              <p class="text-sm text-gray-300">
-                Pastikan isian data user telah terinput dengan benar sesuai
-                dengan permintaan form.
-              </p>
-            </div>
-          </div>
+
           <div class="grid grid-cols-2 item-center gap-2">
             <div>
               <FormField v-slot="{ componentField }" name="username">
