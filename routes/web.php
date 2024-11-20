@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\StockCorrection;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RackController;
@@ -22,6 +22,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StockCorrectionController;
+use App\Http\Controllers\ProfilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,9 +49,16 @@ Route::prefix('backoffice/auth')->controller(AuthController::class)->group(
 
 Route::middleware('auth.backoffice')->group(
     function () {
+
+
         Route::post('/logout', [AuthController::class, 'destroy'])->name('backoffice.auth.logout');
 
         Route::prefix('backoffice')->group(function () {
+            Route::prefix('profil')->controller(ProfilController::class)->group(function () {
+                Route::get('/',  'index')->name('backoffice.profil.index');
+                Route::put('/{profil}',  'update')->name('backoffice.profil.update');
+            });
+
             Route::prefix('auth')->controller(AuthController::class)->group(function () {
                 Route::get('/logout', 'destroy')->name('backoffice.auth.destroy');
             });

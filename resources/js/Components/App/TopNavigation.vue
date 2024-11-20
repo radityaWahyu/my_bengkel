@@ -27,6 +27,10 @@ import { Button } from "@/shadcn/ui/button";
 function logout() {
   router.post(route("backoffice.auth.logout"), {}, { replace: true });
 }
+
+function editProfil() {
+  router.get(route("backoffice.profil.index"));
+}
 </script>
 <template>
   <header
@@ -106,7 +110,7 @@ function logout() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Edit Profil</DropdownMenuItem>
+          <DropdownMenuItem @click="editProfil">Edit Profil</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem @click="logout">Logout</DropdownMenuItem>
         </DropdownMenuContent>

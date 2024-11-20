@@ -113,6 +113,17 @@ export interface IUserEdit {
     employee_id: string;
 }
 
+export interface IUserProfile {
+    user_id: string;
+    employee_id: string;
+    name: string;
+    phone: string;
+    whatsapp: string;
+    address: string;
+    gender: string;
+    username: string;
+}
+
 export interface ISetting {
     id: string;
     name: string;
