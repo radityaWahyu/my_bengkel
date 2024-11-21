@@ -19,7 +19,7 @@ const deleteForm = useForm({});
 const openConfirmDialog = ref<boolean>(false);
 const onDelete = () => {
   openConfirmDialog.value = false;
-  deleteForm.delete(route("backoffice.product.delete", props.service.id), {
+  deleteForm.delete(route("backoffice.service.delete", props.service.id), {
     onError: (error) => console.log(error),
     onSuccess: () => emits("deleted", true),
   });

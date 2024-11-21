@@ -144,6 +144,7 @@ class ServiceController extends Controller
                             'description' => 'Pembayaran Transaksi service dengan kode' . $service->service_code . 'oleh pelanggan' . $service->vehicle->customer->name,
                             'transaction_date' => $service->created_at,
                             'user_id' => $request->user()->id,
+                            'payment_id' => $request->payment_id,
                         ]);
 
 
@@ -223,7 +224,7 @@ class ServiceController extends Controller
         try {
             DB::transaction(function () use ($service, $request) {
 
-                $service_products = $service->sale_products;
+                $service_products = $service->service_products;
 
                 // dd($service_products->count());
                 if ($service_products->count() > 0) {
