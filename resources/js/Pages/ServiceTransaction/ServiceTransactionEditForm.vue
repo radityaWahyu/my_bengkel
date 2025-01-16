@@ -1,20 +1,13 @@
 <script lang="ts">
 import Backoffice from "@/Layouts/Backoffice.vue";
-import { readonly } from "vue";
 
 export default {
   layout: Backoffice,
 };
 </script>
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, watch } from "vue";
-import {
-  Head,
-  usePage,
-  useForm as useInertiaForm,
-  router,
-  Link,
-} from "@inertiajs/vue3";
+import { ref, reactive, computed, defineAsyncComponent, watch } from "vue";
+import { Head, usePage, useForm as useInertiaForm, router, Link } from "@inertiajs/vue3";
 import { Card, CardContent, CardHeader } from "@/shadcn/ui/card";
 
 import {
@@ -69,9 +62,6 @@ import type {
   ICustomerPay,
 } from "@/types/response";
 
-// import RepairList from "@/Components/Repair/RepairList.vue";
-// import ProductList from "@/Components/Product/ProductList.vue";
-// import EmployeeList from "@/Components/Employee/EmployeeList.vue";
 import ServiceTransactionFinishDialog from "@/Components/ServiceTransaction/ServiceTransactionFinishDialog.vue";
 import TopAlert from "@/Components/App/TopAlert.vue";
 
@@ -93,12 +83,20 @@ const ServiceTransactionPayment = defineAsyncComponent(
   () => import("@/Components/ServiceTransaction/ServiceTransactionPayment.vue")
 );
 
+const AlertDialog = defineAsyncComponent(
+  () => import("@/Components/App/AlertDialog.vue")
+);
+
 const repairDialogOpen = ref<boolean>(false);
 const productDialogOpen = ref<boolean>(false);
 const employeeDialogOpen = ref<boolean>(false);
 const paymentDialogOpen = ref<boolean>(false);
 const finishDialogOpen = ref<boolean>(false);
 const repairIdSelected = ref<string>("");
+const alertDialog = reactive({
+  show: false,
+  message: "",
+});
 
 const isLoading = ref<boolean>(false);
 const isLoadingProduct = ref<boolean>(false);
@@ -152,9 +150,7 @@ const productsSubTotal = computed(() => {
   );
 });
 
-const totalInvoice = computed(
-  () => productsSubTotal.value + repairsSubTotal.value
-);
+const totalInvoice = computed(() => productsSubTotal.value + repairsSubTotal.value);
 
 const onRepairSelected = (value: IRepair) => {
   repairDialogOpen.value = false;
@@ -289,6 +285,13 @@ const onPaymentSelected = (payment: ICustomerPay) => {
 };
 
 const startRepair = (repairId: string) => {
+  // props.service.repairs.find((value, index) => {
+  //   if (value.id === repairId) {
+  //     alert(value.employee_name);
+  //     return true;
+  //   }
+  // });
+
   router.post(
     route("backoffice.service.start-repair", repairId),
     {},
@@ -336,6 +339,18 @@ const updateStatusService = form.handleSubmit(() => {
   }
 });
 const onSubmit = () => {
+  let countServiceTechnician = 0;
+  props.service.repairs.forEach((value) => {
+    if (value.employee_id === null) countServiceTechnician++;
+  });
+
+  if (countServiceTechnician > 0) {
+    alertDialog.message =
+      "Untuk melakukan proses service pada kendaraan silahkan pilih mekanik terlebih dahulu.";
+    alertDialog.show = true;
+    return true;
+  }
+
   if (serviceEditForm.status !== "") return updateStatusService();
 
   if (props.service.status === "waiting")
@@ -379,8 +394,8 @@ watch(
               <div>
                 <h4 class="font-medium">Data Kendaraan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki
-                  oleh pelanggan.
+                  Silahkan cek data kendaraan apakah sesuai dengan yang dimiliki oleh
+                  pelanggan.
                 </p>
               </div>
             </div>
@@ -397,11 +412,7 @@ watch(
               </div>
               <div class="">
                 <Label>Nama Pelanggan</Label>
-                <Input
-                  type="text"
-                  :default-value="service.vehicle.customer"
-                  readonly
-                />
+                <Input type="text" :default-value="service.vehicle.customer" readonly />
               </div>
             </div>
             <div class="grid grid-cols-4 gap-2">
@@ -418,9 +429,7 @@ watch(
                 <Input
                   type="text"
                   :default-value="
-                    service.vehicle.engine_type === 'petrol'
-                      ? 'Bensin'
-                      : 'Diesel'
+                    service.vehicle.engine_type === 'petrol' ? 'Bensin' : 'Diesel'
                   "
                   readonly
                 />
@@ -453,18 +462,13 @@ watch(
               <div>
                 <h4 class="font-medium">Keluhan Pelanggan</h4>
                 <p class="text-sm text-gray-500">
-                  Keluhan pelanggan berisikan diagnosa awal yang diberikan oleh
-                  pelanggan terhadap kerusakan pada kendaraan yang dimiliki
-                  pelanggan.
+                  Keluhan pelanggan berisikan diagnosa awal yang diberikan oleh pelanggan
+                  terhadap kerusakan pada kendaraan yang dimiliki pelanggan.
                 </p>
               </div>
             </div>
             <div>
-              <Textarea
-                cols="6"
-                :default-value="service.description"
-                readonly
-              />
+              <Textarea cols="6" :default-value="service.description" readonly />
             </div>
           </div>
           <div class="space-y-3">
@@ -475,8 +479,8 @@ watch(
               <div class="grow">
                 <h4 class="font-medium">Daftar Perbaikan</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan untuk memasukkan jenis jasa perbaikan pada kendaraan
-                  dengan mengklik tombol
+                  Silahkan untuk memasukkan jenis jasa perbaikan pada kendaraan dengan
+                  mengklik tombol
                   <strong>Pilih Perbaikan</strong>
                 </p>
               </div>
@@ -503,21 +507,13 @@ watch(
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody
-                v-if="!!service && service.repairs.length > 0 && !isLoading"
-              >
-                <TableRow
-                  v-for="(repair, index) in service.repairs"
-                  :key="index"
-                >
+              <TableBody v-if="!!service && service.repairs.length > 0 && !isLoading">
+                <TableRow v-for="(repair, index) in service.repairs" :key="index">
                   <TableCell class="font-medium">
                     {{ repair.name }}
                   </TableCell>
                   <TableCell class="capitalize text-center">
-                    <div
-                      v-if="repair.employee_name"
-                      class="bg-sky-100 py-1 w-full"
-                    >
+                    <div v-if="repair.employee_name" class="bg-sky-100 py-1 w-full">
                       {{ repair.employee_name }}
                     </div>
                     <div v-else class="bg-yellow-100 px-2 py-1 w-full">
@@ -533,19 +529,13 @@ watch(
                     </div>
                     <div
                       class="w-full bg-blue-50 py-1"
-                      v-if="
-                        repair.started_at !== null &&
-                        repair.finished_at === null
-                      "
+                      v-if="repair.started_at !== null && repair.finished_at === null"
                     >
                       Proses Perbaikan
                     </div>
                     <div
                       class="w-full bg-green-50 py-1"
-                      v-if="
-                        repair.started_at !== null &&
-                        repair.finished_at !== null
-                      "
+                      v-if="repair.started_at !== null && repair.finished_at !== null"
                     >
                       Perbaikan Selesai
                     </div>
@@ -579,18 +569,12 @@ watch(
                         variant="default"
                         :disabled="isLoadingInvoice"
                         @click="startRepair(repair.id)"
-                        v-if="
-                          repair.started_at === null &&
-                          repair.finished_at === null
-                        "
+                        v-if="repair.started_at === null && repair.finished_at === null"
                       >
                         <span>Proses</span>
                       </Button>
                       <Button
-                        v-if="
-                          repair.started_at !== null &&
-                          repair.finished_at === null
-                        "
+                        v-if="repair.started_at !== null && repair.finished_at === null"
                         size="sm"
                         variant="default"
                         :disabled="isLoadingInvoice"
@@ -634,8 +618,7 @@ watch(
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data perbaikan silahkan menambahkan
-                        terlebih dahulu
+                        Tidak terdapat data perbaikan silahkan menambahkan terlebih dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -652,8 +635,8 @@ watch(
               <div class="grow">
                 <h4 class="font-medium">Daftar Spare Part</h4>
                 <p class="text-sm text-gray-500">
-                  Silahkan untuk memasukkan spare part perbaikan pada kendaraan
-                  dengan silahkan mengklik tombol
+                  Silahkan untuk memasukkan spare part perbaikan pada kendaraan dengan
+                  silahkan mengklik tombol
                   <strong>Pilih Spare Part</strong>
                 </p>
               </div>
@@ -680,16 +663,11 @@ watch(
                 </TableRow>
               </TableHeader>
               <TableBody v-if="service!! && service.products.length > 0">
-                <TableRow
-                  v-for="(product, index) in service.products"
-                  :key="index"
-                >
+                <TableRow v-for="(product, index) in service.products" :key="index">
                   <TableCell class="font-medium">
                     {{ product.name }}
                   </TableCell>
-                  <TableCell>{{
-                    price.convertToRupiah(product.price)
-                  }}</TableCell>
+                  <TableCell>{{ price.convertToRupiah(product.price) }}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
@@ -731,8 +709,7 @@ watch(
                       <OctagonAlert class="size-6" />
                       <AlertTitle class="ml-2">Keterangan</AlertTitle>
                       <AlertDescription class="ml-2">
-                        Tidak terdapat data barang silahkan menambahkan terlebih
-                        dahulu
+                        Tidak terdapat data barang silahkan menambahkan terlebih dahulu
                       </AlertDescription>
                     </Alert>
                   </TableCell>
@@ -747,9 +724,7 @@ watch(
             type="error"
             class="flex-shrink w-full"
           />
-          <div
-            class="flex items-start justify-between w-full py-4 px-4 bg-sky-50"
-          >
+          <div class="flex items-start justify-between w-full py-4 px-4 bg-sky-50">
             <div class="space-y-2 grow h-auto relative">
               <FormField v-slot="{ componentField }" name="status">
                 <FormItem>
@@ -783,9 +758,7 @@ watch(
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <p class="px-2 py-1 bg-green-200 text-sm" v-else>
-                    Transaksi Selesai
-                  </p>
+                  <p class="px-2 py-1 bg-green-200 text-sm" v-else>Transaksi Selesai</p>
                   <div
                     class="text-xs text-red-500 font-medium"
                     v-if="serviceEditForm.errors.status"
@@ -879,9 +852,13 @@ watch(
       @selected="onPaymentSelected"
       @closed="paymentDialogOpen = false"
     />
-    <ServiceTransactionFinishDialog
-      :service-id="service.id"
-      v-if="finishDialogOpen"
+    <ServiceTransactionFinishDialog :service-id="service.id" v-if="finishDialogOpen" />
+
+    <AlertDialog
+      v-if="alertDialog.show"
+      alert-type="error"
+      :messages="alertDialog.message"
+      @closed="alertDialog.show = false"
     />
   </div>
 </template>

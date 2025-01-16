@@ -13,6 +13,7 @@ import {
   HandCoins,
   ClipboardPenLine,
   History,
+  Wrench,
 } from "lucide-vue-next";
 import {
   Collapsible,
@@ -225,6 +226,13 @@ onMounted(() => {
           >
             <History class="h-5 w-5" />
             History Service
+          </MenuNavigation>
+          <MenuNavigation
+            :active="page.url.startsWith('backoffice/mekanik/service', 1)"
+            :to="route('backoffice.mechanic.service')"
+          >
+            <Wrench class="h-5 w-5" />
+            Daftar Perbaikan
           </MenuNavigation>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger

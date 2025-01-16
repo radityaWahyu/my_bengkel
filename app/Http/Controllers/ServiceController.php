@@ -20,6 +20,7 @@ use App\Http\Resources\ServiceReceipt;
 use App\Http\Resources\ServiceResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ServiceDetailResource;
+use App\Http\Resources\ServiceMechanicResource;
 use App\Http\Resources\ServiceReceiptResource;
 
 class ServiceController extends Controller
@@ -449,5 +450,50 @@ class ServiceController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->with('error', $exception);
         }
+    }
+
+    public function listServiceForMechanic(Request $request)
+    {
+
+        // $perPage = 10;
+        $params = [];
+
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+
+        $repairs = ServiceRepair::query()
+            ->join('services', 'services.id', '=', 'service_repairs.service_id')
+            ->join('vehicles', 'vehicles.id', '=', 'services.vehicle_id')
+            ->join('customers', 'customers.id', '=', 'vehicles.customer_id')
+            ->select(
+                'service_repairs.id as repair_id',
+                'service_repairs.service_id',
+                'services.service_code',
+                'vehicles.plate_number',
+                'customers.name as customer_name',
+                'services.description as service_description',
+                'service_repairs.started_at',
+                'service_repairs.finished_at'
+            )
+            ->where('employee_id', $request->user()->employee->id)
+            ->get();
+
+
+
+
+        // $repairs = ServiceRepair::query()
+        //     ->with(['service' => ['vehicle' => 'customer'], 'employee'])
+        //     ->whereHas('employee', function ($query) use ($request) {
+        //         return $query->where('employee_id', $request->user()->employee_id);
+        //     })
+        //     ->latest('id');
+
+
+
+        return inertia('Mechanic/Index', [
+            'repairs' => fn() => ServiceMechanicResource::collection($repairs),
+            'params' => fn() => (object)$params,
+        ]);
     }
 }

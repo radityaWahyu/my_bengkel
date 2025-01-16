@@ -19,6 +19,11 @@ class ServiceRepair extends Model
         'finished_at' => 'datetime',
     ];
 
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
     public function repair()
     {
         return $this->belongsTo(Repair::class);

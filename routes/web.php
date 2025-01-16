@@ -211,6 +211,10 @@ Route::middleware('auth.backoffice')->group(
                 Route::get('/service/{service}', 'serviceDetailHistory')->name('backoffice.history.service-detail');
             });
 
+            Route::prefix('mekanik')->controller(ServiceController::class)->group(function () {
+                Route::get('/service',  'listServiceForMechanic')->name('backoffice.mechanic.service');
+            });
+
 
 
             Route::prefix('laporan')->controller(ReportController::class)->group(function () {

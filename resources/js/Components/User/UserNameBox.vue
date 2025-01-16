@@ -20,6 +20,6 @@ defineProps<{
     >
       <UserRound class="size-4" />
     </div>
-    <span>{{ user.username }}</span>
+    <span class="normal-case">{{ user.username }}</span>
   </div>
 </template>
