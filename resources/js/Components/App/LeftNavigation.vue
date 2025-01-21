@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import {
   Home,
@@ -45,6 +45,12 @@ const transaksiMenu = ref(["service", "penjualan", "pembelian"]);
 const laporanMenu = ref(["lbarangs", "lservice", "lpenjualan", "lpembelian"]);
 
 const pengaturanMenu = ref(["user", "sistem", "pembayaran", "satuan"]);
+
+const isAdminAndOperator = computed(
+  () =>
+    page.props.auth.user.level === "administrator" ||
+    page.props.auth.user.level === "administrator"
+);
 
 onMounted(() => {
   const fullUrl = page.url.split("/");
@@ -105,7 +111,7 @@ onMounted(() => {
             <Home class="h-5 w-5" />
             Dashboard
           </MenuNavigation>
-          <Collapsible v-model:open="masterDataOpen">
+          <Collapsible v-model:open="masterDataOpen" v-if="isAdminAndOperator">
             <CollapsibleTrigger
               class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="masterDataOpen != masterDataOpen"
@@ -175,7 +181,7 @@ onMounted(() => {
               </div>
             </CollapsibleContent>
           </Collapsible>
-          <Collapsible v-model:open="transaksiOpen">
+          <Collapsible v-model:open="transaksiOpen" v-if="isAdminAndOperator">
             <CollapsibleTrigger
               class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="transaksiMenu != transaksiMenu"
@@ -231,6 +237,7 @@ onMounted(() => {
           <MenuNavigation
             :active="page.url.startsWith('backoffice/mekanik/service', 1)"
             :to="route('backoffice.mechanic.service')"
+            v-if="page.props.auth.user.level === 'mekanik'"
           >
             <Wrench class="h-5 w-5" />
             Daftar Perbaikan
@@ -238,11 +245,12 @@ onMounted(() => {
           <MenuNavigation
             :active="page.url.startsWith('backoffice/mekanik/finished', 1)"
             :to="route('backoffice.mechanic.finished')"
+            v-if="page.props.auth.user.level === 'mekanik'"
           >
             <CheckCircle2 class="h-5 w-5" />
             Perbaikan Selesai
           </MenuNavigation>
-          <Collapsible v-model:open="laporanOpen">
+          <Collapsible v-model:open="laporanOpen" v-if="isAdminAndOperator">
             <CollapsibleTrigger
               class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="laporanOpen != laporanOpen"
@@ -292,6 +300,7 @@ onMounted(() => {
           <MenuNavigation
             :active="page.url.startsWith('backoffice/stok-opname', 1)"
             :to="route('backoffice.stock-correction.index')"
+            v-if="isAdminAndOperator"
           >
             <ClipboardPenLine class="size-5" />
             Stok Opname
@@ -299,11 +308,15 @@ onMounted(() => {
           <MenuNavigation
             :active="page.url.startsWith('backoffice/jurnal', 1)"
             :to="route('backoffice.jurnal.index')"
+            v-if="isAdminAndOperator"
           >
             <HandCoins class="h-5 w-5" />
             Jurnal
           </MenuNavigation>
-          <Collapsible v-model:open="pengaturanOpen">
+          <Collapsible
+            v-model:open="pengaturanOpen"
+            v-if="page.props.auth.user.level === 'administrator'"
+          >
             <CollapsibleTrigger
               class="flex w-full items-center text-sm font-medium px-4 py-3 border-l-[6px] border-l-sky-100 hover:bg-gray-100"
               @click="pengaturanOpen != pengaturanOpen"
