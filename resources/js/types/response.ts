@@ -299,6 +299,24 @@ export interface IJurnalForm {
     description: string;
 }
 
+export interface IRepairList {
+    service_id: string;
+    repair_id: string;
+    service_code: string;
+    repair_name: string;
+    vehicle_plate_number: string;
+    vehicle_name: string;
+    customer_name: string;
+    description: string;
+    started_at: string;
+    finished_at: string;
+    created_at: string;
+}
+
+export enum ERepairStatus {
+    start,
+    finish,
+}
 
 
 

@@ -14,6 +14,7 @@ import {
   ClipboardPenLine,
   History,
   Wrench,
+  CheckCircle2,
 } from "lucide-vue-next";
 import {
   Collapsible,
@@ -233,6 +234,13 @@ onMounted(() => {
           >
             <Wrench class="h-5 w-5" />
             Daftar Perbaikan
+          </MenuNavigation>
+          <MenuNavigation
+            :active="page.url.startsWith('backoffice/mekanik/finished', 1)"
+            :to="route('backoffice.mechanic.finished')"
+          >
+            <CheckCircle2 class="h-5 w-5" />
+            Perbaikan Selesai
           </MenuNavigation>
           <Collapsible v-model:open="laporanOpen">
             <CollapsibleTrigger

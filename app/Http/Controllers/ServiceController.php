@@ -455,7 +455,6 @@ class ServiceController extends Controller
     public function listServiceForMechanic(Request $request)
     {
 
-        // $perPage = 10;
         $params = [];
 
 
@@ -463,35 +462,65 @@ class ServiceController extends Controller
 
 
         $repairs = ServiceRepair::query()
+            ->join('repairs', 'repairs.id', '=', 'service_repairs.repair_id')
             ->join('services', 'services.id', '=', 'service_repairs.service_id')
             ->join('vehicles', 'vehicles.id', '=', 'services.vehicle_id')
             ->join('customers', 'customers.id', '=', 'vehicles.customer_id')
             ->select(
                 'service_repairs.id as repair_id',
+                'repairs.name as repair_name',
                 'service_repairs.service_id',
                 'services.service_code',
                 'vehicles.plate_number',
+                'vehicles.name as vehicle_name',
                 'customers.name as customer_name',
                 'services.description as service_description',
                 'service_repairs.started_at',
-                'service_repairs.finished_at'
+                'service_repairs.finished_at',
+                'service_repairs.created_at'
             )
             ->where('employee_id', $request->user()->employee->id)
-            ->get();
-
-
-
-
-        // $repairs = ServiceRepair::query()
-        //     ->with(['service' => ['vehicle' => 'customer'], 'employee'])
-        //     ->whereHas('employee', function ($query) use ($request) {
-        //         return $query->where('employee_id', $request->user()->employee_id);
-        //     })
-        //     ->latest('id');
-
-
+            ->whereNull('service_repairs.finished_at')
+            ->oldest('service_repairs.created_at')->get();
 
         return inertia('Mechanic/Index', [
+            'repairs' => fn() => ServiceMechanicResource::collection($repairs),
+            'params' => fn() => (object)$params,
+        ]);
+    }
+
+    public function finishedServiceForMechanic(Request $request)
+    {
+
+        $params = [];
+
+
+        if ($request->has('perPage')) $perPage = $request->perPage;
+
+
+        $repairs = ServiceRepair::query()
+            ->join('repairs', 'repairs.id', '=', 'service_repairs.repair_id')
+            ->join('services', 'services.id', '=', 'service_repairs.service_id')
+            ->join('vehicles', 'vehicles.id', '=', 'services.vehicle_id')
+            ->join('customers', 'customers.id', '=', 'vehicles.customer_id')
+            ->select(
+                'service_repairs.id as repair_id',
+                'repairs.name as repair_name',
+                'service_repairs.service_id',
+                'services.service_code',
+                'vehicles.plate_number',
+                'vehicles.name as vehicle_name',
+                'customers.name as customer_name',
+                'services.description as service_description',
+                'service_repairs.started_at',
+                'service_repairs.finished_at',
+                'service_repairs.created_at'
+            )
+            ->where('employee_id', $request->user()->employee->id)
+            ->whereNotNull('service_repairs.finished_at')
+            ->latest('service_repairs.finished_at')->get();
+
+        return inertia('Mechanic/Finished', [
             'repairs' => fn() => ServiceMechanicResource::collection($repairs),
             'params' => fn() => (object)$params,
         ]);

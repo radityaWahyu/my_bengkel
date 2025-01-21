@@ -10,7 +10,7 @@ export default {
 import { Head } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import { IRepairList } from "@/types/response";
-import { Wrench, OctagonAlert } from "lucide-vue-next";
+import { CircleCheck, OctagonAlert } from "lucide-vue-next";
 import { Alert, AlertDescription, AlertTitle } from "@/shadcn/ui/alert";
 import {
   Table,
@@ -49,8 +49,8 @@ const getRepairs = () => {
   <div class="flex flex-1 flex-col gap-2 py-3">
     <div class="flex items-center divide-x divide-gray-300 p-2">
       <div class="flex items-center px-4 gap-4 text-primary">
-        <Wrench class="size-10" />
-        <h1 class="text-lg font-semibold">Daftar Perbaikan</h1>
+        <CircleCheck class="size-10" />
+        <h1 class="text-lg font-semibold">Daftar Perbaikan Selesai</h1>
       </div>
     </div>
     <HeaderInformation>
@@ -60,15 +60,14 @@ const getRepairs = () => {
     </HeaderInformation>
     <div>
       <!-- repair table -->
-      <Table class="border-b border-b-gray-200">
+      <Table class="border-b border-b-gray-200 table-fixed scrollbar">
         <TableHeader class="border-t border-t-gray-200 shadow bg-gray-100">
           <TableRow>
             <TableHead class="px-5"> Kode Service </TableHead>
-            <TableHead class="text-center">No Plat</TableHead>
-            <TableHead class="">Nama Pelanggan</TableHead>
-            <TableHead class="">Nama Kendaraan</TableHead>
-            <TableHead class="">Nama Perbaikan</TableHead>
-            <TableHead></TableHead>
+            <TableHead>Info Kendaraan</TableHead>
+            <TableHead class="">Perbaikan</TableHead>
+            <TableHead class="text-center">Waktu Mulai</TableHead>
+            <TableHead class="text-center">Waktu Selesai</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,20 +80,25 @@ const getRepairs = () => {
               <h3 class="font-medium">{{ repair.service_code }}</h3>
               <p class="text-xs">Tanggal : {{ repair.created_at }}</p>
             </TableCell>
-            <TableCell class="font-medium text-center">
-              {{ repair.vehicle_plate_number }}
-            </TableCell>
             <TableCell class="font-medium">
-              {{ repair.customer_name }}
-            </TableCell>
-            <TableCell class="font-medium">
-              {{ repair.vehicle_name }}
+              <h3 class="font-medium">
+                {{ repair.vehicle_plate_number }} - {{ repair.vehicle_name }}
+              </h3>
+
+              <p class="text-xs">Pemilik : {{ repair.customer_name }}</p>
             </TableCell>
             <TableCell class="font-medium">
               {{ repair.repair_name }}
             </TableCell>
-            <TableCell>
-              <MechanicRepairButton :repair="repair" @finished="getRepairs" />
+            <TableCell class="font-medium">
+              <span class="bg-cyan-200 py-1 flex justify-center">
+                {{ repair.started_at }}
+              </span>
+            </TableCell>
+            <TableCell class="font-medium">
+              <span class="bg-green-200 py-1 flex justify-center">
+                {{ repair.started_at }}
+              </span>
             </TableCell>
           </TableRow>
         </TableBody>
@@ -106,7 +110,7 @@ const getRepairs = () => {
                 <OctagonAlert class="size-6" />
                 <AlertTitle class="ml-2">Keterangan</AlertTitle>
                 <AlertDescription class="ml-2">
-                  Tidak terdapat data perbaikan pada akun anda
+                  Tidak terdapat perbaikan yang telah di selesaikan
                 </AlertDescription>
               </Alert>
             </TableCell>

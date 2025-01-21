@@ -213,6 +213,7 @@ Route::middleware('auth.backoffice')->group(
 
             Route::prefix('mekanik')->controller(ServiceController::class)->group(function () {
                 Route::get('/service',  'listServiceForMechanic')->name('backoffice.mechanic.service');
+                Route::get('/finished',  'finishedServiceForMechanic')->name('backoffice.mechanic.finished');
             });
 
 
