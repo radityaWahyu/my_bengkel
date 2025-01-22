@@ -49,8 +49,6 @@ Route::prefix('backoffice/auth')->controller(AuthController::class)->group(
 
 Route::middleware('auth.backoffice')->group(
     function () {
-
-
         Route::post('/logout', [AuthController::class, 'destroy'])->name('backoffice.auth.logout');
 
         Route::prefix('backoffice')->group(function () {
@@ -215,8 +213,6 @@ Route::middleware('auth.backoffice')->group(
                 Route::get('/service',  'listServiceForMechanic')->name('backoffice.mechanic.service');
                 Route::get('/finished',  'finishedServiceForMechanic')->name('backoffice.mechanic.finished');
             });
-
-
 
             Route::prefix('laporan')->controller(ReportController::class)->group(function () {
                 Route::get('/lservice', 'serviceReport')->name('backoffice.report.service');

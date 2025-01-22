@@ -49,7 +49,7 @@ const pengaturanMenu = ref(["user", "sistem", "pembayaran", "satuan"]);
 const isAdminAndOperator = computed(
   () =>
     page.props.auth.user.level === "administrator" ||
-    page.props.auth.user.level === "administrator"
+    page.props.auth.user.level === "operator"
 );
 
 onMounted(() => {
