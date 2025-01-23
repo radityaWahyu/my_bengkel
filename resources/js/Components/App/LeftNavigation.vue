@@ -107,7 +107,9 @@ onMounted(() => {
       </div>
       <div class="flex-1 overflow-y-auto scrollbar">
         <nav class="grid items-start text-sm font-medium">
-          <MenuNavigation>
+          <MenuNavigation
+            :active="page.url.startsWith('backoffice/dashboard', 1)"
+          >
             <Home class="h-5 w-5" />
             Dashboard
           </MenuNavigation>

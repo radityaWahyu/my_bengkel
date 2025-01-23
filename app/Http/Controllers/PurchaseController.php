@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use App\Models\PurchaseProduct;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\PaymentResource;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseDetailResource;
 use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\SaleDetailResource;

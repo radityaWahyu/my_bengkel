@@ -313,10 +313,7 @@ export interface IRepairList {
     created_at: string;
 }
 
-export enum ERepairStatus {
-    start,
-    finish,
-}
+
 
 
 

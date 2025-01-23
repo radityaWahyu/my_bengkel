@@ -18,11 +18,13 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\StockCorrectionController;
 use App\Http\Controllers\ProfilController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +62,8 @@ Route::middleware('auth.backoffice')->group(
             Route::prefix('auth')->controller(AuthController::class)->group(function () {
                 Route::get('/logout', 'destroy')->name('backoffice.auth.destroy');
             });
+
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('backoffice.dashboard.index');
 
             Route::prefix('kategori')->controller(CategoryController::class)->group(function () {
                 Route::get('/', 'index')->name('backoffice.category.index');
