@@ -2,7 +2,7 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h, DefineComponent } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
@@ -24,3 +24,14 @@ createInertiaApp({
         showSpinner: true,
     },
 });
+
+
+router.on('success', (event) => {
+    const isAuthenticated = event.detail.page.props.auth.user !== null;
+
+    window.localStorage.setItem('isAuthenticated', `${isAuthenticated}`);
+})
+
+window.addEventListener('popstate', (event) => {
+    if (window.localStorage.getItem('isAuthenticated') === 'false') router.replace('/');
+})

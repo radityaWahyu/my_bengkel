@@ -25,6 +25,7 @@ import { router } from "@inertiajs/vue3";
 import { Button } from "@/shadcn/ui/button";
 
 function logout() {
+  localStorage.setItem("isAuthenticated", `false`);
   router.post(route("backoffice.auth.logout"), {}, { replace: true });
 }
 

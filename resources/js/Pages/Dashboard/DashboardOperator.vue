@@ -23,22 +23,25 @@ type TMainDashboard = {
   service_count?: number;
   service_finished?: number;
   customer_count?: number;
+  income_now?: number;
+  expense_now?: number;
 };
 
 const props = defineProps<TMainDashboard>();
 
 const isLoading = ref<boolean>(false);
 
-onMounted(() => {
-  router.get(
-    route("backoffice.dashboard.index"),
-    {},
-    {
-      only: ["saldo", "service_count", "service_finished", "customer_count"],
-      onStart: () => (isLoading.value = true),
-      onFinish: () => (isLoading.value = false),
-    }
-  );
+router.reload({
+  only: [
+    "saldo",
+    "service_count",
+    "service_finished",
+    "customer_count",
+    "income_now",
+    "expense_now",
+  ],
+  onBefore: () => (isLoading.value = true),
+  onFinish: () => (isLoading.value = false),
 });
 </script>
 
@@ -52,8 +55,8 @@ onMounted(() => {
       </div>
     </div>
     <div class="px-4">
-      <div class="flex gap-2">
-        <Card class="grow">
+      <div class="flex flex-wrap gap-2">
+        <Card class="shrink w-72">
           <CardHeader
             class="flex flex-row items-center justify-between space-y-0 pb-1"
           >
@@ -70,13 +73,45 @@ onMounted(() => {
             </p>
           </CardContent>
         </Card>
-        <Card class="grow">
+        <Card class="shrink w-72">
           <CardHeader
             class="flex flex-row items-center justify-between space-y-0 pb-1"
           >
-            <CardTitle class="text-sm font-medium">
-              Jumlah Perbaikan
-            </CardTitle>
+            <CardTitle class="text-sm font-medium"> Pemasukan </CardTitle>
+            <Activity class="size-4" />
+          </CardHeader>
+          <CardContent>
+            <div class="py-4" v-if="isLoading">
+              <Skeleton class="h-2 w-full" />
+            </div>
+            <div class="text-2xl font-bold" v-else>{{ income_now }}</div>
+            <p class="text-xs text-muted-foreground">
+              Jumlah pemasukan bulan ini
+            </p>
+          </CardContent>
+        </Card>
+        <Card class="shrink w-72">
+          <CardHeader
+            class="flex flex-row items-center justify-between space-y-0 pb-1"
+          >
+            <CardTitle class="text-sm font-medium"> Pengeluaran </CardTitle>
+            <Activity class="size-4" />
+          </CardHeader>
+          <CardContent>
+            <div class="py-4" v-if="isLoading">
+              <Skeleton class="h-2 w-full" />
+            </div>
+            <div class="text-2xl font-bold" v-else>{{ expense_now }}</div>
+            <p class="text-xs text-muted-foreground">
+              Jumlah pengeluaran bulan ini
+            </p>
+          </CardContent>
+        </Card>
+        <Card class="shrink w-72">
+          <CardHeader
+            class="flex flex-row items-center justify-between space-y-0 pb-1"
+          >
+            <CardTitle class="text-sm font-medium"> Perbaikan </CardTitle>
             <Activity class="size-4" />
           </CardHeader>
           <CardContent>
@@ -89,12 +124,12 @@ onMounted(() => {
             <p class="text-xs text-muted-foreground">jumlah perbaikan</p>
           </CardContent>
         </Card>
-        <Card class="grow">
+        <Card class="shrink w-72">
           <CardHeader
             class="flex flex-row items-center justify-between space-y-0 pb-1"
           >
             <CardTitle class="text-sm font-medium">
-              Jumlah Perbaikan Selesai
+              Perbaikan Selesai
             </CardTitle>
             <Activity class="size-4" />
           </CardHeader>
@@ -110,7 +145,7 @@ onMounted(() => {
             </p>
           </CardContent>
         </Card>
-        <Card class="grow">
+        <Card class="shrink w-72">
           <CardHeader
             class="flex flex-row items-center justify-between space-y-0 pb-1"
           >

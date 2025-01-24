@@ -27,16 +27,10 @@ const props = defineProps<TMechanicDashboard>();
 
 const isLoading = ref<boolean>(false);
 
-onMounted(() => {
-  router.get(
-    route("backoffice.dashboard.index"),
-    {},
-    {
-      only: ["count_repair", "count_finished_repair"],
-      onStart: () => (isLoading.value = true),
-      onFinish: () => (isLoading.value = false),
-    }
-  );
+router.reload({
+  only: ["count_repair", "count_finished_repair"],
+  onStart: () => (isLoading.value = true),
+  onFinish: () => (isLoading.value = false),
 });
 </script>
 

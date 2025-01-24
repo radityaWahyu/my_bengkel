@@ -39,11 +39,14 @@ class DashboardController extends Controller
 
     public function mainDashboard()
     {
+
         return inertia('Dashboard/DashboardOperator', [
             'saldo' => Inertia::lazy(fn() => $this->getSaldo()),
             'service_finished' => Inertia::lazy(fn() => $this->services()),
             'service_count' => Inertia::lazy(fn() => $this->services(false)),
-            'customer_count' => Inertia::lazy(fn() => Customer::select('id')->count())
+            'customer_count' => Inertia::lazy(fn() => Customer::select('id')->count()),
+            'income_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_income),
+            'expense_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_expense),
         ]);
     }
 
@@ -55,6 +58,16 @@ class DashboardController extends Controller
         )->get();
 
         return $jurnal[0]->total_income - $jurnal[0]->total_expense;
+    }
+
+    public function getTransactionNow()
+    {
+        return Jurnal::select(
+            DB::raw('SUM(income)AS total_income'),
+            DB::raw('SUM(expense)AS total_expense'),
+        )
+            ->whereMonth('created_at', Carbon::today()->format('m'))
+            ->get();
     }
 
     public function services($done = true)
