@@ -33,5 +33,5 @@ router.on('success', (event) => {
 })
 
 window.addEventListener('popstate', (event) => {
-    if (window.localStorage.getItem('isAuthenticated') === 'false') router.replace('/');
+    if (window.localStorage.getItem('isAuthenticated') === 'false') router.get('/', {}, { replace: true });
 })
