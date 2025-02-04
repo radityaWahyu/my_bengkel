@@ -45,8 +45,8 @@ class DashboardController extends Controller
             'service_finished' => Inertia::lazy(fn() => $this->services()),
             'service_count' => Inertia::lazy(fn() => $this->services(false)),
             'customer_count' => Inertia::lazy(fn() => Customer::select('id')->count()),
-            'income_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_income),
-            'expense_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_expense),
+            'income_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_income ?? 0),
+            'expense_now' => Inertia::lazy(fn() => $this->getTransactionNow()[0]->total_expense ?? 0),
         ]);
     }
 
