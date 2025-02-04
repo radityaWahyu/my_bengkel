@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shadcn/ui/card";
+import DashboardCard from "@/Components/App/DashboardCard.vue";
 
 type TMechanicDashboard = {
   count_repair?: number;
@@ -44,47 +45,23 @@ router.reload({
       </div>
     </div>
     <div class="px-4">
-      <div class="flex gap-2">
-        <Card class="grow">
-          <CardHeader
-            class="flex flex-row items-center justify-between space-y-0 pb-1"
-          >
-            <CardTitle class="text-sm font-medium">
-              Jumlah Perkerjaan
-            </CardTitle>
-            <Activity class="size-4" />
-          </CardHeader>
-          <CardContent>
-            <div class="py-4" v-if="isLoading">
-              <Skeleton class="h-2 w-full" />
-            </div>
-            <div class="text-2xl font-bold" v-else>{{ count_repair }}</div>
-            <p class="text-xs text-muted-foreground">
-              jumlah perbaikan mekanik
-            </p>
-          </CardContent>
-        </Card>
-        <Card class="grow">
-          <CardHeader
-            class="flex flex-row items-center justify-between space-y-0 pb-1"
-          >
-            <CardTitle class="text-sm font-medium">
-              Jumlah Perbaikan Selesai
-            </CardTitle>
-            <Activity class="size-4" />
-          </CardHeader>
-          <CardContent>
-            <div class="py-4" v-if="isLoading">
-              <Skeleton class="h-2 w-full" />
-            </div>
-            <div class="text-2xl font-bold" v-else>
-              {{ count_finished_repair }}
-            </div>
-            <p class="text-xs text-muted-foreground">
-              jumlah perbaikan selesai
-            </p>
-          </CardContent>
-        </Card>
+      <div class="flex flex-wrap gap-2">
+        <DashboardCard
+          title="Jumlah Pekerjaan"
+          :content="count_repair"
+          description="Jumlah perbaikan mekanik"
+          :loading="isLoading"
+        >
+          <template #icon><Activity class="size-4" /></template>
+        </DashboardCard>
+        <DashboardCard
+          title="Jumlah Pekerjaan Selesai"
+          :content="count_finished_repair"
+          description="Jumlah perbaikan selesai"
+          :loading="isLoading"
+        >
+          <template #icon><Activity class="size-4" /></template>
+        </DashboardCard>
       </div>
     </div>
   </div>

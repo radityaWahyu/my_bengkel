@@ -6,7 +6,17 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'My Bengkel';
+
+router.on('success', (event) => {
+    const isAuthenticated = event.detail.page.props.auth.user !== null;
+
+    window.localStorage.setItem('isAuthenticated', `${isAuthenticated}`);
+})
+
+window.addEventListener('popstate', (event) => {
+    if (window.localStorage.getItem('isAuthenticated') === 'false') router.get('/', {}, { replace: true });
+})
 
 createInertiaApp({
     resolve: (name) => resolvePageComponent(
@@ -26,12 +36,3 @@ createInertiaApp({
 });
 
 
-router.on('success', (event) => {
-    const isAuthenticated = event.detail.page.props.auth.user !== null;
-
-    window.localStorage.setItem('isAuthenticated', `${isAuthenticated}`);
-})
-
-window.addEventListener('popstate', (event) => {
-    if (window.localStorage.getItem('isAuthenticated') === 'false') router.get('/', {}, { replace: true });
-})

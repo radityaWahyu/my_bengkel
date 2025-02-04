@@ -97,7 +97,9 @@ const onSubmit = form.handleSubmit((formData) => {
       :type="alert.type"
     />
     <div class="h-[calc(100vh-3.5rem)] flex items-center justify-center">
-      <Card class="w-full max-w-sm rounded">
+      <Card
+        class="w-full max-w-sm rounded bg-transparent border-none shadow-none lg:border-1 lg:bg-white lg:shadow-sm"
+      >
         <CardHeader>
           <CardTitle class="text-2xl"> Login User</CardTitle>
           <CardDescription>

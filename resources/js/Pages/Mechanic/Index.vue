@@ -60,14 +60,14 @@ const getRepairs = () => {
     </HeaderInformation>
     <div>
       <!-- repair table -->
-      <Table class="border-b border-b-gray-200">
+      <Table class="border-b border-b-gray-200 table-fixed scrollbar">
         <TableHeader class="border-t border-t-gray-200 shadow bg-gray-100">
           <TableRow>
-            <TableHead class="px-5"> Kode Service </TableHead>
-            <TableHead class="text-center">No Plat</TableHead>
-            <TableHead class="">Nama Pelanggan</TableHead>
-            <TableHead class="">Nama Kendaraan</TableHead>
-            <TableHead class="">Nama Perbaikan</TableHead>
+            <TableHead class="px-5 w-[150px]"> Kode Service </TableHead>
+            <TableHead class="text-center w-[150px]">No Plat</TableHead>
+            <TableHead class="w-[200px]">Nama Pelanggan</TableHead>
+            <TableHead class="w-[200px]">Nama Kendaraan</TableHead>
+            <TableHead class="w-[250px]">Nama Perbaikan</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>

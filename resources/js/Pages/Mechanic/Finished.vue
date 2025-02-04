@@ -63,11 +63,11 @@ const getRepairs = () => {
       <Table class="border-b border-b-gray-200 table-fixed scrollbar">
         <TableHeader class="border-t border-t-gray-200 shadow bg-gray-100">
           <TableRow>
-            <TableHead class="px-5"> Kode Service </TableHead>
-            <TableHead>Info Kendaraan</TableHead>
-            <TableHead class="">Perbaikan</TableHead>
-            <TableHead class="text-center">Waktu Mulai</TableHead>
-            <TableHead class="text-center">Waktu Selesai</TableHead>
+            <TableHead class="px-5 w-[250px]"> Kode Service </TableHead>
+            <TableHead class="w-[150px]">Info Kendaraan</TableHead>
+            <TableHead class="w-[250px]">Perbaikan</TableHead>
+            <TableHead class="text-center w-[120px]">Waktu Mulai</TableHead>
+            <TableHead class="text-center w-[120px]">Waktu Selesai</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -91,13 +91,17 @@ const getRepairs = () => {
               {{ repair.repair_name }}
             </TableCell>
             <TableCell class="font-medium">
-              <span class="bg-cyan-200 py-1 flex justify-center">
+              <span
+                class="bg-cyan-200 py-1 flex justify-center text-center px-2"
+              >
                 {{ repair.started_at }}
               </span>
             </TableCell>
             <TableCell class="font-medium">
-              <span class="bg-green-200 py-1 flex justify-center">
-                {{ repair.started_at }}
+              <span
+                class="bg-green-200 py-1 flex justify-center text-center px-2"
+              >
+                {{ repair.finished_at }}
               </span>
             </TableCell>
           </TableRow>

@@ -13,7 +13,7 @@ const onClose = () => (alertShow.value = false);
   <Transition>
     <div
       v-if="alertShow"
-      class="grid grid-cols-[6%_88%_6%] items-center shadow-sm"
+      class="grid lg:grid-cols-[6%_88%_6%] grid-cols-[15%_70%_15%] items-center shadow-sm"
       :class="{
         'bg-blue-100': type === 'success',
         'bg-red-100': type === 'error',
